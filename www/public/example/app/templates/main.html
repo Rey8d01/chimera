@@ -1,0 +1,32 @@
+<div class="blog-masthead">
+    <div class="container" ui-view="nav"></div>
+</div>
+
+<div class="container">
+
+    <div class="blog-header">
+        <h1 class="blog-title">{{blog.title}}</h1>
+
+        <p class="lead blog-description">The official example template of creating a blog with Bootstrap.</p>
+    </div>
+
+    <div class="row">
+        <div ui-view="content"></div>
+
+        <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
+            <div ui-view="quote"></div>
+            <div ui-view="archives"></div>
+            <div ui-view="links"></div>
+        </div>
+
+    </div>
+</div>
+
+<div class="blog-footer">
+    <p>Blog template built for <a href="http://getbootstrap.com">Bootstrap</a> by <a
+            href="https://twitter.com/mdo">@mdo</a>.</p>
+
+    <p>
+        <a href="#">Back to top</a>
+    </p>
+</div>

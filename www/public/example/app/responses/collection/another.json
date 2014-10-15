@@ -1,0 +1,27 @@
+{
+    "id": 1,
+    "title": "Другое",
+    "slug": "another",
+    "posts": [
+        {
+            "id": "2",
+            "idCategory" : "2",
+            "tags": [
+                {
+                    "idTag": 2,
+                    "slug": "coffee",
+                    "title": "Кофе"
+                }
+            ],
+            "title": "Заголовок статьи из другого раздела",
+            "meta": {
+                "dateCreate": "December 23, 2013",
+                "author": "Jacob",
+                "authorProfileUrl": "#"
+            },
+            "text": "<p>Статья о кофе.</p>"
+        }
+    ]
+}
+
+

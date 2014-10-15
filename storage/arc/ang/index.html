@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html ng-app="myapp">
+
+<head>
+    <title>AngularJS: UI-Router Abstract State Example</title>
+    <!-- Bootstrap CSS -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Angular -->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <!-- UI-Router -->
+    <script src="//angular-ui.github.io/ui-router/release/angular-ui-router.js"></script>
+
+    <!-- App Script -->
+    <script>
+      var myapp = angular.module('myapp', ["ui.router"])
+      myapp.config(function($stateProvider, $urlRouterProvider, $locationProvider){
+
+        $urlRouterProvider.when("", "/contacts/list");
+        $urlRouterProvider.when("/", "/contacts/list");
+
+        // For any unmatched url, send to /route1
+        $urlRouterProvider.otherwise("/contacts/list");
+
+        $stateProvider
+          .state('contacts', {
+              abstract: true,
+              url: '/contacts',
+              views: {
+                "main": {
+
+                  templateUrl: 'contacts.html',
+                  controller: function($scope){
+                      $scope.contacts = [{ id:0, name: "Alice" }, { id:1, name: "Bob" }];
+                  }
+                }
+              },
+              onEnter: function(){
+                console.log("enter contacts");
+              }
+
+          })
+          .state('contacts.list', {
+              url: '/list',
+              // loaded into ui-view of parent's template
+              views: {
+                "ccccc": {templateUrl: 'contacts.list.html'}
+              },
+              onEnter: function(){
+                console.log("enter contacts.list");
+              }
+          })
+          .state('contacts.detail', {
+              url: '/:id',
+              // loaded into ui-view of parent's template
+              views: {
+                "ccccc": {
+                  templateUrl: 'contacts.detail.html',
+                  controller: function($scope, $stateParams){
+                    $scope.person = $scope.contacts[$stateParams.id];
+                  }
+                }
+              },
+              onEnter: function(){
+                console.log("enter contacts.detail");
+              }
+          });
+
+console.log($locationProvider);
+          // $locationProvider.html5Mode(true);
+      })
+    </script>
+</head>
+
+<body class="container">
+  <p><i>Best viewed in pop-out mode to see location changes. Click blue button on the right.</i></p>
+
+  <div class="navbar">
+    <div class="navbar-inner">
+      <a class="brand" href="#">Abstract State Example</a>
+      <ul class="nav">
+        <li><a href="#/contacts/list">Go Back to List</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="span12">
+      <div class="well" ui-view="main"></div>
+    </div>
+  </div>
+
+
+</body>
+
+</html>

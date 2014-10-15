@@ -1,0 +1,29 @@
+{
+    "id": 1,
+    "title": "Образцы",
+    "slug": "sample",
+    "posts": [
+        {
+            "id": "3",
+            "idCategory" : "3",
+            "tags": [
+                {
+                    "idTag": 3,
+                    "slug": "tea",
+                    "title": "Чай"
+                }
+            ],
+            "title": "Заголовок про образцы чая",
+            "meta": {
+                "dateCreate": "January 1, 2014",
+                "author": "Mark",
+                "authorProfileUrl": "#"
+            },
+            "text": "<p>Чайный пост.</p>"
+        }
+    ]
+}
+
+
+
+

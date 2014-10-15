@@ -1,0 +1,25 @@
+{
+    "id": 1,
+    "title": "Фишки",
+    "slug": "feature",
+    "posts": [
+        {
+            "id": "1",
+            "idCategory" : "1",
+            "tags": [
+                {
+                    "idTag": 1,
+                    "slug": "cookies",
+                    "title": "печеньки"
+                }
+            ],
+            "title": "Заголовок статьи из категории с фишками",
+            "meta": {
+                "dateCreate": "December 14, 2013",
+                "author": "Chris",
+                "authorProfileUrl": "#"
+            },
+            "text": "<p>И в нем повествование о печеньках</p>"
+        }
+    ]
+}

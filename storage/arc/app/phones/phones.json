@@ -1,0 +1,23 @@
+[
+    {
+        "id": "nexus-s",
+        "name": "Nexus S",
+        "snippet": "Fast just got faster with Nexus S.",
+        "imageUrl": "storage/1-1.jpg",
+        "age": 0
+    },
+    {
+        "id": "motorola-xoom-wi-fi",
+        "name": "Motorola XOOM™ Wi-Fi",
+        "snippet": "The Next, Next Generation tablet.",
+        "imageUrl": "storage/2-1.jpg",
+        "age": 1
+    },
+    {
+        "id": "motorola-xoom",
+        "name": "MOTOROLA XOOM™",
+        "snippet": "The Next, Next Generation tablet.",
+        "imageUrl": "storage/3-1.jpg",
+        "age": 2
+    }
+]

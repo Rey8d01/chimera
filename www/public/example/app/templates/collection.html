@@ -1,0 +1,20 @@
+<div class="col-sm-8 blog-main">
+
+    <h3>{{collection.title}}</h3>
+
+    <div class="blog-post" ng-repeat="post in collection.posts">
+        <h4 class="blog-post-title">{{post.title}}</h4>
+
+        <p class="blog-post-meta">{{post.meta.dateCreate}} by <a href="{{post.meta.authorProfileUrl}}">{{post.meta.author}}</a></p>
+
+        <div ng-bind-html="post.text"></div>
+
+        <a ng-href="/post/{{post.id}}">{{blog.readMore}}</a>
+    </div>
+
+    <ul class="pager">
+        <li><a href="#">Previous</a></li>
+        <li><a href="#">Next</a></li>
+    </ul>
+
+</div>

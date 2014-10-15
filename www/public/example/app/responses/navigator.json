@@ -1,0 +1,27 @@
+[
+    {
+        "title": "Home",
+        "url": "/",
+        "active": "active"
+    },
+    {
+        "title": "New features",
+        "url": "/collection/feature",
+        "active": ""
+    },
+    {
+        "title": "Press",
+        "url": "/collection/another",
+        "active": ""
+    },
+    {
+        "title": "New hires",
+        "url": "/collection/sample",
+        "active": ""
+    },
+    {
+        "title": "About",
+        "url": "/post/1",
+        "active": ""
+    }
+]

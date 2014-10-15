@@ -1,0 +1,58 @@
+{
+    "id": 1,
+    "title": "Последние записи",
+    "slug": "latest",
+    "posts": [
+        {
+            "id": "1",
+            "tags": [
+                {
+                    "idTag": 1,
+                    "slug": "feature",
+                    "title": "Feature"
+                }
+            ],
+            "title": "New feature",
+            "meta": {
+                "dateCreate":"December 14, 2013",
+                "author":"Chris",
+                "authorProfileUrl":"#"
+            },
+            "text": "<p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>"
+        },
+        {
+            "id": "2",
+            "tags": [
+                {
+                    "idTag": 2,
+                    "slug": "another",
+                    "title": "Another"
+                }
+            ],
+            "title": "Another blog post",
+            "meta": {
+                "dateCreate": "December 23, 2013",
+                "author": "Jacob",
+                "authorProfileUrl": "#"
+            },
+            "text": "<p>Cum sociis natoque penatibus et magnis <a href=\"#\">dis parturient montes</a>, nascetur ridiculus mus. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Sed posuere consectetur est at lobortis. Cras mattis consectetur purus sit amet fermentum.</p>"
+        },
+        {
+            "id": "3",
+            "tags": [
+                {
+                    "idTag": 3,
+                    "slug": "sample",
+                    "title": "Sample"
+                }
+            ],
+            "title": "Sample blog post",
+            "meta": {
+                "dateCreate": "January 1, 2014",
+                "author": "Mark",
+                "authorProfileUrl": "#"
+            },
+            "text": "<p>This blog post shows a few different types of content that's supported and styled with Bootstrap. Basic typography, images, and code are all supported.</p>"
+        }
+    ]
+}

@@ -1,0 +1,27 @@
+<div>
+    <p>Total number of phones: {{phones.length}}</p>
+
+    <p>
+        Search <input type="text" class="form-control" placeholder="Text input" ng-model="query">
+        <span>Searching: {{query}}</span>
+    </p>
+
+    <p>
+        Sort by:
+        <select class="form-control" ng-model="orderProp">
+            <option value="name">Alphabetical</option>
+            <option value="age">Newest</option>
+        </select>
+    </p>
+
+    <p>{{hello}}</p>
+
+    <div class="row">
+        <div class="col-md-4" ng-repeat="phone in phones | filter:query | orderBy:orderProp">
+            <h2>{{phone.name}}</h2>
+            <a href="#/phones/{{phone.id}}" class="thumbnail"><img ng-src="{{phone.imageUrl}}"></a>
+            <p>{{phone.snippet}}</p>
+            <p><a class="btn btn-default" href="#/phones/{{phone.id}}" role="button">View details &raquo;</a></p>
+        </div>
+    </div>
+</div>
