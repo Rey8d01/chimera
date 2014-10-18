@@ -10,11 +10,11 @@ from system.utils.loader import Loader
 
 from tornado.concurrent import return_future
 from tornado import gen
+from system.configuration import Configuration
 
 
 class BaseModel(motor.MotorCollection, Loader):
-
-    _client = motor.MotorClient('localhost', 27017).blog
+    _client = None
 
     _collection = None
 
@@ -23,18 +23,29 @@ class BaseModel(motor.MotorCollection, Loader):
 
         :return:
         """
-        self._collection = self.__get_db(self.get_name_collection())
+        self.__get_db()
+        self._collection = self.__get_collection(self.get_name_collection())
 
         motor.MotorCollection.__init__(self, self._client, self.get_name_collection())
         Loader.__init__(self)
 
-    def __get_db(self, name):
+    def __get_db(self, db_name=None):
         """
-        Инициализация коллекции для определенной модели
-        :param name:
+
+        :param db_name:
         :return:
         """
-        return self._client[name]
+        if db_name is None:
+            db_name = Configuration.DB_NAME
+        self._client = motor.MotorClient(Configuration.DB_HOST, Configuration.DB_PORT)[db_name]
+
+    def __get_collection(self, collection_name):
+        """
+        Инициализация коллекции для определенной модели
+        :param collection_name:
+        :return:
+        """
+        return self._client[collection_name]
 
     def get_name_collection(self):
         """

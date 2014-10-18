@@ -7,7 +7,8 @@ import tornado.web
 import tornado.escape
 
 from system.utils.result_message import ResultMessage
-
+# from system.components.environment import Environment
+from system.configuration import Configuration
 
 class BaseHandler(tornado.web.RequestHandler):
     """
@@ -18,11 +19,13 @@ class BaseHandler(tornado.web.RequestHandler):
     web = None
     escape = None
     result = None
+    config = None
 
     def initialize(self):
         self.web = tornado.web
         self.escape = tornado.escape
         self.result = ResultMessage()
+        self.config = Configuration()
 
     def on_finish(self):
         """
@@ -47,7 +50,11 @@ class BaseHandler(tornado.web.RequestHandler):
             # kwargs['exc_info'][1]
             # kwargs['exc_info'][2]
             object_error = kwargs['exc_info'][1]
-            error_message = object_error.error_message
+
+            if hasattr(object_error, 'error_message'):
+                error_message = object_error.error_message
+            else:
+                error_message = object_error
 
         result = self.escape.json_encode({'error': error_message})
         self.write(result)

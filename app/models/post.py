@@ -8,9 +8,10 @@ class PostModel(BaseModel):
 
     def get_structure(self):
         return {
+            'id': None,
+            'slug': None,
+            'slug_collection': None,
             'title': None,
-            'id_collection': None,
-            'text': None,
             'tags': [
                 {
                     'slug': None,
@@ -22,6 +23,7 @@ class PostModel(BaseModel):
                 'date_update': None,
                 'author': None
             },
+            'text': None,
         }
 
     def get_name_collection(self):

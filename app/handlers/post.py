@@ -4,15 +4,27 @@ from system.base.handler import BaseHandler
 from models.post import PostModel
 import tornado.web
 from tornado import gen
+from system.utils.exceptions import ChimeraHTTPError
 
 
 class PostHandler(BaseHandler):
 
-    def get(self, id_post):
+    @tornado.web.asynchronous
+    @gen.coroutine
+    def get(self, slug):
+        """
 
+        :param slug:
+        :return:
+        """
         post = PostModel()
+        document_post = yield post.one({'slug': slug})
 
-        self.write(id_post)
+        if not document_post:
+            raise ChimeraHTTPError(404, error_message=u"Пост не найден")
+
+        post.fill_by_data(document_post)
+        self.write(post.get_json())
 
     @tornado.web.asynchronous
     @gen.coroutine

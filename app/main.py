@@ -16,13 +16,12 @@ define("port", default=8888, help="run on the given port", type=int)
 
 
 def main():
-
     tornado.options.parse_command_line()
 
     application = tornado.web.Application([
         (r"/", MainHandler),
         (r"/navigator/", NavigatorHandler),
-        (r"/post/(\d+)", PostHandler),
+        (r"/post/([\w-]+)", PostHandler),
         (r"/collection/", CollectionHandler),
         (r"/collection/([\w-]+)", CollectionHandler),
     ])

@@ -2,25 +2,40 @@ from system.base.handler import BaseHandler
 from models.navigator import NavigatorModel
 import tornado.web
 from tornado import gen
+from system.utils.exceptions import ChimeraHTTPError
+import json
 
 
 class NavigatorHandler(BaseHandler):
+
+    @tornado.web.asynchronous
+    @gen.coroutine
     def get(self):
+        """
 
-        # print(self.request.body_arguments)
+        :return:
+        """
         navigator = NavigatorModel()
-        cursor = navigator.find().sort([('_id', -1)])
-        while (yield cursor.fetch_next):
-            message = cursor.next_object()
-            self.write('<li>%s</li>' % message['msg'])
+        documents_navigator = navigator.find().sort([('_id', -1)])
 
-        # Iteration complete
-        self.write('</ul>')
-        self.finish()
+        if not documents_navigator:
+            raise ChimeraHTTPError(404, error_message=u"Навигационные элементы отсутствуют")
+
+        list_items_navigator = []
+        while (yield documents_navigator.fetch_next):
+            document_navigator = documents_navigator.next_object()
+            navigator.fill_by_data(document_navigator)
+            list_items_navigator.append(navigator.get_data())
+
+        self.write(json.dumps(list_items_navigator))
 
     @tornado.web.asynchronous
     @gen.coroutine
     def post(self):
+        """
+
+        :return:
+        """
         navigator = NavigatorModel().load_post(self)
         result = yield navigator.save()
         self.write(result)

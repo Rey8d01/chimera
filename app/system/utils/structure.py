@@ -64,17 +64,17 @@ class Structure():
         :return:
         """
         # print(self.get_structure())
-        for i, k in self._ripper(self._data, setter=method):
+        for i in self._ripper(self._data, setter=method):
             pass
 
     def fill_by_data(self, data):
         """
-
+        Заполнит объект входящими данными по структуре
         :param data:
         :return:
         """
         for key, value in data.items():
-            for i, k in self._ripper(self._data, set_key=key, set_value=value):
+            for item_ripper in self._ripper(self._data, set_key=key, set_value=value):
                 pass
         return self
 
@@ -93,16 +93,22 @@ class Structure():
         for key, value in structure.items():
             # print(key)
             # print(value)
+
             if isinstance(value, dict):
-                for i in self._ripper(value, key + '.', set_key, set_value, setter):
-                    yield prefix + i, 6
+                # Проход по словарям
+                for item_ripper in self._ripper(value, key + '.', set_key, set_value, setter):
+                    yield prefix + item_ripper
+
             elif isinstance(value, list):
-                j = 0
+                # Проход по плоским спискам - элементы которых скорее всего содержат словари
+                number_item = 0
                 for item in value:
-                    for i in self._ripper(item, key + '[' + str(j) + '].', set_key, set_value, setter):
-                        yield prefix + i, 5
-                    j = j + 1
+                    for item_ripper in self._ripper(item, key + '[' + str(number_item) + '].', set_key, set_value, setter):
+                        yield prefix + item_ripper
+                    number_item = number_item + 1
+
             else:
+                # Просты элементы подвергаются обработке (сравнению, изменению)
                 current_key = prefix + key
 
                 if setter is not None:
@@ -117,9 +123,9 @@ class Structure():
                         if set_value is not None:
                             structure[key] = set_value
                         else:
-                            yield value, 9
+                            yield value
 
-                yield current_key, 7
+                yield current_key
 
     def get_json(self):
         return json.dumps(self._data)
