@@ -27,7 +27,7 @@ chimera.system.posts.controller("PostController", ["$scope", "$state", "loaderPo
 // Сервис
 chimera.system.posts.factory("loaderPosts", ["$resource",
     function ($resource) {
-        return $resource("/example/app/responses/:collection/:id.json", {collection: "collection", id: "latest"}, {
+        return $resource("/system/responses/:collection/:id.json", {collection: "collection", id: "latest"}, {
             getPostsInCollection: {method: "GET"},
             getPost: {method: "GET", params: {collection: "posts"}}
         });

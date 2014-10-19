@@ -15,7 +15,7 @@ chimera.system.navigator.controller('NavigatorController', ['$scope', 'Navigator
 // Сервис
 chimera.system.navigator.factory('NavigatorData', ['$resource',
     function ($resource) {
-        return $resource('/example/app/responses/:navigator.json', {navigator: 'navigator'}, {
+        return $resource('/system/responses/:navigator.json', {navigator: 'navigator'}, {
             getNavigatorData: {method: 'GET', isArray: true}
         });
     }]);

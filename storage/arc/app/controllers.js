@@ -25,7 +25,7 @@ phonecatControllers.controller('PhoneDetailCtrl', ['$scope', '$routeParams', 'Ph
 //
 //phonecatApp.controller('PhoneListCtrl', function($scope, $http) {
 //
-//    $http.get('app/phones.json').success(function(data) {
+//    $http.get('system/phones.json').success(function(data) {
 //        $scope.phones = data;
 //    });
 //
