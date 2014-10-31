@@ -1,25 +1,23 @@
 {
-    "id": 1,
     "title": "Образцы",
     "slug": "sample",
     "posts": [
         {
-            "id": "3",
-            "idCategory" : "3",
+            "slug": "sample-blog-post",
+            "slug_collection": "sample",
+            "title": "Sample blog post",
             "tags": [
                 {
-                    "idTag": 3,
-                    "slug": "tea",
-                    "title": "Чай"
+                    "slug": "sample",
+                    "title": "Sample"
                 }
             ],
-            "title": "Заголовок про образцы чая",
             "meta": {
-                "dateCreate": "January 1, 2014",
-                "author": "Mark",
-                "authorProfileUrl": "#"
+                "date_create": "January 1, 2014",
+                "date_update": "January 1, 2013",
+                "author": "Mark"
             },
-            "text": "<p>Чайный пост.</p>"
+            "text": "<p>This blog post shows a few different types of content that's supported and styled with Bootstrap. Basic typography, images, and code are all supported.</p>"
         }
     ]
 }

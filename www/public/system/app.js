@@ -23,16 +23,16 @@ chimera.system.main = angular.module('main', [
 
 chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
     function ($stateProvider, $urlRouterProvider, $locationProvider) {
-        // без #
-//        $locationProvider.html5Mode(true);
+        // без # в урле
+        $locationProvider.html5Mode(true);
 
         // Роутинг
         // Главная
         $urlRouterProvider.when('/home', '/main/home/');
         // Посты
-        $urlRouterProvider.when('/post/:id', '/main/post/:id');
+        $urlRouterProvider.when('/post/:slug_post', '/main/post/:slug_post');
         // Коллекции
-        $urlRouterProvider.when('/:collection/:id', '/main/:collection/:id');
+        $urlRouterProvider.when('/:collection/:slug_collection', '/main/:collection/:slug_collection');
 
         // Любые неопределенные url перенаправлять на /
         $urlRouterProvider.otherwise("/main/home/");
@@ -66,7 +66,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
                 }
             })
             .state("main.post", {
-                url: "/post/:id",
+                url: "/post/:slug_post",
                 views: {
                     "content": {
                         templateUrl: "/system/templates/post.html",
@@ -75,7 +75,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
                 }
             })
             .state("main.collection", {
-                url: "/collection/:slug",
+                url: "/collection/:slug_collection",
                 views: {
                     "content": {
                         templateUrl: "/system/templates/collection.html",
@@ -91,9 +91,9 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
 chimera.system.main.controller('MainController', ['$scope',
     function ($scope) {
         $scope.main = {
-            'title': "The Rey's-ysetm main blog",
-            "readMore": "ReadMe...",
-            'foo': 'BAAAAAR'
+            "title": "The Rey's-ysetm main blog",
+            "read_more": "ReadMe...",
+            "foo": 'BAAAAAR'
         };
     }
 ]);

@@ -1,25 +1,23 @@
 {
-    "id": 1,
     "title": "Фишки",
     "slug": "feature",
     "posts": [
         {
-            "id": "1",
-            "idCategory" : "1",
+            "slug": "new-feature",
+            "slug_collection": "feature",
+            "title": "New feature",
             "tags": [
                 {
-                    "idTag": 1,
-                    "slug": "cookies",
-                    "title": "печеньки"
+                    "slug": "feature",
+                    "title": "Feature"
                 }
             ],
-            "title": "Заголовок статьи из категории с фишками",
             "meta": {
-                "dateCreate": "December 14, 2013",
-                "author": "Chris",
-                "authorProfileUrl": "#"
+                "date_create": "December 14, 2013",
+                "date_update": "December 14, 2013",
+                "author": "Chris"
             },
-            "text": "<p>И в нем повествование о печеньках</p>"
+            "text": "<p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aenean lacinia bibendum nulla sed consectetur.</p>"
         }
     ]
 }

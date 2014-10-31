@@ -4,53 +4,53 @@
     "slug": "latest",
     "posts": [
         {
-            "id": "1",
+            "slug": "another-blog-post",
+            "slug_collection": "another",
+            "title": "Another blog post",
             "tags": [
                 {
-                    "idTag": 1,
-                    "slug": "feature",
-                    "title": "Feature"
-                }
-            ],
-            "title": "New feature",
-            "meta": {
-                "dateCreate":"December 14, 2013",
-                "author":"Chris",
-                "authorProfileUrl":"#"
-            },
-            "text": "<p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>"
-        },
-        {
-            "id": "2",
-            "tags": [
-                {
-                    "idTag": 2,
                     "slug": "another",
                     "title": "Another"
                 }
             ],
-            "title": "Another blog post",
             "meta": {
-                "dateCreate": "December 23, 2013",
-                "author": "Jacob",
-                "authorProfileUrl": "#"
+                "date_create": "December 23, 2013",
+                "date_update": "December 23, 2013",
+                "author": "Jacob"
             },
-            "text": "<p>Cum sociis natoque penatibus et magnis <a href=\"#\">dis parturient montes</a>, nascetur ridiculus mus. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Sed posuere consectetur est at lobortis. Cras mattis consectetur purus sit amet fermentum.</p>"
+            "text": "<p>Cum sociis natoque penatibus et magnis <a href=\"#\">dis parturient montes</a>.</p>"
         },
         {
-            "id": "3",
+            "slug": "new-feature",
+            "slug_collection": "feature",
+            "title": "New feature",
             "tags": [
                 {
-                    "idTag": 3,
+                    "slug": "feature",
+                    "title": "Feature"
+                }
+            ],
+            "meta": {
+                "date_create": "December 14, 2013",
+                "date_update": "December 14, 2013",
+                "author": "Chris"
+            },
+            "text": "<p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aenean lacinia bibendum nulla sed consectetur.</p>"
+        },
+        {
+            "slug": "sample-blog-post",
+            "slug_collection": "sample",
+            "title": "Sample blog post",
+            "tags": [
+                {
                     "slug": "sample",
                     "title": "Sample"
                 }
             ],
-            "title": "Sample blog post",
             "meta": {
-                "dateCreate": "January 1, 2014",
-                "author": "Mark",
-                "authorProfileUrl": "#"
+                "date_create": "January 1, 2014",
+                "date_update": "January 1, 2013",
+                "author": "Mark"
             },
             "text": "<p>This blog post shows a few different types of content that's supported and styled with Bootstrap. Basic typography, images, and code are all supported.</p>"
         }

@@ -1,25 +1,23 @@
 {
-    "id": 1,
     "title": "Другое",
     "slug": "another",
     "posts": [
         {
-            "id": "2",
-            "idCategory" : "2",
+            "slug": "another-blog-post",
+            "slug_collection": "another",
+            "title": "Another blog post",
             "tags": [
                 {
-                    "idTag": 2,
-                    "slug": "coffee",
-                    "title": "Кофе"
+                    "slug": "another",
+                    "title": "Another"
                 }
             ],
-            "title": "Заголовок статьи из другого раздела",
             "meta": {
-                "dateCreate": "December 23, 2013",
-                "author": "Jacob",
-                "authorProfileUrl": "#"
+                "date_create": "December 23, 2013",
+                "date_update": "December 23, 2013",
+                "author": "Jacob"
             },
-            "text": "<p>Статья о кофе.</p>"
+            "text": "<p>Cum sociis natoque penatibus et magnis <a href=\"#\">dis parturient montes</a>.</p>"
         }
     ]
 }
