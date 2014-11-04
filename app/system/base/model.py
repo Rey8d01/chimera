@@ -14,6 +14,9 @@ from system.configuration import Configuration
 
 
 class BaseModel(motor.MotorCollection, Loader):
+    """
+    :todo использовать стандартные декораторы для свойств @property
+    """
     _client = None
 
     _collection = None

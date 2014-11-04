@@ -14,7 +14,7 @@ from handlers.post import PostHandler
 
 define("port", default=8888, help="run on the given port", type=int)
 
-
+# см пример по блогу - для оформления стартующего аппа
 def main():
     tornado.options.parse_command_line()
 
@@ -24,6 +24,10 @@ def main():
         (r"/post/([\w-]+)", PostHandler),
         (r"/collection/", CollectionHandler),
         (r"/collection/([\w-]+)", CollectionHandler),
+        # Neuron
+        (r"/cinema/process/([\w-]+)", CollectionHandler),
+        (r"/cinema/harvest/([\w-]+)", CollectionHandler),
+        (r"/cinema/result/([\w-]+)", CollectionHandler),
     ])
 
     http_server = tornado.httpserver.HTTPServer(application)

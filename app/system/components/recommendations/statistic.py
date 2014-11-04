@@ -149,6 +149,19 @@ class Statistic(Similarity):
 
     @property
     def similar_items(self):
+
+        # try:
+        #     f = open('item_sim.data')
+        #     j = json.JSONDecoder()
+        #     item_sim = j.decode(f.read())
+        #     print('old calculate_similar_items')
+        # except Exception as e:
+        #     f = open('item_sim.data', 'w')
+        #     item_sim = Statistic.calculate_similar_items(critics)
+        #     j = json.JSONEncoder()
+        #     f.write(j.encode(item_sim))
+        #     print('new calculate_similar_items')
+
         if hasattr(self, '_similar_items') is False:
             self.similar_items = self.calculate_similar_items()
         return self._similar_items
@@ -223,7 +236,7 @@ class Statistic(Similarity):
         return scores[0:n]
 
 
-class Recomendations(Statistic):
+class Recommendations(Statistic):
 
     def get_recommendations(self, person, n=5, source=Statistic.TYPE_SOURCE, similarity=None):
         """
@@ -269,15 +282,22 @@ class Recomendations(Statistic):
         # Вернуть отсортированный список
         rankings.sort()
         rankings.reverse()
+
         return rankings[0:n]
 
     def get_recommendations_transforms(self, person, n=5, similarity=None):
-        self.get_recommendations(person, n, source=Statistic.TYPE_TRANSFORMS, similarity=similarity)
+        return self.get_recommendations(person, n, Statistic.TYPE_TRANSFORMS, similarity)
 
     # def get_recommendations_items(self, source, item_match, user):
     def get_recommendations_items(self, user):
         """
         Выдача рекомендаций на основе сравнения образцов
+
+        Для выработки рекомендации по образцам набор данных можно строить заранее и использовать его при необходимости,
+        в отличие от способа фильтрации по пользователям, который нужно пересчитывать постоянно при рекомендации.
+        В больших массивах данных вкусы людей будут перекрываться очень слабо,
+        поэтому предпочтительно сравнивать схожесть образцов
+        (которая существенно меняется реже при больших объемах) и выдавать рекомендацию основываясь на ней
 
         :param user:
         :return:
@@ -373,28 +393,9 @@ critics = {
 test1 = 'Toby'
 test2 = 'Gene Seymour'
 
-# movies = Statistic.calculate_source_transforms(critics)
 movie = 'You, Me, and Dupree'
 
-my_stat = Recomendations(critics)
-
-# Для выработки рекомендации по образцам набор данных можно строить заранее и использовать его при необходимости,
-# в отличие от способа фильтрации по пользователям, который нужно пересчитывать постоянно при рекомендации.
-# В больших массивах данных вкусы людей будут перекрываться очень слабо,
-# поэтому предпочтительно сравнивать схожесть образцов
-# (которая существенно меняется реже при больших объемах) и выдавать рекомендацию основываясь на ней
-
-# try:
-#     f = open('item_sim.data')
-#     j = json.JSONDecoder()
-#     item_sim = j.decode(f.read())
-#     print('old calculate_similar_items')
-# except Exception as e:
-#     f = open('item_sim.data', 'w')
-#     item_sim = Statistic.calculate_similar_items(critics)
-#     j = json.JSONEncoder()
-#     f.write(j.encode(item_sim))
-#     print('new calculate_similar_items')
+my_stat = Recommendations(critics)
 
 print(
     'Люди:', test1, 'и', test2, '\n',
@@ -408,6 +409,7 @@ print(
     '\n',
     'Фильмы похожие на 			', movie, my_stat.top_matches(movie, 3, my_stat.TYPE_TRANSFORMS, my_stat.pearson), '\n',
     'Кто еще не смотрел фильм	', movie, my_stat.get_recommendations_transforms(movie), '\n',
+    'AAAAAAAAAA	', my_stat.transforms, '\n',
     '\n',
     'Похожие фильмы	\n			', my_stat.similar_items, '\n',
     'Выработка рекомендации	по образцам	', my_stat.get_recommendations_items(test1), '\n',
