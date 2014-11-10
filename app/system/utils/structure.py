@@ -55,7 +55,7 @@ class Structure():
 
         :return:
         """
-        return self._data
+        return self._data.copy()
 
     def fill_by_method(self, method):
         """

@@ -10,6 +10,7 @@ from system.utils.result_message import ResultMessage
 # from system.components.environment import Environment
 from system.configuration import Configuration
 
+
 class BaseHandler(tornado.web.RequestHandler):
     """
     BaseHandler - основной перекрытый обработчик от которого наследовать все остальные
@@ -58,3 +59,12 @@ class BaseHandler(tornado.web.RequestHandler):
 
         result = self.escape.json_encode({'error': error_message})
         self.write(result)
+
+    def set_default_headers(self):
+        """
+        Перекрытый метод установки ряда стандартных заголовков
+
+        :return:
+        """
+        self.set_header('Content-Type', 'application/json; charset="utf-8"')
+        self.set_header('Access-Control-Allow-Origin', '*')
