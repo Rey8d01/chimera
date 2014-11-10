@@ -10,6 +10,11 @@
  * @type {{system: {}, helpers: {}}}
  */
 var chimera = {
+    config: {
+        baseUrl: "http://api.chimera.rey/",
+        // baseUrl: "/system/responses/",
+        test: ""
+    },
     system: {},
     helpers: {}
 };
@@ -17,7 +22,7 @@ var chimera = {
 chimera.system.main = angular.module('main', [
     'ui.router',
     'navigator',
-    'posts'
+    'collection'
 //    'blogServices'
 ]);
 
@@ -61,7 +66,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
                 views: {
                     "content": {
                         templateUrl: "/system/templates/collection.html",
-                        controller: "LatestPostsController"
+                        controller: "CollectionLatestController",
                     }
                 }
             })
@@ -70,7 +75,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
                 views: {
                     "content": {
                         templateUrl: "/system/templates/post.html",
-                        controller: 'PostController'
+                        controller: 'CollectionPostController'
                     }
                 }
             })
@@ -79,7 +84,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
                 views: {
                     "content": {
                         templateUrl: "/system/templates/collection.html",
-                        controller: "PostsInCollectionController"
+                        controller: "CollectionPostsController"
                     }
                 }
             })
