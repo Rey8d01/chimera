@@ -24,7 +24,8 @@ class PostHandler(BaseHandler):
             raise ChimeraHTTPError(404, error_message=u"Пост не найден")
 
         post.fill_by_data(document_post)
-        self.write(post.get_json())
+        self.result.update_content(post.get_data())
+        self.write(self.result.get_message())
 
     @tornado.web.asynchronous
     @gen.coroutine

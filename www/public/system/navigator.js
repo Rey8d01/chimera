@@ -6,16 +6,16 @@
 chimera.system.navigator = angular.module('navigator', ['ngResource']);
 
 // Контроллер
-chimera.system.navigator.controller('NavigatorController', ['$scope', 'NavigatorData',
-    function ($scope, NavigatorData) {
-        $scope.navigatorData = NavigatorData.getNavigatorData();
+chimera.system.navigator.controller('NavigatorController', ['$scope', 'navigatorLoader',
+    function ($scope, navigatorLoader) {
+        navigatorLoader.get({}, function(response) {
+        	$scope.navigator = response.content.navigator
+        });
     }
 ]);
 
 // Сервис
-chimera.system.navigator.factory('NavigatorData', ['$resource',
+chimera.system.navigator.factory('navigatorLoader', ['$resource',
     function ($resource) {
-        return $resource(chimera.config.baseUrl + ":navigator", {navigator: 'navigator'}, {
-            getNavigatorData: {method: 'GET', isArray: true}
-        });
+        return $resource(chimera.config.baseUrl + "navigator");
     }]);

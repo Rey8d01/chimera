@@ -1,4 +1,5 @@
 import tornado.escape
+import json
 
 
 class ResultMessage():
@@ -16,7 +17,7 @@ class ResultMessage():
 
         self._message = {
             "error": None,
-            "content": None,
+            "content": {},
             "maintenance": {
                 "redirect": None,
                 "refresh": None,
@@ -26,7 +27,18 @@ class ResultMessage():
 
     def __str__(self):
         """
-        При обращении к резульирующему ответу как к строке - ответ преобразуется в json
+        При обращении к результирующему ответу как к строке - ответ преобразуется в json
         :return:
         """
         return tornado.escape.json_encode(self._message)
+
+    def update_content(self, data):
+        """
+        Обновление словаря с результирующими данными
+        :param data:
+        :return:
+        """
+        self._message["content"].update(data)
+
+    def get_message(self):
+        return self._message

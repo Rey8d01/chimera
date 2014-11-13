@@ -3,7 +3,6 @@ from models.navigator import NavigatorModel
 import tornado.web
 from tornado import gen
 from system.utils.exceptions import ChimeraHTTPError
-import json
 
 
 class NavigatorHandler(BaseHandler):
@@ -26,7 +25,9 @@ class NavigatorHandler(BaseHandler):
             document_navigator = documents_navigator.next_object()
             navigator.fill_by_data(document_navigator)
             list_items_navigator.append(navigator.get_data())
-        self.write(json.dumps(list_items_navigator))
+        self.result.update_content({"navigator": list_items_navigator})
+
+        self.write(self.result.get_message())
 
     @tornado.web.asynchronous
     @gen.coroutine

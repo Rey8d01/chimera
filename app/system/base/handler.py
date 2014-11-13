@@ -31,11 +31,11 @@ class BaseHandler(tornado.web.RequestHandler):
     def on_finish(self):
         """
         loging
+        Срабатывает автоматически для гетов
+        Не может редактировать содержимое выводимого результата (не может ничего отправлять пользователю в принципе)
         :return:
         """
         pass
-        # print(2)
-        # print(dir(self))
 
     def write_error(self, status_code, **kwargs):
         """
