@@ -3,41 +3,33 @@
  * Отображает посты в виде миниатюр и целиком загруженных материалов.
  */
 
-chimera.system.collection = angular.module("collection", ["ngResource", "ngSanitize"]);
+chimera.system.post = angular.module("post", ["ngResource", "ngSanitize"]);
 
 // Контроллеры
-chimera.system.collection.controller("CollectionLatestController", ["$scope", "collectionLoader",
-    function ($scope, collectionLoader) {
+chimera.system.post.controller("PostLatestController", ["$scope", "postLoader",
+    function ($scope, postLoader) {
 
-        // $scope.collection.title = "Последние новости";
-        $scope.collection = collectionLoader.get({}, function() {
-            $scope.collection.progress = false;
+        // $scope.post.title = "Последние новости";
+        $scope.post = postLoader.get({}, function() {
+            $scope.post.progress = false;
         }, function(response) {
             console.log(response.data);
-            $scope.collection.progress = false;
-            $scope.collection = response.data;
+            $scope.post.progress = false;
+            $scope.post = response.data;
         });
     }
 ]);
 
-chimera.system.collection.controller("CollectionPostsController", ["$scope", "$state", "collectionLoader",
-    function ($scope, $state, collectionLoader) {
-        $scope.collection = collectionLoader.get({slug: $state.params.slug_collection});
-    }
-]);
-
-chimera.system.collection.controller("CollectionPostController", ["$scope", "$state", "collectionLoader",
-    // Для этого может  стоит сделать отдельный модуль
-    function ($scope, $state, collectionLoader) {
-        $scope.post = collectionLoader.getPost({slug: $state.params.slug_post});
+chimera.system.post.controller("PostController", ["$scope", "$state", "postLoader",
+    function ($scope, $state, postLoader) {
+        $scope.post = postLoader.getPost({slug: $state.params.slug_post});
     }
 ]);
 
 // Сервис
-chimera.system.collection.factory("collectionLoader", ["$resource",
+chimera.system.post.factory("postLoader", ["$resource",
     function ($resource) {
-        return $resource(chimera.config.baseUrl + ":source/:slug", {source: "collection", slug: "latest"}, {
-            getPostsInCollection: {method: "GET"},
-            getPost: {method: "GET", params: {source: "post"}}
+        return $resource(chimera.config.baseUrl + ":source/:slug", {source: "post", slug: "latest"}, {
+            // getPost: {method: "GET", params: {source: "post"}}
         });
     }]);

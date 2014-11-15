@@ -8,7 +8,8 @@ class NavigatorModel(BaseModel):
     def get_structure(self):
         return {
             'title': None,
-            'url': None
+            'url': None,
+            'sort': None
         }
 
     def get_name_collection(self):

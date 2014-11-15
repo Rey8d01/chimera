@@ -23,15 +23,13 @@ class CollectionHandler(BaseHandler):
         """
         if slug in self.special_slugs:
             # Для особых слагов генерируем свой набор данных
-            # special_function = getattr(self, slug)
-            # special_function()
             post = PostModel()
-            documents_post = post.find().sort([('_id', -1)])
+            documents_post = post.find().sort([('meta.date_create', -1)])
 
             list_items_post = []
             while (yield documents_post.fetch_next):
                 document_post = documents_post.next_object()
-                post.fill_by_data(document_post)
+                post.fill_from_document(document_post)
                 list_items_post.append(post.get_data())
 
             self.result.update_content({
@@ -46,7 +44,7 @@ class CollectionHandler(BaseHandler):
             if not document_collection:
                 raise ChimeraHTTPError(404, error_message=u"Коллекция не найдена")
 
-            collection.fill_by_data(document_collection)
+            collection.fill_from_document(document_collection)
             self.result.update_content(collection.get_data())
 
         self.write(self.result.get_message())

@@ -63,20 +63,36 @@ class Structure():
         :param method:
         :return:
         """
-        # print(self.get_structure())
         for i in self._ripper(self._data, setter=method):
             pass
 
-    def fill_by_data(self, data):
+    def fill_from_document(self, model):
         """
         Заполнит объект входящими данными по структуре
         :param data:
         :return:
         """
-        for key, value in data.items():
-            for item_ripper in self._ripper(self._data, set_key=key, set_value=value):
-                pass
-        return self
+        self._data = self._filter(model)
+
+    def _filter(self, data):
+        """
+        Фильтр приходящих данных от запрещенных полей
+        например те которые начинаются с _
+        :param data:
+        :return:
+        """
+        if isinstance(data, dict):
+            new_dict = {}
+            for key in data:
+                if key[0] != "_":
+                    new_dict[key] = self._filter(data[key])
+            return new_dict
+        elif isinstance(data, list):
+            new_list = []
+            for value in data:
+                new_list.append(self._filter(value))
+            return new_list
+        return data
 
     def _ripper(self, structure, prefix='', set_key=None, set_value=None, setter=None):
         """

@@ -23,7 +23,7 @@ class PostHandler(BaseHandler):
         if not document_post:
             raise ChimeraHTTPError(404, error_message=u"Пост не найден")
 
-        post.fill_by_data(document_post)
+        post.fill_from_document(document_post)
         self.result.update_content(post.get_data())
         self.write(self.result.get_message())
 
