@@ -10,7 +10,8 @@ chimera.system.post.controller("PostLatestController", ["$scope", "postLoader",
     function ($scope, postLoader) {
 
         // $scope.post.title = "Последние новости";
-        $scope.post = postLoader.get({}, function() {
+        postLoader.get({}, function() {
+            $scope.post = response.content
             $scope.post.progress = false;
         }, function(response) {
             console.log(response.data);
@@ -22,14 +23,14 @@ chimera.system.post.controller("PostLatestController", ["$scope", "postLoader",
 
 chimera.system.post.controller("PostController", ["$scope", "$state", "postLoader",
     function ($scope, $state, postLoader) {
-        $scope.post = postLoader.getPost({slug: $state.params.slug_post});
+        $scope.post = postLoader.get({slug: $state.params.slug_post});
     }
 ]);
 
 // Сервис
 chimera.system.post.factory("postLoader", ["$resource",
     function ($resource) {
-        return $resource(chimera.config.baseUrl + ":source/:slug", {source: "post", slug: "latest"}, {
+        return $resource(chimera.config.baseUrl + "post/:slug", {slug: "latest"}, {
             // getPost: {method: "GET", params: {source: "post"}}
         });
     }]);
