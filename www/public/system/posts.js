@@ -16,7 +16,7 @@ chimera.system.post.controller("PostLatestController", ["$scope", "postLoader",
         }, function(response) {
             console.log(response.data);
             $scope.post.progress = false;
-            $scope.post = response.data;
+            $scope.post = response.content;
         });
     }
 ]);

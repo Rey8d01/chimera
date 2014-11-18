@@ -23,8 +23,11 @@
     </div>
 
     <ul class="pager">
-        <li><a ng-href="/post/{{post.slug}}">Previous</a></li>
-        <li><a ng-href="/post/{{post.slug}}">Next</a></li>
+        <li ng-if="collection.page_data.first"><a ng-href="/collection/{{collection.slug}}/{{collection.first}}">First</a></li>
+        <li ng-if="collection.page_data.previous"><a ng-href="/collection/{{collection.slug}}/{{page.previous}}">Previous</a></li>
+        <li ng-repeat="page in collection.pages"><a ng-href="/collection/{{collection.slug}}/{{page.page.number}}">{{page.page.number}}</a></li>
+        <li ng-if="collection.page_data.next"><a ng-href="/collection/{{collection.slug}}/{{page.page.next}}">Next</a></li>
+        <li ng-if="collection.page_data.last"><a ng-href="/collection/{{collection.last}}/9999">Last</a></li>
     </ul>
 
 </div>
