@@ -22,8 +22,8 @@ var chimera = {
 chimera.system.main = angular.module('main', [
     'ui.router',
     'navigator',
-    'collection'
-//    'post'
+    'collection',
+    'post'
 ]);
 
 chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
@@ -37,7 +37,8 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
         // Посты
         $urlRouterProvider.when('/post/:slug_post', '/main/post/:slug_post');
         // Коллекции
-        $urlRouterProvider.when('/:collection/:slug_collection', '/main/:collection/:slug_collection');
+        $urlRouterProvider.when('/collection/:slug_collection', '/main/collection/:slug_collection');
+        $urlRouterProvider.when('/collection/:slug_collection/:page', '/main/collection/:slug_collection/:page');
 
         // Любые неопределенные url перенаправлять на /
         $urlRouterProvider.otherwise("/main/home/");
@@ -61,17 +62,30 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
                     "links@main": {templateUrl: "/system/templates/links.html"}
                 }
             })
+            // .state("main.home", {
+            //     url: "/home/",
+            //     views: {
+            //         "content": {
+            //             templateUrl: "/system/templates/collection.html",
+            //             controller: "CollectionLatestController",
+            //         }
+            //     }
+            // })
             .state("main.home", {
                 url: "/home/",
                 views: {
                     "content": {
                         templateUrl: "/system/templates/collection.html",
-                        controller: "CollectionLatestController",
+                        controller: "MainContentController",
                     }
                 }
             })
             .state("main.collection", {
-                url: "/collection/{slug_collection:([\w-]+)}/{page:([\d+])}",
+                url: "/collection/:slug_collection/:page",// {slug_collection:([\w-]+)}/{page:([\d+])}
+                params: {
+                    "slug_collection": 'latest',
+                    "page": '1'
+                },
                 views: {
                     "content": {
                         templateUrl: "/system/templates/collection.html",
@@ -84,7 +98,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
                 views: {
                     "content": {
                         templateUrl: "/system/templates/post.html",
-                        controller: 'CollectionPostController'
+                        controller: 'PostController'
                     }
                 }
             })
@@ -142,7 +156,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
     }
 ]);
 
-chimera.system.main.controller('MainController', ['$scope',
+chimera.system.main.controller("MainController", ["$scope",
     function ($scope) {
         $scope.main = {
             "title": "The Rey's-ysetm main blog",
@@ -153,3 +167,22 @@ chimera.system.main.controller('MainController', ['$scope',
 ]);
 
 
+chimera.system.main.controller("MainContentController", ["$scope", "$state", "collectionLoader",
+    function ($scope, $state, collectionLoader) {
+
+        if(!$state.params.slug_collection) {
+            $state.params.slug_collection = "latest";
+        }            
+
+        console.log($state.params);
+        console.log($state);
+
+
+        collectionLoader.get({}, function(response) {
+            $scope.collection = response.content
+            $scope.collection.progress = false;
+        }, function(response) {
+            $scope.collection.progress = false;
+        });
+    }
+]);

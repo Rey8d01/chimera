@@ -36,8 +36,8 @@ def main():
         (r"/index", MainHandler),
         (r"/navigator", NavigatorHandler),
         (r"/post/([\w-]+)", PostHandler),
-        (r"/collection", CollectionHandler),
-        (r"/collection/([\w-]+)", CollectionHandler),
+        # (r"/collection", CollectionHandler),
+        (r"/collection/([\w-]+)/([\d+]+)", CollectionHandler),
         # Neuron
         # (r"/cinema/process/([\w-]+)", CollectionHandler),
         # (r"/cinema/harvest/([\w-]+)", CollectionHandler),

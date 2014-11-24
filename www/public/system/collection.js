@@ -6,24 +6,11 @@
 chimera.system.collection = angular.module("collection", ["ngResource", "ngSanitize"]);
 
 // Контроллеры
-chimera.system.collection.controller("CollectionLatestController", ["$scope", "$state", "collectionLoader",
-    function ($scope, $state, collectionLoader) {
-
-        console.log($state.slug_collection, $state.page)
-        // $scope.collection.title = "Последние новости";
-        collectionLoader.get({}, function(response) {
-            $scope.collection = response.content
-            $scope.collection.progress = false;
-        }, function(response) {
-            // $scope.collection = response.content;
-            $scope.collection.progress = false;
-        });
-    }
-]);
-
 chimera.system.collection.controller("CollectionPostsController", ["$scope", "$state", "collectionLoader",
     function ($scope, $state, collectionLoader) {
-        collectionLoader.get({slug: $state.params.slug_collection}, function(response) {
+        
+        console.log($state.params.slug_collection, $state.params.page);
+        collectionLoader.get({slug: $state.params.slug_collection, page: $state.params.page}, function(response) {
             $scope.collection = response.content
             $scope.collection.progress = false;
         });

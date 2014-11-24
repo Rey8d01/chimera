@@ -22,6 +22,8 @@
         <a ng-href="/post/{{post.slug}}">{{main.read_more}}</a>
     </div>
 
+    <div class="alert alert-info" role="alert" ng-if="!collection.posts.length">Коллекция пуста</div>
+
     <ul class="pager">
         <li ng-if="collection.page_data.first"><a ng-href="/collection/{{collection.slug}}/{{collection.first}}">First</a></li>
         <li ng-if="collection.page_data.previous"><a ng-href="/collection/{{collection.slug}}/{{page.previous}}">Previous</a></li>

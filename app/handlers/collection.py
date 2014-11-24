@@ -15,7 +15,7 @@ class CollectionHandler(BaseHandler):
 
     @tornado.web.asynchronous
     @gen.coroutine
-    def get(self, slug):
+    def get(self, slug, page):
         """
 
         :param slug:
@@ -24,13 +24,19 @@ class CollectionHandler(BaseHandler):
         if slug in self.special_slugs:
             # Для особых слагов генерируем свой набор данных
             post = PostModel()
-            documents_post = post.find().sort([('meta.date_create', -1)])
+            documents_post = post.find().sort([('meta.date_create', -1)]).limit(1)
 
             list_items_post = []
             while (yield documents_post.fetch_next):
                 document_post = documents_post.next_object()
                 post.fill_from_document(document_post)
                 list_items_post.append(post.get_data())
+                print(1)
+
+            count_documents_post = yield post.find().count()
+
+            # создать пагинацию
+            page_data = count_documents_post;
 
             self.result.update_content({
                 "title": u"Последние новости",
@@ -46,6 +52,19 @@ class CollectionHandler(BaseHandler):
 
             collection.fill_from_document(document_collection)
             self.result.update_content(collection.get_data())
+
+            post = PostModel()
+            documents_post = post.find({'slug_collection': slug}).sort([('meta.date_create', -1)]).limit(1)
+
+
+            list_items_post = []
+            if documents_post:
+                while (yield documents_post.fetch_next):
+                    document_post = documents_post.next_object()
+                    post.fill_from_document(document_post)
+                    list_items_post.append(post.get_data())
+
+            self.result.update_content({"posts": list_items_post})
 
         self.write(self.result.get_message())
 
