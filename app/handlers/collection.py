@@ -6,6 +6,7 @@ from models.post import PostModel
 import tornado.web
 from tornado import gen
 from system.utils.exceptions import ChimeraHTTPError
+from system.components.pagination import Pagination
 
 
 class CollectionHandler(BaseHandler):
@@ -24,24 +25,27 @@ class CollectionHandler(BaseHandler):
         if slug in self.special_slugs:
             # Для особых слагов генерируем свой набор данных
             post = PostModel()
-            documents_post = post.find().sort([('meta.date_create', -1)]).limit(1)
+            documents_post = post.find().sort([('meta.dateCreate', -1)]).limit(1)
 
             list_items_post = []
             while (yield documents_post.fetch_next):
                 document_post = documents_post.next_object()
                 post.fill_from_document(document_post)
                 list_items_post.append(post.get_data())
-                print(1)
 
             count_documents_post = yield post.find().count()
 
-            # создать пагинацию
-            page_data = count_documents_post;
+            # pagination = Pagination(count_documents_post, page)
+            pagination = Pagination(110, 9)
 
             self.result.update_content({
                 "title": u"Последние новости",
-                "slug": "/latest",
-                "posts": list_items_post
+                "slug": "latest",
+                "posts": list_items_post,
+                "pageData": {
+                    "currentPage": pagination.current_page,
+                    "pages": pagination.get_pages()
+                }
             })
         else:
             collection = CollectionModel()
@@ -54,8 +58,7 @@ class CollectionHandler(BaseHandler):
             self.result.update_content(collection.get_data())
 
             post = PostModel()
-            documents_post = post.find({'slug_collection': slug}).sort([('meta.date_create', -1)]).limit(1)
-
+            documents_post = post.find({'slugCollection': slug}).sort([('meta.dateCreate', -1)]).limit(1)
 
             list_items_post = []
             if documents_post:

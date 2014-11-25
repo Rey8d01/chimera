@@ -10,8 +10,8 @@ chimera.system.collection.controller("CollectionPostsController", ["$scope", "$s
     function ($scope, $state, collectionLoader) {
         
         console.log($state.params.slug_collection, $state.params.page);
-        collectionLoader.get({slug: $state.params.slug_collection, page: $state.params.page}, function(response) {
-            $scope.collection = response.content
+        collectionLoader.get({slug: $state.params.slugCollection, page: $state.params.page}, function(response) {
+            $scope.collection = response.content;
             $scope.collection.progress = false;
         });
     }
@@ -30,7 +30,7 @@ chimera.system.collection.controller("CollectionPostsController", ["$scope", "$s
 // Сервис
 chimera.system.collection.factory("collectionLoader", ["$resource",
     function ($resource) {
-        return $resource(chimera.config.baseUrl + "collection/:slug/:page", {slug: "latest", page: "1"}, {
+        return $resource(chimera.config.baseUrl + "/collection/:slug/:page", {slug: "latest", page: "1"}, {
             // getPost: {method: "GET", params: {source: "post"}}
         });
     }]);

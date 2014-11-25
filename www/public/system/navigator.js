@@ -17,5 +17,5 @@ chimera.system.navigator.controller('NavigatorController', ['$scope', 'navigator
 // Сервис
 chimera.system.navigator.factory('navigatorLoader', ['$resource',
     function ($resource) {
-        return $resource(chimera.config.baseUrl + "navigator");
+        return $resource(chimera.config.baseUrl + "/navigator");
     }]);

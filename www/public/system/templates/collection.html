@@ -2,6 +2,18 @@
 
     <h3>{{collection.title}}</h3>
 
+    <div class="container well">
+        <h1>Page: <input type="number" ng-model="pagination.cur" min="1" max="{{pagination.total}}" class="span1" /></h1>
+        <ui-pagination cur="pagination.cur" total="pagination.total" display="9"></ui-pagination>
+        <ui-pagination cur="pagination.cur" total="pagination.total" display="{{pagination.display}}"></ui-pagination>
+        <div style="text-align: center;">Display: <input type="number" ng-model="pagination.display" min="1" max="{{pagination.total}}" class="span1" /></div>
+    </div>
+
+
+    <p>
+        <span ng-repeat="page in collection.pages"><a ng-href="/collection/{{collection.slug}}/{{page}}">{{page}}</a></span>
+    </p>
+
     <div ng-if="collection.progress">
         <div class="progress">
           <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
@@ -15,21 +27,14 @@
     <div class="blog-post" ng-repeat="post in collection.posts">
         <h4 class="blog-post-title">{{post.title}}</h4>
 
-        <p class="blog-post-meta">{{post.meta.date_create}} by <a href="#">{{post.meta.author}}</a></p>
+        <p class="blog-post-meta">{{post.meta.dateCreate}} by <a href="#">{{post.meta.author}}</a></p>
 
         <div ng-bind-html="post.text"></div>
 
-        <a ng-href="/post/{{post.slug}}">{{main.read_more}}</a>
+        <a ng-href="/post/{{post.slug}}">{{main.readMore}}</a>
     </div>
 
     <div class="alert alert-info" role="alert" ng-if="!collection.posts.length">Коллекция пуста</div>
 
-    <ul class="pager">
-        <li ng-if="collection.page_data.first"><a ng-href="/collection/{{collection.slug}}/{{collection.first}}">First</a></li>
-        <li ng-if="collection.page_data.previous"><a ng-href="/collection/{{collection.slug}}/{{page.previous}}">Previous</a></li>
-        <li ng-repeat="page in collection.pages"><a ng-href="/collection/{{collection.slug}}/{{page.page.number}}">{{page.page.number}}</a></li>
-        <li ng-if="collection.page_data.next"><a ng-href="/collection/{{collection.slug}}/{{page.page.next}}">Next</a></li>
-        <li ng-if="collection.page_data.last"><a ng-href="/collection/{{collection.last}}/9999">Last</a></li>
-    </ul>
 
 </div>

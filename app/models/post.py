@@ -10,7 +10,7 @@ class PostModel(BaseModel):
         return {
             'id': None,
             'slug': None,
-            'slug_collection': None,
+            'slugCollection': None,
             'title': None,
             'tags': [
                 {
@@ -19,8 +19,8 @@ class PostModel(BaseModel):
                 }
             ],
             'meta': {
-                'date_create': None,
-                'date_update': None,
+                'dateCreate': None,
+                'dateUpdate': None,
                 'author': None
             },
             'text': None,
@@ -30,6 +30,4 @@ class PostModel(BaseModel):
         return 'post'
 
     def references(self):
-        return {
-            'id_collection': models.collection.CollectionModel
-        }
+        return {}
