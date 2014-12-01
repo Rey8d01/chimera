@@ -10,6 +10,8 @@ from system.utils.result_message import ResultMessage
 # from system.components.environment import Environment
 from system.configuration import Configuration
 
+from time import sleep
+
 
 class BaseHandler(tornado.web.RequestHandler):
     """
@@ -27,6 +29,8 @@ class BaseHandler(tornado.web.RequestHandler):
         self.escape = tornado.escape
         self.result = ResultMessage()
         self.config = Configuration()
+
+        sleep(1)
 
     def on_finish(self):
         """

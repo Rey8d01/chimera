@@ -8,10 +8,9 @@ chimera.system.collection = angular.module("collection", ["ngResource", "ngSanit
 // Контроллеры
 chimera.system.collection.controller("CollectionPostsController", ["$scope", "$state", "collectionLoader",
     function ($scope, $state, collectionLoader) {
-        
-        console.log($state.params.slug_collection, $state.params.page);
         collectionLoader.get({slug: $state.params.slugCollection, page: $state.params.page}, function(response) {
             $scope.collection = response.content;
+            $scope.paging = response.content.pageData;
             $scope.collection.progress = false;
         });
     }

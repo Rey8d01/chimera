@@ -8,22 +8,24 @@ chimera.helpers = {
         while (new Date() < ms) {
         }
     },
-    "pagination": function(pageData) {
-        listPages = [];
-        lastPage = 0;
-        
-    	for (page in pageData.pages) {
-            if (pageData.pages[page] != lastPage + 1) {
-            	listPages.push("...");
-            } 
-            if (pageData.pages[page] == pageData.currentPage) {
-            	listPages.push("["+pageData.pages[page]+"]");
-            } else {
-            	listPages.push(String(pageData.pages[page]));
-            }
-            lastPage = pageData.pages[page];
-    	}
+    "pagination": function(currentPage) {
+    	console.log(currentPage);
 
-        return listPages
+     //    listPages = [];
+     //    lastPage = 0;
+        
+    	// for (page in pageData.pages) {
+     //        if (pageData.pages[page] != lastPage + 1) {
+     //        	listPages.push("...");
+     //        } 
+     //        if (pageData.pages[page] == pageData.currentPage) {
+     //        	listPages.push("["+pageData.pages[page]+"]");
+     //        } else {
+     //        	listPages.push(String(pageData.pages[page]));
+     //        }
+     //        lastPage = pageData.pages[page];
+    	// }
+
+     //    return listPages;
     }
 };

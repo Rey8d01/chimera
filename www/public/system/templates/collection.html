@@ -2,14 +2,11 @@
 
     <h3>{{collection.title}}</h3>
 
-    <div class="container well">
-        <h1>Page: <input type="number" ng-model="pagination.cur" min="1" max="{{pagination.total}}" class="span1" /></h1>
-        <ui-pagination cur="pagination.cur" total="pagination.total" display="9"></ui-pagination>
-        <ui-pagination cur="pagination.cur" total="pagination.total" display="{{pagination.display}}"></ui-pagination>
-        <div style="text-align: center;">Display: <input type="number" ng-model="pagination.display" min="1" max="{{pagination.total}}" class="span1" /></div>
-    </div>
+
+    <div paging page="paging.currentPage" page-size="paging.pageSize" total="paging.total" ui-sref="main.collection({slugCollection: collection.slug, page: paging.currentPage})"></div>  
 
 
+<hr>
     <p>
         <span ng-repeat="page in collection.pages"><a ng-href="/collection/{{collection.slug}}/{{page}}">{{page}}</a></span>
     </p>

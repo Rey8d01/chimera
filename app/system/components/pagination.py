@@ -4,19 +4,17 @@ __author__ = 'rey'
 class Pagination():
     current_page = 0
     count_all_items = 0
-    count_items_on_page = 3
+    count_items_on_page = 1
     count_pages = 0
-    pages = []
 
     def __init__(self, count_all_items, current_page, count_items_on_page=None):
-        self.count_all_items = count_all_items
-        self.current_page = current_page
+        self.count_all_items = int(count_all_items)
+        self.current_page = int(current_page)
 
         if count_items_on_page is not None:
-            self.count_items_on_page = count_items_on_page
+            self.count_items_on_page = int(count_items_on_page)
 
         self.count_pages = self.calculate_count_pages()
-        self.pages = self.get_pages()
 
     def calculate_count_pages(self):
         """
@@ -50,6 +48,10 @@ class Pagination():
     @property
     def end_item(self):
         return int(self.count_items_on_page * self.current_page)
+
+    @property
+    def skip_items(self):
+        return int(self.start_item - 1)
 
 
 #
