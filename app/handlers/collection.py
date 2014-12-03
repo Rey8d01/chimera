@@ -38,8 +38,10 @@ class CollectionHandler(BaseHandler):
                 document_post = documents_post.next_object()
 
                 pattern = re.compile(r'<.*?>')
-                text = pattern.sub('', document_post["text"])
-                print(text)
+                clear_text = pattern.sub('', document_post["text"])
+                clipped_text = re.split('\s+', clear_text)[:10]
+
+                document_post["text"] = " ".join(clipped_text)
 
                 post.fill_from_document(document_post)
                 list_items_post.append(post.get_data())
