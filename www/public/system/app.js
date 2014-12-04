@@ -37,8 +37,8 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
         // Посты
         $urlRouterProvider.when('/post/:slugPost', '/main/post/:slugPost');
         // Коллекции
-        $urlRouterProvider.when('/collection/:slugCollection', '/main/collection/:slug_collection');
-        $urlRouterProvider.when('/collection/:slugCollection/:page', '/main/collection/:slug_collection/:page');
+        $urlRouterProvider.when('/collection/:slugCollection', '/main/collection/:slugCollection');
+        $urlRouterProvider.when('/collection/:slugCollection/:page', '/main/collection/:slugCollection/:page');
 
         // Любые неопределенные url перенаправлять на /
         $urlRouterProvider.otherwise("/main/home/");
@@ -81,7 +81,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
                 }
             })
             .state("main.collection", {
-                url: "/collection/:slugCollection/:page",// {slug_collection:([\w-]+)}/{page:([\d+])}
+                url: "/collection/:slugCollection/:page",// {slugCollection:([\w-]+)}/{page:([\d+])}
                 params: {
                     "slugCollection": 'latest',
                     "page": '1'
@@ -132,7 +132,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
             //     }
             // })
             // .state("main.collection", {
-            //     url: "/collection/{slug_collection:([\w-]+)}/{page:([\d+])}",
+            //     url: "/collection/{slugCollection:([\w-]+)}/{page:([\d+])}",
             //     views: {
             //         "content": {
             //             templateUrl: "/system/templates/collection.html",
