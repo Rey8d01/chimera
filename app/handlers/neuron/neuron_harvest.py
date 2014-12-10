@@ -1,11 +1,10 @@
 __author__ = 'rey'
 
-from system.base.handler import BaseHandler
+from system.handlers import BaseHandler
 # from models.collection import CollectionModel
 
 import tornado.web
 from tornado import gen
-from system.utils.exceptions import ChimeraHTTPError
 
 
 class NeuronHarvestHandler(BaseHandler):

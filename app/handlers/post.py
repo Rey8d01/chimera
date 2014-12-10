@@ -1,13 +1,14 @@
 __author__ = 'rey'
 
-import system.base.handler
-from models.post import PostModel
 import tornado.web
 from tornado import gen
+
+import system.handlers
+from models.post import PostModel
 from system.utils.exceptions import ChimeraHTTPError
 
 
-class PostHandler(system.base.handler.MainHandler):
+class PostHandler(system.handlers.MainHandler):
 
     @tornado.web.asynchronous
     @gen.coroutine

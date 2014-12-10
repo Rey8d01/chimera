@@ -1,17 +1,18 @@
 __author__ = 'rey'
 
-import system.base.handler
-from models.collection import CollectionModel
-from models.post import PostModel
+import re
+
 import tornado.web
 from tornado import gen
+
+import system.handlers
+from models.catalog import CatalogModel
+from models.post import PostModel
 from system.utils.exceptions import ChimeraHTTPError
 from system.components.pagination import Pagination
 
-import re
 
-
-class CollectionHandler(system.base.handler.MainHandler):
+class CatalogHandler(system.handlers.MainHandler):
     special_aliases = [
         'latest'
     ]
@@ -57,7 +58,7 @@ class CollectionHandler(system.base.handler.MainHandler):
                 }
             })
         else:
-            collection = CollectionModel()
+            collection = CatalogModel()
             document_collection = yield collection.one({"alias": alias})
 
             if not document_collection:
@@ -96,6 +97,6 @@ class CollectionHandler(system.base.handler.MainHandler):
 
         :return:
         """
-        collection = CollectionModel().load_post(self)
+        collection = CatalogModel().load_post(self)
         result = yield collection.save()
         self.write(result)

@@ -1,9 +1,9 @@
 __author__ = 'rey'
 
-from system.base.model import BaseModel
+from system.model import BaseModel
 
 
-class CollectionModel(BaseModel):
+class CatalogModel(BaseModel):
 
     def get_structure(self):
         return {
@@ -12,4 +12,4 @@ class CollectionModel(BaseModel):
         }
 
     def get_name_collection(self):
-        return 'collection'
+        return 'catalog'

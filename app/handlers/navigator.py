@@ -1,11 +1,12 @@
-import system.base.handler
-from models.navigator import NavigatorModel
 import tornado.web
 from tornado import gen
+
+import system.handlers
+from models.navigator import NavigatorModel
 from system.utils.exceptions import ChimeraHTTPError
 
 
-class NavigatorHandler(system.base.handler.MainHandler):
+class NavigatorHandler(system.handlers.MainHandler):
 
     @tornado.web.asynchronous
     @gen.coroutine

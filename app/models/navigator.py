@@ -1,6 +1,6 @@
 __author__ = 'rey'
 
-from system.base.model import BaseModel
+from system.model import BaseModel
 
 
 class NavigatorModel(BaseModel):

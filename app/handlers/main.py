@@ -1,8 +1,8 @@
 __author__ = 'rey'
 
-from system.base.handler import BaseHandler
-
 import json
+
+from system.handlers import BaseHandler
 
 
 class MainerHandler(BaseHandler):

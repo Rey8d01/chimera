@@ -33,13 +33,6 @@ class BaseHandler(tornado.web.RequestHandler):
         self.result = ResultMessage()
         self.config = Configuration()
 
-        # if self.current_user is None:
-        # print("user is None")
-        #     # self.send_error(401)
-        #     self.write(self.result.get_message())
-        #     self.finish()
-        # raise ChimeraHTTPError(401, error_message=u"Неизвестный пользователь")
-
         # sleep(1)
 
     def on_finish(self):
@@ -116,6 +109,10 @@ class IntroduceHandler(BaseHandler):
     Класс через который будет проводится представление пользователя системе, прошедшего клиентскую авторизацию
     """
     pass
+
+    def post(self):
+        print(self.request)
+        pass
 
 
 class AuthHandler(BaseHandler):

@@ -1,7 +1,6 @@
 __author__ = 'rey'
 
-from system.base.model import BaseModel
-import re
+from system.model import BaseModel
 
 
 class PostModel(BaseModel):
