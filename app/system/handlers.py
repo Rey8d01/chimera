@@ -9,7 +9,7 @@ import tornado.auth
 
 from system.utils.result_message import ResultMessage
 # from system.components.environment import Environment
-from system.configuration import Configuration
+# from system.configuration import Configuration
 from system.utils.exceptions import ChimeraHTTPError
 from tornado import gen
 
@@ -25,13 +25,13 @@ class BaseHandler(tornado.web.RequestHandler):
     web = None
     escape = None
     result = None
-    config = None
+    # config = None
 
     def initialize(self):
         self.web = tornado.web
         self.escape = tornado.escape
         self.result = ResultMessage()
-        self.config = Configuration()
+        # self.config = Configuration()
 
         # sleep(1)
 
@@ -111,7 +111,11 @@ class IntroduceHandler(BaseHandler):
     pass
 
     def post(self):
-        print(self.request)
+        print(self.request.arguments)
+        # oauthio_provider_twitter
+        print(self.request.cookies)
+        # self.set_cookie()
+
         pass
 
 

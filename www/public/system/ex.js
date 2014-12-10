@@ -5,13 +5,17 @@ angular.module('twitterApp.services', []).factory('twitterService', function($q)
     var authorizationResult = false;
 
     // Представление серверу
-    var sendInfoToServer = function() {
+    var introduceToServer = function(full) {
+        if (full == undefined) {
+            full = false
+        }
+
         promise = authorizationResult.me().done(function(data) {
+            console.log(data);
             $.post(chimera.config.baseUrl+"/introduce", {
                 type: "twitter", 
-                oauth_token: authorizationResult.oauth_token,
-                oauth_token_secret: authorizationResult.oauth_token_secret,
-                data: data
+                id: data.id,
+                info: full ? info : null
             });
         });
 
@@ -24,7 +28,7 @@ angular.module('twitterApp.services', []).factory('twitterService', function($q)
             //try to create an authorization result when the page loads, this means a returning user won't have to click the twitter button again
             authorizationResult = OAuth.create('twitter');
             if (authorizationResult) {
-                sendInfoToServer();
+                introduceToServer();
             };
         },
         isReady: function() {
@@ -39,13 +43,7 @@ angular.module('twitterApp.services', []).factory('twitterService', function($q)
                     deferred.resolve();
 
                     // Introduce
-                    sendInfoToServer();
-
-                    // $.post(chimera.config.baseUrl+"/auth", {
-                    //     type: "twitter", 
-                    //     oauth_token: result.oauth_token,
-                    //     oauth_token_secret: result.oauth_token_secret
-                    // });
+                    introduceToServer(true);
                 } else {
                     console.log('error');
                     //do something if there's an error

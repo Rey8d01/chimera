@@ -7,6 +7,10 @@ import handlers.navigator
 import handlers.catalog
 import handlers.post
 
+DB_HOST = "localhost"
+DB_PORT = 27017
+DB_NAME = "chimera"
+
 handlers = [
     # (r"/auth", system.handlers.AuthHandler),
     (r"/introduce", system.handlers.IntroduceHandler),
@@ -35,9 +39,3 @@ settings = {
         "secret": "_ITW0YImv3pfxjJN1UVYoPdU"
     }
 }
-
-
-class Configuration():
-    DB_HOST = "localhost"
-    DB_PORT = 27017
-    DB_NAME = "chimera"

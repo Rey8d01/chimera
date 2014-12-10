@@ -10,7 +10,7 @@ from system.utils.loader import Loader
 
 from tornado.concurrent import return_future
 from tornado import gen
-from system.configuration import Configuration
+import system.configuration
 
 
 class BaseModel(motor.MotorCollection, Loader):
@@ -39,8 +39,8 @@ class BaseModel(motor.MotorCollection, Loader):
         :return:
         """
         if db_name is None:
-            db_name = Configuration.DB_NAME
-        self._client = motor.MotorClient(Configuration.DB_HOST, Configuration.DB_PORT)[db_name]
+            db_name = system.configuration.DB_NAME
+        self._client = motor.MotorClient(system.configuration.DB_HOST, system.configuration.DB_PORT)[db_name]
 
     def __get_collection(self, collection_name):
         """
