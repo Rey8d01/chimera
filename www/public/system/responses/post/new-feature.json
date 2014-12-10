@@ -1,10 +1,10 @@
 {
-    "slug": "new-feature",
-    "slug_collection": "feature",
+    "alias": "new-feature",
+    "alias_collection": "feature",
     "title": "New feature",
     "tags": [
         {
-            "slug": "feature",
+            "alias": "feature",
             "title": "Feature"
         }
     ],

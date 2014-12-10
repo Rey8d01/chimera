@@ -5,10 +5,13 @@ __author__ = 'rey'
 
 import tornado.web
 import tornado.escape
+import tornado.auth
 
 from system.utils.result_message import ResultMessage
 # from system.components.environment import Environment
 from system.configuration import Configuration
+from system.utils.exceptions import ChimeraHTTPError
+from tornado import gen
 
 from time import sleep
 
@@ -30,7 +33,14 @@ class BaseHandler(tornado.web.RequestHandler):
         self.result = ResultMessage()
         self.config = Configuration()
 
-        sleep(1)
+        # if self.current_user is None:
+        # print("user is None")
+        #     # self.send_error(401)
+        #     self.write(self.result.get_message())
+        #     self.finish()
+        # raise ChimeraHTTPError(401, error_message=u"Неизвестный пользователь")
+
+        # sleep(1)
 
     def on_finish(self):
         """
@@ -41,7 +51,7 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         pass
 
-    def write_error(self, status_code, **kwargs):
+    def write_error(self, status_code=404, **kwargs):
         """
         Перехват ошибок возникающих через исключения
 
@@ -72,3 +82,53 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         self.set_header('Content-Type', 'application/json; charset="utf-8"')
         self.set_header('Access-Control-Allow-Origin', '*')
+
+    def get_current_user(self):
+        """
+        Перекрытый метод определения пользователя
+        :return:
+        """
+        return self.get_secure_cookie("chimera_user")
+        # user_json = self.get_secure_cookie("chimera_user")
+        # if not user_json:
+        #     return None
+        # return tornado.escape.json_decode(user_json)
+
+
+class MainHandler(BaseHandler):
+    """
+    Главный обработчик наследники которого требуют авторизацию со стороны пользователя для своих действий
+    """
+
+    @tornado.web.authenticated
+    def prepare(self):
+        """
+        Перекрытие срабатывает перед вызовом всяческих гетов и постов
+        :return:
+        """
+
+        if self.current_user is None:
+            raise ChimeraHTTPError(401, error_message=u"Неизвестный пользователь")
+
+
+class IntroduceHandler(BaseHandler):
+    """
+    Класс через который будет проводится представление пользователя системе, прошедшего клиентскую авторизацию
+    """
+    pass
+
+
+class AuthHandler(BaseHandler):
+    """
+    Класс прямой авторизации - использовать в предполагаемом сценарии серверной авторизации
+    В данном варианте не используется
+    """
+    pass
+
+
+class LogoutHandler(BaseHandler):
+    """
+    Класс для выхода из системы - очистка кук
+    """
+    def get(self):
+        self.clear_cookie("chimera_user")

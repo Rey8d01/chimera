@@ -19,15 +19,51 @@ var chimera = {
     helpers: {}
 };
 
+
 chimera.system.main = angular.module('main', [
     'ui.router',
+    
+    'twitterApp.services',
+
     'navigator',
     'collection',
     'post'
 ]);
 
-chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
-    function ($stateProvider, $urlRouterProvider, $locationProvider) {
+
+
+
+chimera.system.main.factory('sessionRecoverer', ['$q', '$location', function($q, $location) {
+    var sessionRecoverer = {
+        'responseError': function(rejection) {
+            console.log(4444);
+            // console.log($q);
+            // console.log($location);
+
+            $location.path('/login/');
+            $location.replace();
+
+            // console.log($urlRouterProvider);
+            // что-то делает при ошибке
+            // if (canRecover(rejection)) {
+            //     return responseOrNewPromise
+            // }
+            return $q.reject(rejection);
+        },
+    };
+    return sessionRecoverer;
+}]);
+
+
+
+
+
+
+
+chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider',
+    function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
+        $httpProvider.interceptors.push('sessionRecoverer');
+
         // без # в урле
         $locationProvider.html5Mode(true);
 
@@ -35,13 +71,13 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
         // Главная
         $urlRouterProvider.when('/home', '/main/home/');
         // Посты
-        $urlRouterProvider.when('/post/:slugPost', '/main/post/:slugPost');
+        $urlRouterProvider.when('/post/:aliasPost', '/main/post/:aliasPost');
         // Коллекции
-        $urlRouterProvider.when('/collection/:slugCollection', '/main/collection/:slugCollection');
-        $urlRouterProvider.when('/collection/:slugCollection/:page', '/main/collection/:slugCollection/:page');
+        $urlRouterProvider.when('/collection/:aliasCollection', '/main/collection/:aliasCollection');
+        $urlRouterProvider.when('/collection/:aliasCollection/:page', '/main/collection/:aliasCollection/:page');
 
         // Любые неопределенные url перенаправлять на /
-        $urlRouterProvider.otherwise("/main/home/");
+        $urlRouterProvider.otherwise("/login/");
         // Теперь определим состояния
         $stateProvider
             .state("main", {
@@ -71,6 +107,15 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
             //         }
             //     }
             // })
+            .state("login", {
+                url: "/login/",
+                views: {
+                    "": {
+                        templateUrl: "/system/templates/login.html",
+                        controller: "MainLoginController",
+                    }
+                }
+            })
             .state("main.home", {
                 url: "/home/",
                 views: {
@@ -81,9 +126,9 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
                 }
             })
             .state("main.collection", {
-                url: "/collection/:slugCollection/:page",// {slugCollection:([\w-]+)}/{page:([\d+])}
+                url: "/collection/:aliasCollection/:page",// {aliasCollection:([\w-]+)}/{page:([\d+])}
                 params: {
-                    "slugCollection": 'latest',
+                    "aliasCollection": 'latest',
                     "page": '1'
                 },
                 views: {
@@ -94,7 +139,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
                 }
             })
             .state("main.post", {
-                url: "/post/:slugPost", // {slug_post:([\w-]+)}
+                url: "/post/:aliasPost", // {alias_post:([\w-]+)}
                 views: {
                     "content": {
                         templateUrl: "/system/templates/post.html",
@@ -132,7 +177,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
             //     }
             // })
             // .state("main.collection", {
-            //     url: "/collection/{slugCollection:([\w-]+)}/{page:([\d+])}",
+            //     url: "/collection/{aliasCollection:([\w-]+)}/{page:([\d+])}",
             //     views: {
             //         "content": {
             //             templateUrl: "/system/templates/collection.html",
@@ -141,7 +186,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
             //     }
             // })
             // .state("main.post", {
-            //     url: "/post/:slug_post", // {slug_post:([\w-]+)}
+            //     url: "/post/:alias_post", // {alias_post:([\w-]+)}
             //     views: {
             //         "content": {
             //             templateUrl: "/system/templates/post.html",
@@ -166,12 +211,18 @@ chimera.system.main.controller("MainController", ["$scope",
     }
 ]);
 
+chimera.system.main.controller("MainLoginController", ["$scope",
+    function ($scope) {
+        console.log('login');
+    }
+]);
+
 
 chimera.system.main.controller("MainContentController", ["$scope", "$state", "collectionLoader",
     function ($scope, $state, collectionLoader) {
 
-        if(!$state.params.slugCollection) {
-            $state.params.slugCollection = "latest";
+        if(!$state.params.aliasCollection) {
+            $state.params.aliasCollection = "latest";
         }            
 
         collectionLoader.get({}, function(response) {

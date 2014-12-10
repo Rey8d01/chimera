@@ -1,10 +1,10 @@
 {
-    "slug": "sample-blog-post",
-    "slug_collection": "sample",
+    "alias": "sample-blog-post",
+    "alias_collection": "sample",
     "title": "Sample blog post",
     "tags": [
         {
-            "slug": "sample",
+            "alias": "sample",
             "title": "Sample"
         }
     ],

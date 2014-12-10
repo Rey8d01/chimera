@@ -5,6 +5,6 @@ from system.base.handler import BaseHandler
 import json
 
 
-class MainHandler(BaseHandler):
+class MainerHandler(BaseHandler):
     def get(self):
         self.write(json.dumps({"hello": "world"}))

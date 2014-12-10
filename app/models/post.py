@@ -9,12 +9,12 @@ class PostModel(BaseModel):
     def get_structure(self):
         return {
             'id': None,
-            'slug': None,
-            'slugCollection': None,
+            'alias': None,
+            'aliasCollection': None,
             'title': None,
             'tags': [
                 {
-                    'slug': None,
+                    'alias': None,
                     'title': None
                 }
             ],

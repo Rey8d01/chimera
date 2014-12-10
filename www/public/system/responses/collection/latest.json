@@ -1,15 +1,15 @@
 {
     "id": 1,
     "title": "Последние записи",
-    "slug": "latest",
+    "alias": "latest",
     "posts": [
         {
-            "slug": "another-blog-post",
-            "slug_collection": "another",
+            "alias": "another-blog-post",
+            "alias_collection": "another",
             "title": "Another blog post",
             "tags": [
                 {
-                    "slug": "another",
+                    "alias": "another",
                     "title": "Another"
                 }
             ],
@@ -21,12 +21,12 @@
             "text": "<p>Cum sociis natoque penatibus et magnis <a href=\"#\">dis parturient montes</a>.</p>"
         },
         {
-            "slug": "new-feature",
-            "slug_collection": "feature",
+            "alias": "new-feature",
+            "alias_collection": "feature",
             "title": "New feature",
             "tags": [
                 {
-                    "slug": "feature",
+                    "alias": "feature",
                     "title": "Feature"
                 }
             ],
@@ -38,12 +38,12 @@
             "text": "<p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aenean lacinia bibendum nulla sed consectetur.</p>"
         },
         {
-            "slug": "sample-blog-post",
-            "slug_collection": "sample",
+            "alias": "sample-blog-post",
+            "alias_collection": "sample",
             "title": "Sample blog post",
             "tags": [
                 {
-                    "slug": "sample",
+                    "alias": "sample",
                     "title": "Sample"
                 }
             ],

@@ -1,6 +1,6 @@
 __author__ = 'rey'
 
-from system.base.handler import BaseHandler
+import system.base.handler
 from models.collection import CollectionModel
 from models.post import PostModel
 import tornado.web
@@ -11,22 +11,22 @@ from system.components.pagination import Pagination
 import re
 
 
-class CollectionHandler(BaseHandler):
-    special_slugs = [
+class CollectionHandler(system.base.handler.MainHandler):
+    special_aliases = [
         'latest'
     ]
 
     @tornado.web.asynchronous
     @gen.coroutine
-    def get(self, slug, currentPage):
+    def get(self, alias, currentPage):
         """
 
-        :param slug:
+        :param alias:
         :return:
         """
         post = PostModel()
 
-        if slug in self.special_slugs:
+        if alias in self.special_aliases:
             # Для особых слагов генерируем свой набор данных
             count_documents_post = yield post.find().count()
             pagination = Pagination(count_documents_post, currentPage, 2)
@@ -48,7 +48,7 @@ class CollectionHandler(BaseHandler):
 
             self.result.update_content({
                 "title": u"Последние новости",
-                "slug": "latest",
+                "alias": "latest",
                 "posts": list_items_post,
                 "pageData": {
                     "currentPage": pagination.current_page,
@@ -58,7 +58,7 @@ class CollectionHandler(BaseHandler):
             })
         else:
             collection = CollectionModel()
-            document_collection = yield collection.one({"slug": slug})
+            document_collection = yield collection.one({"alias": alias})
 
             if not document_collection:
                 raise ChimeraHTTPError(404, error_message=u"Коллекция не найдена")
@@ -66,10 +66,10 @@ class CollectionHandler(BaseHandler):
             collection.fill_from_document(document_collection)
             self.result.update_content(collection.get_data())
 
-            count_documents_post = yield post.find({"slugCollection": slug}).count()
+            count_documents_post = yield post.find({"aliasCollection": alias}).count()
             pagination = Pagination(count_documents_post, currentPage, 2)
 
-            documents_post = post.find({"slugCollection": slug}).sort([("meta.dateCreate", -1)]).limit(pagination.count_items_on_page).skip(pagination.skip_items)
+            documents_post = post.find({"aliasCollection": alias}).sort([("meta.dateCreate", -1)]).limit(pagination.count_items_on_page).skip(pagination.skip_items)
 
             list_items_post = []
             if documents_post:

@@ -3,12 +3,12 @@
     <h3>{{collection.title}}</h3>
 
 
-    <div paging page="paging.currentPage" page-size="paging.pageSize" total="paging.total" ui-sref="main.collection({slugCollection: collection.slug, page: paging.currentPage})"></div>  
+    <div paging page="paging.currentPage" page-size="paging.pageSize" total="paging.total" ui-sref="main.collection({aliasCollection: collection.alias, page: paging.currentPage})"></div>
 
 
 <hr>
     <p>
-        <span ng-repeat="page in collection.pages"><a ng-href="/collection/{{collection.slug}}/{{page}}">{{page}}</a></span>
+        <span ng-repeat="page in collection.pages"><a ng-href="/collection/{{collection.alias}}/{{page}}">{{page}}</a></span>
     </p>
 
     <div ng-if="collection.progress">
@@ -28,7 +28,7 @@
 
         <div ng-bind-html="post.text"></div>
 
-        <a ng-href="/post/{{post.slug}}">{{main.readMore}}</a>
+        <a ng-href="/post/{{post.alias}}">{{main.readMore}}</a>
     </div>
 
     <div class="alert alert-info" role="alert" ng-if="!collection.posts.length">Коллекция пуста</div>

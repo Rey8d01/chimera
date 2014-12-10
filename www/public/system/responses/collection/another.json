@@ -1,14 +1,14 @@
 {
     "title": "Другое",
-    "slug": "another",
+    "alias": "another",
     "posts": [
         {
-            "slug": "another-blog-post",
-            "slug_collection": "another",
+            "alias": "another-blog-post",
+            "alias_collection": "another",
             "title": "Another blog post",
             "tags": [
                 {
-                    "slug": "another",
+                    "alias": "another",
                     "title": "Another"
                 }
             ],

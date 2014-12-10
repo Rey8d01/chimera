@@ -1,24 +1,24 @@
 __author__ = 'rey'
 
-from system.base.handler import BaseHandler
+import system.base.handler
 from models.post import PostModel
 import tornado.web
 from tornado import gen
 from system.utils.exceptions import ChimeraHTTPError
 
 
-class PostHandler(BaseHandler):
+class PostHandler(system.base.handler.MainHandler):
 
     @tornado.web.asynchronous
     @gen.coroutine
-    def get(self, slug):
+    def get(self, alias):
         """
 
-        :param slug:
+        :param alias:
         :return:
         """
         post = PostModel()
-        document_post = yield post.one({'slug': slug})
+        document_post = yield post.one({'alias': alias})
 
         if not document_post:
             raise ChimeraHTTPError(404, error_message=u"Пост не найден")

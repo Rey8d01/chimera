@@ -12,10 +12,10 @@ class NeuronResultHandler(BaseHandler):
 
     @tornado.web.asynchronous
     @gen.coroutine
-    def get(self, slug):
+    def get(self, alias):
         """
 
-        :param slug:
+        :param alias:
         :return:
         """
         self.write(1)

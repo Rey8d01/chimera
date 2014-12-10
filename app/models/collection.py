@@ -8,7 +8,7 @@ class CollectionModel(BaseModel):
     def get_structure(self):
         return {
             'title': None,
-            'slug': None
+            'alias': None
         }
 
     def get_name_collection(self):
