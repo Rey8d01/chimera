@@ -15,6 +15,8 @@ from tornado import gen
 
 from time import sleep
 
+from models.user import UserModel
+
 
 class BaseHandler(tornado.web.RequestHandler):
     """
@@ -108,13 +110,33 @@ class IntroduceHandler(BaseHandler):
     """
     Класс через который будет проводится представление пользователя системе, прошедшего клиентскую авторизацию
     """
-    pass
 
     def post(self):
-        print(self.request.arguments)
+        print('Introduce post')
+        # auth_type = self.get_argument("auth_type")
+        # user_id = self.get_argument("user_id")
+        # user_info = self.get_arguments("user_info", False)
+
+        # print(auth_type)
+        # print(user_id)
+        # print(user_info)
+        # print(self.get_query_arguments("user_info", False))
+        # print(self.get_body_arguments("user_info", False))
+        # print(self.decode_argument("user_info", False))
+
+        # print(self.request)
+
+
+        # print(self.request.arguments)
         # oauthio_provider_twitter
-        print(self.request.cookies)
+        # print(self.request.cookies)
         # self.set_cookie()
+
+        t = "t"
+        model_user = UserModel()
+
+        model_user["oauth[1].firstName"] = "345678"
+        print(model_user.get_data())
 
         pass
 

@@ -6,7 +6,7 @@ from system.model import BaseModel
 class UserModel(BaseModel):
     def get_structure(self):
         return {
-            "date": None,
+            "info": None,
             "oauth": [
                 {
                     "type": None,  # twitter

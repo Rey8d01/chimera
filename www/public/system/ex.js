@@ -6,16 +6,12 @@ angular.module('twitterApp.services', []).factory('twitterService', function($q)
 
     // Представление серверу
     var introduceToServer = function(full) {
-        if (full == undefined) {
-            full = false
-        }
-
         promise = authorizationResult.me().done(function(data) {
             console.log(data);
             $.post(chimera.config.baseUrl+"/introduce", {
-                type: "twitter", 
-                id: data.id,
-                info: full ? info : null
+                auth_type: "twitter", 
+                user_id: data.id,
+                user_info: full ? data : null
             });
         });
 
