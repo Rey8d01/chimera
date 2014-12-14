@@ -134,6 +134,7 @@ class IntroduceHandler(BaseHandler):
 
         t = "t"
         model_user = UserModel()
+        model_user.set_item_data()
 
         model_user["oauth[1].firstName"] = "345678"
         print(model_user.get_data())
