@@ -29,7 +29,7 @@ handlers = [
 
 settings = {
     "cookie_secret": "__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
-    # "login_url": "/login",
+    "login_url": "/login/",
 
     "twitter_consumer_key": "54HALYb2DrpC3VmdDN5jM9HZB",
     "twitter_consumer_secret": "RtkuUQPhKkk3uk1HclggzCPJk1L3jLfc6P7L6Hz6mZ5Lsadhqt",

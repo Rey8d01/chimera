@@ -4,18 +4,16 @@
 __author__ = 'rey'
 
 import tornado.web
+from tornado import gen
 import tornado.escape
 import tornado.auth
 
 from system.utils.result_message import ResultMessage
+
 # from system.components.environment import Environment
 # from system.configuration import Configuration
 from system.utils.exceptions import ChimeraHTTPError
-from tornado import gen
 
-from time import sleep
-
-from models.user import UserModel
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -86,7 +84,7 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.get_secure_cookie("chimera_user")
         # user_json = self.get_secure_cookie("chimera_user")
         # if not user_json:
-        #     return None
+        # return None
         # return tornado.escape.json_decode(user_json)
 
 
@@ -95,7 +93,6 @@ class MainHandler(BaseHandler):
     Главный обработчик наследники которого требуют авторизацию со стороны пользователя для своих действий
     """
 
-    @tornado.web.authenticated
     def prepare(self):
         """
         Перекрытие срабатывает перед вызовом всяческих гетов и постов
@@ -106,40 +103,98 @@ class MainHandler(BaseHandler):
             raise ChimeraHTTPError(401, error_message=u"Неизвестный пользователь")
 
 
+from documents.user import UserDocument, UserOAuthDocument, UserMetaDocument
+
+
 class IntroduceHandler(BaseHandler):
     """
     Класс через который будет проводится представление пользователя системе, прошедшего клиентскую авторизацию
     """
 
+    @tornado.web.asynchronous
+    @gen.coroutine
+    def get(self):
+        """
+        test
+        """
+        print('get')
+        print(self.cookies)
+
+    @tornado.web.asynchronous
+    @gen.coroutine
+    def head(self):
+        """
+        test
+        """
+        document_user = UserDocument()
+
+        users = yield document_user.objects.filter({"oauth": {"$elemMatch": {
+            "type": "twitter1",
+            "id": "2213719321"
+        }}}).find_all()
+        print(users)
+
+    def _load_user_from_post(self, auth_type, user_id):
+        """
+        Вынесли всякое добро в отдельный метод, может потом с изменением архитектуры удобнее это будет вообще
+        держать подальше
+        """
+        document_user = UserDocument()
+        document_user_oauth = UserOAuthDocument()
+        document_user_meta = UserMetaDocument()
+        document_user.oauth = [document_user_oauth]
+        document_user.meta = document_user_meta
+
+        user_info_raw = {key: value for key, value in self.request.arguments.items() if
+                         key.startswith("user_info[raw]")}
+
+        document_user_oauth.type = auth_type
+        document_user_oauth.id = user_id
+
+        document_user_oauth.name = self.get_argument("user_info[name]", "")
+        document_user_oauth.alias = self.get_argument("user_info[alias]", "")
+        document_user_oauth.avatar = self.get_argument("user_info[avatar]", "")
+        document_user_oauth.email = self.get_argument("user_info[email]", "")
+        document_user_oauth.raw = user_info_raw
+
+        return document_user
+
+
+    @tornado.web.asynchronous
+    @gen.coroutine
     def post(self):
-        print('Introduce post')
-        # auth_type = self.get_argument("auth_type")
-        # user_id = self.get_argument("user_id")
-        # user_info = self.get_arguments("user_info", False)
+        """
+        Авторизация
+        """
+        auth_type = self.get_argument("auth_type")
+        user_id = self.get_argument("user_id")
 
-        # print(auth_type)
-        # print(user_id)
-        # print(user_info)
-        # print(self.get_query_arguments("user_info", False))
-        # print(self.get_body_arguments("user_info", False))
-        # print(self.decode_argument("user_info", False))
+        document_user = UserDocument()
+        users = yield document_user.objects.filter({"oauth": {"$elemMatch": {
+            "type": auth_type,
+            "id": user_id
+        }}}).find_all()
 
-        # print(self.request)
+        if len(users) == 0:
+            document_user = self._load_user_from_post(auth_type, user_id)
+            yield document_user.save()
+
+        chimera_user = self.escape.json_encode({"type": auth_type, "id": user_id})
+        self.set_secure_cookie("chimera_user", chimera_user, domain=".chimera.rey")
+
+        self.result.update_content({
+            "auth": True
+        })
+        self.write(self.result.get_message())
 
 
-        # print(self.request.arguments)
-        # oauthio_provider_twitter
-        # print(self.request.cookies)
-        # self.set_cookie()
+class LogoutHandler(BaseHandler):
+    """
+    Класс для выхода из системы - очистка кук
+    """
 
-        t = "t"
-        model_user = UserModel()
-        model_user.set_item_data()
-
-        model_user["oauth[1].firstName"] = "345678"
-        print(model_user.get_data())
-
-        pass
+    def get(self):
+        self.clear_cookie("chimera_user")
 
 
 class AuthHandler(BaseHandler):
@@ -148,11 +203,3 @@ class AuthHandler(BaseHandler):
     В данном варианте не используется
     """
     pass
-
-
-class LogoutHandler(BaseHandler):
-    """
-    Класс для выхода из системы - очистка кук
-    """
-    def get(self):
-        self.clear_cookie("chimera_user")

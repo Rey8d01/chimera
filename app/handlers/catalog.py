@@ -13,6 +13,7 @@ from system.components.pagination import Pagination
 
 
 class CatalogHandler(system.handlers.MainHandler):
+
     special_aliases = [
         'latest'
     ]

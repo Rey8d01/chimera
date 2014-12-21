@@ -11,7 +11,8 @@
  */
 var chimera = {
     config: {
-        baseUrl: "http://api.chimera.rey",
+        baseUrl: "http://www.chimera.rey/_",
+        // baseUrl: "http://api.chimera.rey",
         // baseUrl: "/system/responses/",
         test: ""
     },
@@ -30,35 +31,20 @@ chimera.system.main = angular.module('main', [
     'post'
 ]);
 
-
-
-
 chimera.system.main.factory('sessionRecoverer', ['$q', '$location', function($q, $location) {
     var sessionRecoverer = {
         'responseError': function(rejection) {
             console.log(4444);
-            // console.log($q);
-            // console.log($location);
+            console.log(rejection);
 
             $location.path('/login/');
             $location.replace();
 
-            // console.log($urlRouterProvider);
-            // что-то делает при ошибке
-            // if (canRecover(rejection)) {
-            //     return responseOrNewPromise
-            // }
             return $q.reject(rejection);
         },
     };
     return sessionRecoverer;
 }]);
-
-
-
-
-
-
 
 chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider',
     function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {

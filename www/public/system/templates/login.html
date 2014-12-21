@@ -46,7 +46,7 @@ body {
       <form class="form-signin" role="form">
         <h2 class="form-signin-heading">Please sign in</h2>
         
-        <label for="inputEmail" class="sr-only">Email address</label>
+        <!-- <label for="inputEmail" class="sr-only">Email address</label>
         <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
         <label for="inputPassword" class="sr-only">Password</label>
         <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
@@ -54,34 +54,11 @@ body {
           <label>
             <input type="checkbox" value="remember-me"> Remember me
           </label>
+        </div> -->
+        <div ng-controller="TwitterController">
+            <button ng-click="connectButton()" id="connectButton" type="button" class="btn btn-primary"><i class="fa fa-twitter"> Sign in</i></button>
+            <button ng-click="signOut()" id="signOut" type="button" class="btn btn-link" style="display:none;">Sign Out</button>
         </div>
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
       </form>
 
-    </div>
-
-
-
-
-    <div class="container" ng-controller="TwitterController">
-        <h1>Twitter OAuth.io Example</h1>
-        <div class="row">
-            <div class="col-md-12">
-                <button ng-click="connectButton()" id="connectButton" type="button" class="btn btn-primary"><i class="fa fa-twitter"></i></button>
-                <button ng-click="refreshTimeline()" id="getTimelineButton" type="button" class="btn btn-info" style="display:none;">Get My Timeline</button>
-                <button ng-click="signOut()" id="signOut" type="button" class="btn btn-link" style="display:none;">Sign Out</button>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12" id="results">
-                <div class="row" ng-repeat="t in tweets">
-                    <div class="col-md-2">
-                        <img ng-src="{{t.user.profile_image_url}}" class="img-circle">
-                    </div>
-                    <div class="col-md-10">
-                        <small>{{t.user.name}}</small><br>{{t.text}}
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>

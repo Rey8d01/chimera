@@ -21,7 +21,8 @@ class ResultMessage():
             "maintenance": {
                 "redirect": None,
                 "refresh": None,
-                "delay": None
+                "delay": None,
+                "cookie": None
             }
         }
 
@@ -39,6 +40,10 @@ class ResultMessage():
         :return:
         """
         self._message["content"].update(data)
+
+    def set_cookie(self, cookie):
+        # self._message["maintenance"]["cookie"] = str(cookie)[len("Set-Cookie: chimera_user="):]
+        self._message["maintenance"]["cookie"] = str(cookie)[len("Set-Cookie: "):]
 
     def get_message(self):
         return self._message

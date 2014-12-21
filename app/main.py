@@ -4,7 +4,7 @@
 __author__ = 'rey'
 
 # Основные модули
-import tornado.web        # веб фреймворк, на котором построен FriendFeed. web содержит большинство важных функций Tornado
+import tornado.web  # веб фреймворк, на котором построен FriendFeed. web содержит большинство важных функций Tornado
 # import tornado.escape     # методы кодирования/декодирования XHTML, JSON и URL
 # import tornado.database   # Простая обертка вокруг MySQLdb для упрощения спользования СУБД MySQL
 # import tornado.template   # язык шаблонов, в основу которого положен синтаксис языка Python
@@ -13,15 +13,16 @@ import tornado.web        # веб фреймворк, на котором по�
 # import tornado.locale     # поддержка локализации/интернационализации
 # import tornado.options    # синтаксический анализатор файлов настроек и аргументов коммандной строки, оптимизированный для использования в среде сервера
 # Низкоуровневые модули
-import tornado.httpserver # очень простой HTTP сервер, на основе которого построен модуль web
+import tornado.httpserver  # очень простой HTTP сервер, на основе которого построен модуль web
 # import tornado.iostream   # простая обертка вокруг неблокирующих сокетов для обеспечения общих шаблонов считывания и записи
-import tornado.ioloop     # основная петля ввода/вывода
+import tornado.ioloop  # основная петля ввода/вывода
 # import tornado.websocket  #
 # import logging            #
 
 from tornado.options import define, options
 
 import system.configuration
+import motorengine
 
 define("port", default=8888, help="run on the given port", type=int)
 
@@ -33,6 +34,11 @@ def main():
 
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(options.port)
+
+    motorengine.connect(system.configuration.DB_NAME,
+                        host=system.configuration.DB_HOST,
+                        port=system.configuration.DB_PORT)
+
     tornado.ioloop.IOLoop.instance().start()
 
 

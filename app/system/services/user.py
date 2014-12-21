@@ -1,9 +1,7 @@
 __author__ = 'rey'
 
-from models.user import UserModel
 
-
-class User():
+class UserService():
     """
     Общий набор функций для работы с пользователем
     """
