@@ -1,32 +1,126 @@
-<div class="blog-masthead">
-    <div class="container" ui-view="nav"></div>
-</div>
-
-<div class="container">
-
-    <div class="blog-header">
-        <h1 class="blog-title">{{main.title}}</h1>
-
-        <p class="lead blog-description">The official example template of creating a blog with Bootstrap.</p>
-    </div>
-
-    <div class="row">
-        <div ui-view="content"></div>
-
-        <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
-            <div ui-view="quote"></div>
-            <div ui-view="archives"></div>
-            <div ui-view="links"></div>
+<div id="right-top-menu">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12 text-right affix">
+                <button type="button" class="btn btn-link"><i class="fa fa-envelope-o"></i>
+                </button>
+                <button type="button" class="btn btn-link"><i class="fa fa-user"> Super user</i>
+                </button>
+            </div>
         </div>
-
     </div>
 </div>
 
-<div class="blog-footer">
-    <p>Blog template built for <a href="http://getbootstrap.com">Bootstrap</a> by <a
-            href="https://twitter.com/mdo">@mdo</a>.</p>
+<div id="wrapper">
+    <!-- main navbar -->
+    <div id="sidebar-wrapper">
+        <ul class="sidebar-nav">
+            <li class="sidebar-brand">
+                <a href="#">
+                    testrey.co
+                </a>
+            </li>
+            <li>
+                <a href="#"><i class="fa fa-cogs"> Dashboard</i></a>
+            </li>
+            <li>
+                <a href="#"><i class="fa fa-book"> Blog</i></a>
+            </li>
+            <li>
+                <a href="#"><i class="fa fa-database"> Reccomendation</i></a>
+            </li>
+            <li>
+                <a href="#"><i class="fa fa-check-square-o"> Criterion</i></a>
+            </li>
+            <li>
+                <a href="#"><i class="fa fa-code-fork"> Other projects</i></a>
+            </li>
+            <li>
+                <a href="#"><i class="fa fa-credit-card"> About</i></a>
+            </li>
+        </ul>
+    </div>
+    <!-- end main navbar -->
 
-    <p>
-        <a href="#">Back to top</a>
-    </p>
+    <!-- main page -->
+    <div id="page-content-wrapper">
+
+        <!-- top buttons -->
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-1 text-left affix">
+                    <button id="menu-toggle" type="button" class="btn btn-link"><i class="fa fa-bars"></i>
+                    </button>
+                    <!-- <br> -->
+                    <!-- <button type="button" class="btn btn-link"><i class="fa fa-envelope-o"></i></button> -->
+                </div>
+                <div class="col-md-offset-10 col-md-1 text-right affix">
+                </div>
+            </div>
+        </div>
+        <!-- end top buttons -->
+
+        <!-- title -->
+        <div id="masthead">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-7">
+                        <h1>{{main.title}} <p class="lead">main blog</p></h1>
+                    </div>
+                    <div class="col-md-5">
+                        <!-- <div class="well well-lg">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    Ad Space
+                                </div>
+                            </div>
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end title -->
+
+        <!-- main container -->
+        <div class="container">
+            <div class="row">
+                <!-- content -->
+                <div class="col-md-9">
+                    <div class="panel">
+                        <div class="panel-body">
+                            <div ui-view="content"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end content -->
+
+                <!-- block sidebar -->
+                <div class="col-md-3">
+                    <!-- catalogs navbar -->
+                    <div ui-view="catalogs"></div>
+                    <!-- end catalogs navbar -->
+
+                    <!-- list tags -->
+                    <div ui-view="tags"></div>
+                    <!-- end list tags -->
+
+                    <div ui-view="links"></div>
+                </div>
+                <!-- end block sidebar -->
+            </div>
+        </div>
+        <!-- end main container -->
+
+    </div>
+    <!-- end main page -->
+
 </div>
+<!-- end wrapper -->
+
+<!-- Menu Toggle Script -->
+<script>
+$("#menu-toggle").click(function(e) {
+    e.preventDefault();
+    $("#wrapper").toggleClass("toggled");
+});
+</script>

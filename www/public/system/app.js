@@ -27,7 +27,7 @@ chimera.system.main = angular.module('main', [
     'twitterApp.services',
 
     'navigator',
-    'collection',
+    'catalog',
     'post'
 ]);
 
@@ -59,8 +59,8 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
         // Посты
         $urlRouterProvider.when('/post/:aliasPost', '/main/post/:aliasPost');
         // Коллекции
-        $urlRouterProvider.when('/collection/:aliasCollection', '/main/collection/:aliasCollection');
-        $urlRouterProvider.when('/collection/:aliasCollection/:page', '/main/collection/:aliasCollection/:page');
+        $urlRouterProvider.when('/catalog/:aliasCatalog', '/main/catalog/:aliasCatalog');
+        $urlRouterProvider.when('/catalog/:aliasCatalog/:page', '/main/catalog/:aliasCatalog/:page');
 
         // Любые неопределенные url перенаправлять на /
         $urlRouterProvider.otherwise("/login/");
@@ -79,8 +79,8 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
                         templateUrl: "/system/templates/nav.html",
                         controller: "NavigatorController"
                     },
-                    "quote@main": {templateUrl: "/system/templates/quote.html"},
-                    "archives@main": {templateUrl: "/system/templates/archives.html"},
+                    "catalogs@main": {templateUrl: "/system/templates/catalogs.html"},
+                    "tags@main": {templateUrl: "/system/templates/tags.html"},
                     "links@main": {templateUrl: "/system/templates/links.html"}
                 }
             })
@@ -88,8 +88,8 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
             //     url: "/home/",
             //     views: {
             //         "content": {
-            //             templateUrl: "/system/templates/collection.html",
-            //             controller: "CollectionLatestController",
+            //             templateUrl: "/system/templates/catalog.html",
+            //             controller: "CatalogLatestController",
             //         }
             //     }
             // })
@@ -106,21 +106,21 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
                 url: "/home/",
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/collection.html",
+                        templateUrl: "/system/templates/catalog.html",
                         controller: "MainContentController",
                     }
                 }
             })
-            .state("main.collection", {
-                url: "/collection/:aliasCollection/:page",// {aliasCollection:([\w-]+)}/{page:([\d+])}
+            .state("main.catalog", {
+                url: "/catalog/:aliasCatalog/:page",// {aliasCatalog:([\w-]+)}/{page:([\d+])}
                 params: {
-                    "aliasCollection": 'latest',
+                    "aliasCatalog": 'latest',
                     "page": '1'
                 },
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/collection.html",
-                        controller: "CollectionPostsController"
+                        templateUrl: "/system/templates/catalog.html",
+                        controller: "CatalogPostsController"
                     }
                 }
             })
@@ -157,17 +157,17 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
             //     url: "/home/",
             //     views: {
             //         "content": {
-            //             templateUrl: "/system/templates/collection.html",
-            //             controller: "CollectionLatestController",
+            //             templateUrl: "/system/templates/catalog.html",
+            //             controller: "CatalogLatestController",
             //         }
             //     }
             // })
-            // .state("main.collection", {
-            //     url: "/collection/{aliasCollection:([\w-]+)}/{page:([\d+])}",
+            // .state("main.catalog", {
+            //     url: "/catalog/{aliasCatalog:([\w-]+)}/{page:([\d+])}",
             //     views: {
             //         "content": {
-            //             templateUrl: "/system/templates/collection.html",
-            //             controller: "CollectionPostsController"
+            //             templateUrl: "/system/templates/catalog.html",
+            //             controller: "CatalogPostsController"
             //         }
             //     }
             // })
@@ -176,7 +176,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
             //     views: {
             //         "content": {
             //             templateUrl: "/system/templates/post.html",
-            //             controller: 'CollectionPostController'
+            //             controller: 'CatalogPostController'
             //         }
             //     }
             // })
@@ -190,7 +190,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
 chimera.system.main.controller("MainController", ["$scope",
     function ($scope) {
         $scope.main = {
-            "title": "The Rey's-ysetm main blog",
+            "title": "Rey's-ysetm",
             "readMore": "ReadMe...",
             "foo": 'BAAAAAR'
         };
@@ -204,137 +204,19 @@ chimera.system.main.controller("MainLoginController", ["$scope",
 ]);
 
 
-chimera.system.main.controller("MainContentController", ["$scope", "$state", "collectionLoader",
-    function ($scope, $state, collectionLoader) {
+chimera.system.main.controller("MainContentController", ["$scope", "$state", "catalogLoader",
+    function ($scope, $state, catalogLoader) {
 
-        if(!$state.params.aliasCollection) {
-            $state.params.aliasCollection = "latest";
+        if(!$state.params.aliasCatalog) {
+            $state.params.aliasCatalog = "latest";
         }            
 
-        collectionLoader.get({}, function(response) {
-            $scope.collection = response.content;
+        catalogLoader.get({}, function(response) {
+            $scope.catalog = response.content;
             $scope.paging = response.content.pageData;
-            $scope.collection.progress = false;  
+            $scope.catalog.progress = false;  
         }, function(response) {
-            $scope.collection.progress = false;
+            $scope.catalog.progress = false;
         });
     }
 ]);
-
-// chimera.system.main.directive('collectionPagination', function () {
-//     return {
-//         compile: function compile(temaplateElement, templateAttrs) {
-//             console.log(templateAttrs);
-//             // templateElement.prepend("<div>{{"+templateAttrs.habraHabrWork+"}}"+templateAttrs.habra+"</div>");
-//             return {
-//                 pre: function ($scope, element, attrs) {
-//                     console.log(6);
-//                 },
-//                 post: function($scope, element, attrs) { 
-//                     console.log(5);
-//                 }
-//             }
-//         },
-//         template: '<div><span ></span></div>',
-//         // templateUrl: 'template.html',
-//         restrict: 'EA',
-//         scope: true,     
-//     };
-// });
-
-
-// chimera.system.main.directive('uiPagination', function () {
-//         return {
-//             restrict: 'EA',
-//             replace: true,
-//             template:
-//                 '<div class="pagination pagination-large pagination-centered">' +
-//                     '<ul>' +
-//                         '<li ng-class="{disabled: firstPage()}" ng-click="goToFirstPage()">' +
-//                             '<a><i class="icon-step-backward"></i></a>' +
-//                         '</li>' +
-//                         '<li ng-class="{disabled: !hasPrev()}" ng-click="prev()">' +
-//                             '<a><i class="icon-caret-left"></i></a>' +
-//                         '</li>' +
-//                         '<li ng-repeat="page in pages"' +
-//                             'ng-class="{active: isCurrent(page)}"' +
-//                             'ng-click="setCurrent(page)"' +
-//                         '>' +
-//                             '<a>{{page}}</a>' +
-//                         '</li>' +
-//                         '<li ng-class="{disabled: !hasNext()}" ng-click="next()">' +
-//                             '<a><i class="icon-caret-right"></i></a>' +
-//                         '</li>' +
-//                         '<li ng-class="{disabled: lastPage()}" ng-click="goToLastPage()">' +
-//                             '<a><i class="icon-step-forward"></i></a>' +
-//                         '</li>' +
-//                     '</ul>' +
-//                     '</div>',
-//             scope: {
-//                 cur: '=',
-//                 total: '=',
-//                 display: '@'
-//             },
-//             link: function (scope, element, attrs) {
-//                 var calcPages = function () {
-//                     var display = +scope.display;
-//                     var delta = Math.floor(display / 2);
-//                     scope.start = scope.cur - delta;
-//                     if (scope.start < 1) {
-//                         scope.start = 1;
-//                     }
-//                     scope.end = scope.start + display - 1;
-//                     if (scope.end > scope.total) {
-//                         scope.end = scope.total;
-//                         scope.start = scope.end - (display - 1);
-//                         if (scope.start < 1) {
-//                             scope.start = 1;
-//                         }
-//                     }
-
-//                     scope.pages = [];
-//                     for (var i = scope.start; i <= scope.end; ++i) {
-//                         scope.pages.push(i);
-//                     }
-//                 };
-//                 scope.$watch('cur', calcPages);
-//                 scope.$watch('total', calcPages);
-//                 scope.$watch('display', calcPages);
-
-//                 scope.isCurrent = function (index) {
-//                     return scope.cur == index;
-//                 };
-
-//                 scope.setCurrent = function (index) {
-//                     scope.cur = index;
-//                 };
-
-//                 scope.hasPrev = function () {
-//                     return scope.cur > 1;
-//                 };
-//                 scope.prev = function () {
-//                     if (scope.hasPrev()) scope.cur--;
-//                 };
-
-//                 scope.hasNext = function () {
-//                     return scope.cur < scope.total;
-//                 };
-//                 scope.next = function () {
-//                     if (scope.hasNext()) scope.cur++;
-//                 };
-
-//                 scope.firstPage = function () {
-//                     return scope.start == 1;
-//                 };
-//                 scope.goToFirstPage = function () {
-//                     if (!scope.firstPage()) scope.cur = 1;
-//                 };
-//                 scope.lastPage = function () {
-//                     return scope.end == scope.total;
-//                 };
-//                 scope.goToLastPage = function () {
-//                     if (!scope.lastPage()) scope.cur = scope.total;
-//                 };
-//             }
-//         };
-//     });

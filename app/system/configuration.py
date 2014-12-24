@@ -19,7 +19,7 @@ handlers = [
     (r"/index", handlers.main.MainerHandler),
     (r"/navigator", handlers.navigator.NavigatorHandler),
     (r"/post/([\w-]+)", handlers.post.PostHandler),
-    (r"/collection/([\w-]+)/([\d+]+)", handlers.catalog.CatalogHandler),
+    (r"/catalog/([\w-]+)/([\d+]+)", handlers.catalog.CatalogHandler),
 
     # Neuron
     # (r"/cinema/process/([\w-]+)", CollectionHandler),
