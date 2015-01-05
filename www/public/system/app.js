@@ -2,6 +2,13 @@
  *  App Module
  *
  *  Основной модуль - с конфигурациями и настройками
+ * 
+ * Основные скопы моделей, которые лучше не использовать в модулях формирующих контент
+ * $scope.
+ *        main - модель с основным для системы содержимым
+ *        user - модель с пользовательскими данными
+ * 
+ * 
  */
 
 /**
@@ -14,6 +21,7 @@ var chimera = {
         baseUrl: "http://www.chimera.rey/_",
         // baseUrl: "http://api.chimera.rey",
         // baseUrl: "/system/responses/",
+        auth: ["twitter", "github"],
         test: ""
     },
     system: {},
@@ -21,23 +29,24 @@ var chimera = {
 };
 
 
-chimera.system.main = angular.module('main', [
-    'ui.router',
+chimera.system.main = angular.module("main", [
+    "ui.router",
     
-    'twitterApp.services',
+    // "twitterApp.services",
+    "auth",
+    "navigator",
 
-    'navigator',
-    'catalog',
-    'post'
+    "catalog",
+    "post"
 ]);
 
-chimera.system.main.factory('sessionRecoverer', ['$q', '$location', function($q, $location) {
+chimera.system.main.factory("sessionRecoverer", ["$q", "$location", function($q, $location) {
     var sessionRecoverer = {
-        'responseError': function(rejection) {
-            console.log(4444);
+        responseError: function(rejection) {
+            console.log("responseError");
             console.log(rejection);
 
-            $location.path('/login/');
+            $location.path("/login");
             $location.replace();
 
             return $q.reject(rejection);
@@ -46,24 +55,24 @@ chimera.system.main.factory('sessionRecoverer', ['$q', '$location', function($q,
     return sessionRecoverer;
 }]);
 
-chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider',
+chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationProvider", "$httpProvider",
     function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
-        $httpProvider.interceptors.push('sessionRecoverer');
+        $httpProvider.interceptors.push("sessionRecoverer");
 
         // без # в урле
         $locationProvider.html5Mode(true);
 
         // Роутинг
         // Главная
-        $urlRouterProvider.when('/home', '/main/home/');
+        $urlRouterProvider.when("/home", "/main/home");
         // Посты
-        $urlRouterProvider.when('/post/:aliasPost', '/main/post/:aliasPost');
-        // Коллекции
-        $urlRouterProvider.when('/catalog/:aliasCatalog', '/main/catalog/:aliasCatalog');
-        $urlRouterProvider.when('/catalog/:aliasCatalog/:page', '/main/catalog/:aliasCatalog/:page');
+        $urlRouterProvider.when("/post/:aliasPost", "/main/post/:aliasPost");
+        // Каталоги
+        $urlRouterProvider.when("/catalog/:aliasCatalog", "/main/catalog/:aliasCatalog");
+        $urlRouterProvider.when("/catalog/:aliasCatalog/:page", "/main/catalog/:aliasCatalog/:page");
 
         // Любые неопределенные url перенаправлять на /
-        $urlRouterProvider.otherwise("/login/");
+        $urlRouterProvider.otherwise("/login");
         // Теперь определим состояния
         $stateProvider
             .state("main", {
@@ -94,7 +103,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
             //     }
             // })
             .state("login", {
-                url: "/login/",
+                url: "/login",
                 views: {
                     "": {
                         templateUrl: "/system/templates/login.html",
@@ -103,7 +112,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
                 }
             })
             .state("main.home", {
-                url: "/home/",
+                url: "/home",
                 views: {
                     "content": {
                         templateUrl: "/system/templates/catalog.html",
@@ -114,8 +123,8 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
             .state("main.catalog", {
                 url: "/catalog/:aliasCatalog/:page",// {aliasCatalog:([\w-]+)}/{page:([\d+])}
                 params: {
-                    "aliasCatalog": 'latest',
-                    "page": '1'
+                    "aliasCatalog": "latest",
+                    "page": "1"
                 },
                 views: {
                     "content": {
@@ -129,7 +138,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
                 views: {
                     "content": {
                         templateUrl: "/system/templates/post.html",
-                        controller: 'PostController'
+                        controller: "PostController"
                     }
                 }
             })
@@ -154,7 +163,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
             //     }
             // })
             // .state("main.home", {
-            //     url: "/home/",
+            //     url: "/home",
             //     views: {
             //         "content": {
             //             templateUrl: "/system/templates/catalog.html",
@@ -176,7 +185,7 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
             //     views: {
             //         "content": {
             //             templateUrl: "/system/templates/post.html",
-            //             controller: 'CatalogPostController'
+            //             controller: "CatalogPostController"
             //         }
             //     }
             // })
@@ -189,17 +198,23 @@ chimera.system.main.config(['$stateProvider', '$urlRouterProvider', '$locationPr
 
 chimera.system.main.controller("MainController", ["$scope",
     function ($scope) {
+        console.log('MainController');
         $scope.main = {
             "title": "Rey's-ysetm",
             "readMore": "ReadMe...",
-            "foo": 'BAAAAAR'
+            "foo": "BAAAAAR"
         };
     }
 ]);
 
 chimera.system.main.controller("MainLoginController", ["$scope",
     function ($scope) {
-        console.log('login');
+        console.log("MainLoginController");
+        $scope.main = {
+            "title": "Rey's-ysetm",
+            "readMore": "ReadMe...",
+            "foo": "BAAAAAR"
+        };
     }
 ]);
 
