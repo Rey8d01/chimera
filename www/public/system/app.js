@@ -82,7 +82,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 views: {
                     "": {
                         templateUrl: "/system/templates/main.html",
-                        controller: "MainController"
+                        controller: "AuthController"
                     },
                     "nav@main": {
                         templateUrl: "/system/templates/nav.html",
@@ -107,7 +107,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 views: {
                     "": {
                         templateUrl: "/system/templates/login.html",
-                        controller: "MainLoginController",
+                        controller: "AuthController",
                     }
                 }
             })
