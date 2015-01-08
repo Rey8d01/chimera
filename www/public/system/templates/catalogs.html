@@ -1,4 +1,4 @@
 <h3>Catalogs</h3>
 <div class="list-group">
-	<a ng-repeat="catalog in catalogs" class="list-group-item" href="/catalog/{{catalog.alias}}">{{catalog.title}}<span class="badge">{{catalog.countPosts}}</span></a>
+	<a ng-repeat="catalog in catalogs" class="list-group-item" ui-sref="main.catalog({aliasCatalog: catalog.alias, page: 1})">{{catalog.title}}<span class="badge">{{catalog.countPosts}}</span></a>
 </div>

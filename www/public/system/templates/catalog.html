@@ -24,7 +24,7 @@
             <h3>{{post.title}}</h3>
             <div ng-bind-html="post.text"></div>
             <p class="lead">
-                <a class="btn btn-default" ng-href="/post/{{post.alias}}">{{main.readMore}}</a>
+                <a class="btn btn-default" ui-sref="main.post({aliasPost: post.alias})">{{main.readMore}}</a>
             </p>
             <p class="pull-right"><span class="label label-default">keyword</span> <span class="label label-default">tag</span> <span class="label label-default">post</span>
             </p>
