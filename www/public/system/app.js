@@ -33,8 +33,9 @@ chimera.system.main = angular.module("main", [
     "ui.router",
     
     "auth",
-    "navigator",
+    // "navigator",
 
+    "catalogs",
     "catalog",
     "post"
 ]);
@@ -83,11 +84,10 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                         templateUrl: "/system/templates/main.html",
                         controller: "AuthController"
                     },
-                    "nav@main": {
-                        templateUrl: "/system/templates/nav.html",
-                        controller: "NavigatorController"
+                    "catalogs@main": {
+                        templateUrl: "/system/templates/catalogs.html",
+                        controller: "CatalogsMenuController"
                     },
-                    "catalogs@main": {templateUrl: "/system/templates/catalogs.html"},
                     "tags@main": {templateUrl: "/system/templates/tags.html"},
                     "links@main": {templateUrl: "/system/templates/links.html"}
                 }
@@ -115,7 +115,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 views: {
                     "content": {
                         templateUrl: "/system/templates/catalog.html",
-                        controller: "MainContentController",
+                        controller: "CatalogLatestController",
                     }
                 }
             })
@@ -195,20 +195,3 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
     }
 ]);
 
-
-chimera.system.main.controller("MainContentController", ["$scope", "$state", "catalogLoader",
-    function ($scope, $state, catalogLoader) {
-
-        if(!$state.params.aliasCatalog) {
-            $state.params.aliasCatalog = "latest";
-        }            
-
-        catalogLoader.get({}, function(response) {
-            $scope.catalog = response.content;
-            $scope.paging = response.content.pageData;
-            $scope.catalog.progress = false;  
-        }, function(response) {
-            $scope.catalog.progress = false;
-        });
-    }
-]);

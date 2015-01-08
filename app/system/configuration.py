@@ -4,8 +4,9 @@ import system.handlers
 
 import handlers.main
 import handlers.navigator
-import handlers.catalog
-import handlers.post
+import handlers.blog.catalogs
+import handlers.blog.catalog
+import handlers.blog.post
 
 DB_HOST = "localhost"
 DB_PORT = 27017
@@ -17,9 +18,11 @@ handlers = [
     (r"/logout", system.handlers.LogoutHandler),
 
     (r"/index", handlers.main.MainerHandler),
-    (r"/navigator", handlers.navigator.NavigatorHandler),
-    (r"/post/([\w-]+)", handlers.post.PostHandler),
-    (r"/catalog/([\w-]+)/([\d+]+)", handlers.catalog.CatalogHandler),
+    # (r"/navigator", handlers.navigator.NavigatorHandler),
+
+    (r"/catalog/([\w-]+)/([\d+]+)", handlers.blog.catalog.CatalogHandler),
+    (r"/catalogs", handlers.blog.catalogs.CatalogsHandler),
+    (r"/post/([\w-]+)", handlers.blog.post.PostHandler),
 
     # Neuron
     # (r"/cinema/process/([\w-]+)", CollectionHandler),

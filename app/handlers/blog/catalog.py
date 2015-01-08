@@ -65,7 +65,7 @@ class CatalogHandler(system.handlers.MainHandler):
                 raise ChimeraHTTPError(404, error_message=u"Коллекция не найдена")
             document_catalog = collection_catalog[0]
 
-            self.result.update_content(str(document_catalog.to_son()))
+            self.result.update_content(document_catalog.to_son())
 
             count_post = yield PostDocument().objects.filter({"aliasCatalog": alias}).count()
             pagination = Pagination(count_post, currentPage, 2)
@@ -88,7 +88,7 @@ class CatalogHandler(system.handlers.MainHandler):
 
                     document_post.text = " ".join(clipped_text)
 
-                    list_items_post.append(str(document_post.to_son()))
+                    list_items_post.append(document_post.to_son())
 
             self.result.update_content({"posts": list_items_post})
 

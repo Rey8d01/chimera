@@ -1,8 +1,4 @@
-<h3>Side navbar</h3>
+<h3>Catalogs</h3>
 <div class="list-group">
-    <a href="#" class="list-group-item active">Cras justo odio<span class="badge">14</span></a>
-    <a href="#" class="list-group-item">Dapibus ac facilisis in<span class="badge">104</span></a>
-    <a href="#" class="list-group-item">Morbi leo risus<span class="badge">1</span></a>
-    <a href="#" class="list-group-item">Porta ac consectetur ac</a>
-    <a href="#" class="list-group-item">Vestibulum at eros</a>
+	<a ng-repeat="catalog in catalogs" class="list-group-item" href="/catalog/{{catalog.alias}}">{{catalog.title}}<span class="badge">{{catalog.countPosts}}</span></a>
 </div>
