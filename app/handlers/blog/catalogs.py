@@ -23,7 +23,7 @@ class CatalogsHandler(system.handlers.MainHandler):
 
         list_catalogs = []
         for document_catalog in collection_catalog:
-            count_posts = yield PostDocument().objects.filter({"aliasCatalog": document_catalog.alias}).count()
+            count_posts = yield PostDocument().objects.filter({PostDocument.aliasCatalog.name: document_catalog.alias}).count()
             result = document_catalog.to_son()
             result["countPosts"] = count_posts
             list_catalogs.append(result)

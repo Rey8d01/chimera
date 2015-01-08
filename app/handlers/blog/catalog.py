@@ -13,7 +13,6 @@ from system.components.pagination import Pagination
 
 
 class CatalogHandler(system.handlers.MainHandler):
-
     special_aliases = [
         'latest'
     ]
@@ -31,11 +30,11 @@ class CatalogHandler(system.handlers.MainHandler):
             count_post = yield PostDocument().objects.count()
             pagination = Pagination(count_post, currentPage, 2)
 
-            collection_post = yield PostDocument()\
-                .objects\
-                .sort("meta.dateCreate", direction=1)\
-                .limit(pagination.count_items_on_page)\
-                .skip(pagination.skip_items)\
+            collection_post = yield PostDocument() \
+                .objects \
+                .sort(PostDocument.meta.name + "." + PostMetaDocument.dateCreate.name, direction=1) \
+                .limit(pagination.count_items_on_page) \
+                .skip(pagination.skip_items) \
                 .find_all()
 
             list_items_post = []
@@ -67,15 +66,15 @@ class CatalogHandler(system.handlers.MainHandler):
 
             self.result.update_content(document_catalog.to_son())
 
-            count_post = yield PostDocument().objects.filter({"aliasCatalog": alias}).count()
+            count_post = yield PostDocument().objects.filter({PostDocument.aliasCatalog.name: alias}).count()
             pagination = Pagination(count_post, currentPage, 2)
 
-            collection_post = yield PostDocument()\
-                .objects\
-                .filter({"aliasCatalog": alias})\
-                .sort("meta.dateCreate", direction=-1)\
-                .limit(pagination.count_items_on_page)\
-                .skip(pagination.skip_items)\
+            collection_post = yield PostDocument() \
+                .objects \
+                .filter({PostDocument.aliasCatalog.name: alias}) \
+                .sort(PostDocument.meta.name + "." + PostMetaDocument.dateCreate.name, direction=-1) \
+                .limit(pagination.count_items_on_page) \
+                .skip(pagination.skip_items) \
                 .find_all()
 
             list_items_post = []

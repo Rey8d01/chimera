@@ -21,7 +21,7 @@ class PostHandler(system.handlers.MainHandler):
 
         collection_post = yield PostDocument()\
             .objects\
-            .filter({"alias": alias})\
+            .filter({PostDocument.alias.name: alias})\
             .find_all()
 
         if not collection_post:

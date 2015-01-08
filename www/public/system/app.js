@@ -35,8 +35,8 @@ chimera.system.main = angular.module("main", [
     "auth",
     // "navigator",
 
-    "catalogs",
     "catalog",
+    "catalogs",
     "post"
 ]);
 

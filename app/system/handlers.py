@@ -129,15 +129,15 @@ class IntroduceHandler(BaseHandler):
         """
         test
         """
-        document_user = UserDocument()
+        # document_user = UserDocument()
 
-        users = yield document_user.objects.filter({"oauth": {"$elemMatch": {
-            "type": "twitter",
-            "id": "2213719321"
-        }}}).find_all()
-
-        print(str(users[0].meta.to_son()))
-        self.write({"dd":66})
+        # users = yield document_user.objects.filter({"oauth": {"$elemMatch": {
+        # "type": "twitter",
+        #     "id": "2213719321"
+        # }}}).find_all()
+        #
+        print(UserDocument.info)
+        # self.write({"dd":66})
 
     def _load_user_from_post(self, auth_type, user_id):
         """
@@ -177,9 +177,9 @@ class IntroduceHandler(BaseHandler):
 
         # Документ пользователя при поиске опирается на ид и тип соцсети
         document_user = UserDocument()
-        users = yield document_user.objects.filter({"oauth": {"$elemMatch": {
-            "type": auth_type,
-            "id": user_id
+        users = yield document_user.objects.filter({UserDocument.oauth.name: {"$elemMatch": {
+            UserOAuthDocument.type.name: auth_type,
+            UserOAuthDocument.id.name: user_id
         }}}).find_all()
 
         if len(users) == 0:
