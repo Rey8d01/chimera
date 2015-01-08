@@ -1,6 +1,6 @@
 __author__ = 'rey'
 
-from motorengine import Document, EmbeddedDocumentField, StringField, ListField, JsonField, DateTimeField, connection
+from motorengine import Document, EmbeddedDocumentField, StringField, ListField, JsonField, DateTimeField
 
 
 class UserOAuthDocument(Document):
@@ -19,8 +19,8 @@ class UserInfoDocument(Document):
 
 
 class UserMetaDocument(Document):
-    date_registration = DateTimeField(auto_now_on_insert=True)
-    date_last_activity = DateTimeField(auto_now_on_update=True)
+    dateRegistration = DateTimeField(auto_now_on_insert=True)
+    dateLastActivity = DateTimeField()
 
 
 class UserDocument(Document):

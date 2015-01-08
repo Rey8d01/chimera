@@ -6,8 +6,8 @@ import tornado.web
 from tornado import gen
 
 import system.handlers
-from models.catalog import CatalogModel
-from models.post import PostModel
+from documents.catalog import CatalogDocument
+from documents.post import PostDocument, PostMetaDocument, PostTagsDocument
 from system.utils.exceptions import ChimeraHTTPError
 from system.components.pagination import Pagination
 
@@ -26,27 +26,27 @@ class CatalogHandler(system.handlers.MainHandler):
         :param alias:
         :return:
         """
-        post = PostModel()
-
         if alias in self.special_aliases:
             # Для особых слагов генерируем свой набор данных
-            count_documents_post = yield post.find().count()
-            pagination = Pagination(count_documents_post, currentPage, 2)
+            count_post = yield PostDocument().objects.count()
+            pagination = Pagination(count_post, currentPage, 2)
 
-            documents_post = post.find().sort([("meta.dateCreate", -1)]).limit(pagination.count_items_on_page).skip(pagination.skip_items)
+            collection_post = yield PostDocument()\
+                .objects\
+                .sort("meta.dateCreate", direction=1)\
+                .limit(pagination.count_items_on_page)\
+                .skip(pagination.skip_items)\
+                .find_all()
 
             list_items_post = []
-            while (yield documents_post.fetch_next):
-                document_post = documents_post.next_object()
-
+            for document_post in collection_post:
                 pattern = re.compile(r'<.*?>')
-                clear_text = pattern.sub('', document_post["text"])
+                clear_text = pattern.sub('', document_post.text)
                 clipped_text = re.split('\s+', clear_text)[:10]
 
-                document_post["text"] = " ".join(clipped_text)
+                document_post.text = " ".join(clipped_text)
 
-                post.fill_from_document(document_post)
-                list_items_post.append(post.get_data())
+                list_items_post.append(document_post.to_son())
 
             self.result.update_content({
                 "title": u"Последние новости",
@@ -59,33 +59,36 @@ class CatalogHandler(system.handlers.MainHandler):
                 }
             })
         else:
-            collection = CatalogModel()
-            document_collection = yield collection.one({"alias": alias})
+            collection_catalog = yield CatalogDocument().objects.filter({"alias": alias}).find_all()
 
-            if not document_collection:
+            if not collection_catalog:
                 raise ChimeraHTTPError(404, error_message=u"Коллекция не найдена")
+            document_catalog = collection_catalog[0]
 
-            collection.fill_from_document(document_collection)
-            self.result.update_content(collection.get_data())
+            self.result.update_content(str(document_catalog.to_son()))
 
-            count_documents_post = yield post.find({"aliasCollection": alias}).count()
-            pagination = Pagination(count_documents_post, currentPage, 2)
+            count_post = yield PostDocument().objects.filter({"aliasCatalog": alias}).count()
+            pagination = Pagination(count_post, currentPage, 2)
 
-            documents_post = post.find({"aliasCollection": alias}).sort([("meta.dateCreate", -1)]).limit(pagination.count_items_on_page).skip(pagination.skip_items)
+            collection_post = yield PostDocument()\
+                .objects\
+                .filter({"aliasCatalog": alias})\
+                .sort("meta.dateCreate", direction=-1)\
+                .limit(pagination.count_items_on_page)\
+                .skip(pagination.skip_items)\
+                .find_all()
 
             list_items_post = []
-            if documents_post:
-                while (yield documents_post.fetch_next):
-                    document_post = documents_post.next_object()
-
+            if collection_post:
+                for document_post in collection_post:
+                    # Обрезание текста для превью
                     pattern = re.compile(r'<.*?>')
-                    clear_text = pattern.sub('', document_post["text"])
+                    clear_text = pattern.sub('', document_post.text)
                     clipped_text = re.split('\s+', clear_text)[:10]
 
-                    document_post["text"] = " ".join(clipped_text)
+                    document_post.text = " ".join(clipped_text)
 
-                    post.fill_from_document(document_post)
-                    list_items_post.append(post.get_data())
+                    list_items_post.append(str(document_post.to_son()))
 
             self.result.update_content({"posts": list_items_post})
 
@@ -98,6 +101,7 @@ class CatalogHandler(system.handlers.MainHandler):
 
         :return:
         """
-        collection = CatalogModel().load_post(self)
-        result = yield collection.save()
-        self.write(result)
+        pass
+        # collection = CatalogDocument().load_post(self)
+        # result = yield collection.save()
+        # self.write(result)

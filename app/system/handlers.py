@@ -15,7 +15,6 @@ from system.utils.result_message import ResultMessage
 from system.utils.exceptions import ChimeraHTTPError
 
 
-
 class BaseHandler(tornado.web.RequestHandler):
     """
     BaseHandler - основной перекрытый обработчик от которого наследовать все остальные
@@ -129,10 +128,12 @@ class IntroduceHandler(BaseHandler):
         document_user = UserDocument()
 
         users = yield document_user.objects.filter({"oauth": {"$elemMatch": {
-            "type": "twitter1",
+            "type": "twitter",
             "id": "2213719321"
         }}}).find_all()
-        print(users)
+
+        print(str(users[0].meta.to_son()))
+        self.write({"dd":66})
 
     def _load_user_from_post(self, auth_type, user_id):
         """
@@ -166,9 +167,11 @@ class IntroduceHandler(BaseHandler):
         """
         Авторизация
         """
+        # Основные данные это тип соцсети и ид в ней
         auth_type = self.get_argument("auth_type")
         user_id = self.get_argument("user_id")
 
+        # Документ пользователя при поиске опирается на ид и тип соцсети
         document_user = UserDocument()
         users = yield document_user.objects.filter({"oauth": {"$elemMatch": {
             "type": auth_type,

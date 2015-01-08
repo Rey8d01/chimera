@@ -32,7 +32,6 @@ var chimera = {
 chimera.system.main = angular.module("main", [
     "ui.router",
     
-    // "twitterApp.services",
     "auth",
     "navigator",
 
@@ -193,28 +192,6 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
             // MultiCriteria - processor
         ;
 
-    }
-]);
-
-chimera.system.main.controller("MainController", ["$scope",
-    function ($scope) {
-        console.log('MainController');
-        $scope.main = {
-            "title": "Rey's-ysetm",
-            "readMore": "ReadMe...",
-            "foo": "BAAAAAR"
-        };
-    }
-]);
-
-chimera.system.main.controller("MainLoginController", ["$scope",
-    function ($scope) {
-        console.log("MainLoginController");
-        $scope.main = {
-            "title": "Rey's-ysetm",
-            "readMore": "ReadMe...",
-            "foo": "BAAAAAR"
-        };
     }
 ]);
 

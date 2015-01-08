@@ -78,7 +78,9 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookieStore",
                     user_id: data.id,
                     user_info: full ? data : null
                 }, function(response) {
-                    $location.path("/main/home").replace();
+                    if ($location.path() == "/login") {
+                        $location.path("/main/home").replace();
+                    }
                 });
             });
         };

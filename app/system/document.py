@@ -3,69 +3,47 @@ from symbol import yield_arg
 
 __author__ = 'rey'
 
-import bson
-import motor
+from motorengine import Document, DateTimeField
 
-from system.utils.loader import Loader
-
-from tornado.concurrent import return_future
-from tornado import gen
-import system.configuration
+from motorengine.queryset import QuerySet
 
 
-class BaseDocument(motor.MotorCollection, Loader):
+class BaseDocument(Document):
+
+    def __init__(self, **kw):
+        """
+
+        :return:
+        """
+        Document.__init__(self, **kw)
+
+    def to_son(self):
+        data = dict()
+
+        for name, field in list(self._fields.items()):
+            value = self.get_field_value(name)
+            result = field.to_son(value)
+            if type(result) is not dict and type(result) is not list:
+                result = str(result)
+            data[field.db_field] = result
+
+        return data
+
+# Хаки по восполнению недостающего функционала
+
+
+def sort(self, field_name, direction=1):
     """
-    :todo использовать стандартные декораторы для свойств @property
+    Функция сортировки order_by имеет левые проверки которые позволяют применять сортировку только по полям
+    главной модели
+
+    :param field_name:
+    :param direction:
+    :return:
     """
-    _client = None
+    self._order_fields.append((field_name, direction))
+    return self
 
-    _collection = None
+QuerySet.sort = sort
 
-    def __init__(self):
-        """
 
-        :return:
-        """
-        self.__get_db()
-        self._collection = self.__get_collection(self.get_name_collection())
-
-        motor.MotorCollection.__init__(self, self._client, self.get_name_collection())
-        Loader.__init__(self)
-
-    def __get_db(self, db_name=None):
-        """
-
-        :param db_name:
-        :return:
-        """
-        if db_name is None:
-            db_name = system.configuration.DB_NAME
-        self._client = motor.MotorClient(system.configuration.DB_HOST, system.configuration.DB_PORT)[db_name]
-
-    def __get_collection(self, collection_name):
-        """
-        Инициализация коллекции для определенной модели
-        :param collection_name:
-        :return:
-        """
-        return self._client[collection_name]
-
-    def get_name_collection(self):
-        """
-        Название коллекции
-        :return:
-        """
-        pass
-
-    def references(self):
-        """
-        Описание ссылок на другие модели
-        :return:
-        """
-        pass
-
-    def save(self):
-        self.insert(self.get_data())
-
-    def one(self, *args, **kwargs):
-        return self.find_one(*args, **kwargs)
