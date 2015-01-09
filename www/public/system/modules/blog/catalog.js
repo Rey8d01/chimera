@@ -1,11 +1,9 @@
 /**
- * Модуль управления постами.
- * Отображает посты в виде миниатюр и целиком загруженных материалов.
+ * Основной контент это список из постов относящихся к каталогу
  */
 
 chimera.system.catalog = angular.module("catalog", ["ngResource", "ngSanitize"]);
 
-// Контроллеры
 chimera.system.catalog.controller("CatalogPostsController", ["$scope", "$state", "catalogService",
     function ($scope, $state, catalogService) {
         catalogService.get({aliasCatalog: $state.params.aliasCatalog, page: $state.params.page}, function(response) {
@@ -33,12 +31,8 @@ chimera.system.main.controller("CatalogLatestController", ["$scope", "$state", "
     }
 ]);
 
-
-// Сервис
 chimera.system.catalog.factory("catalogService", ["$resource",
     function ($resource) {
-        return $resource(chimera.config.baseUrl + "/catalog/:aliasCatalog/:page", {aliasCatalog: "latest", page: "1"}, {
-            // getPost: {method: "GET", params: {source: "post"}}
-        });
+        return $resource(chimera.config.baseUrl + "/catalog/:aliasCatalog/:page", {aliasCatalog: "latest", page: "1"});
     }
 ]);

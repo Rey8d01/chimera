@@ -1,9 +1,9 @@
 /**
+ * Меню из списка каталогов
  */
 
 chimera.system.catalogs = angular.module("catalogs", ["ngResource"]);
 
-// Контроллеры
 chimera.system.catalogs.controller("CatalogsMenuController", ["$scope", "$state", "catalogsService",
     function ($scope, $state, catalogsService) {
         catalogsService.get({}, function(response) {
@@ -12,7 +12,6 @@ chimera.system.catalogs.controller("CatalogsMenuController", ["$scope", "$state"
     }
 ]);
 
-// Сервис
 chimera.system.catalogs.factory("catalogsService", ["$resource",
     function ($resource) {
         return $resource(chimera.config.baseUrl + "/catalogs");
