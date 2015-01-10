@@ -1,3 +1,52 @@
-<div>
-    <input>
+<div class="panel panel-default">
+    <!-- title -->
+    <div class="panel-heading">Movies</div>
+    <!-- input -->
+    <div class="panel-body">
+        <div class="input-group">
+            <input type="text" class="form-control typeahead" placeholder="Search for...">
+
+            <span class="input-group-btn" data-toggle="buttons">
+                <label class="btn btn-default"><input type="radio" name="inputWalls" value="1">0</label>
+                <label class="btn btn-default"><input type="radio" name="inputWalls" value="1">1</label>
+                <label class="btn btn-default"><input type="radio" name="inputWalls" value="2">2</label>
+                <label class="btn btn-default"><input type="radio" name="inputWalls" value="3">3</label>
+                <label class="btn btn-default"><input type="radio" name="inputWalls" value="3">4</label>
+                <label class="btn btn-default"><input type="radio" name="inputWalls" value="3">5</label>
+            </span>
+        </div>
+
+    </div>
+
+    <!-- list group -->
+    <div class="list-group">
+        <a class="list-group-item">Cras justo odio <span class="badge">14</span></a>
+        <a class="list-group-item">Dapibus ac facilisis in <span class="badge">14</span></a>
+        <a class="list-group-item">Morbi leo risus <span class="badge">14</span></a>
+        <a class="list-group-item">Porta ac consectetur ac <span class="badge">14</span></a>
+        <a class="list-group-item">Vestibulum at eros <span class="badge">14</span></a>
+    </div>
 </div>
+
+<script>
+    var $input = $('.typeahead');
+
+    $input.typeahead({source:[{id: "someId1", name: "Display name 1"},
+        {id: "someId2", name: "Display name 2"}],
+        autoSelect: true});
+
+    $input.change(function() {
+        var current = $input.typeahead("getActive");
+        if (current) {
+            // Some item from your model is active!
+            if (current.name == $input.val()) {
+                // This means the exact match is found. Use toLowerCase() if you want case insensitive match.
+            } else {
+                // This means it is only a partial match, you can either add a new item
+                // or take the active if you don't want new items
+            }
+        } else {
+            // Nothing is active so it is a new value (or maybe empty value)
+        }
+    });
+</script>
