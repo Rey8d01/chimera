@@ -37,7 +37,9 @@ chimera.system.main = angular.module("main", [
 
     "catalog",
     "catalogs",
-    "post"
+    "post",
+
+    "recommendation"
 ]);
 
 chimera.system.main.factory("sessionRecoverer", ["$q", "$location", function($q, $location) {
@@ -75,6 +77,17 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
         $urlRouterProvider.otherwise("/login");
         // Теперь определим состояния
         $stateProvider
+            // Форма входа
+            .state("login", {
+                url: "/login",
+                views: {
+                    "": {
+                        templateUrl: "/system/templates/login.html",
+                        controller: "AuthController"
+                    }
+                }
+            })
+            // Главное абстрактное состояние
             .state("main", {
                 abstract: true,
                 url: "/main",
@@ -85,109 +98,59 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                         controller: "AuthController"
                     },
                     "catalogs@main": {
-                        templateUrl: "/system/templates/catalogs.html",
+                        templateUrl: "/system/templates/blog/catalogs.html",
                         controller: "CatalogsMenuController"
                     },
-                    "tags@main": {templateUrl: "/system/templates/tags.html"},
-                    "links@main": {templateUrl: "/system/templates/links.html"}
+                    "tags@main": {templateUrl: "/system/templates/blog/tags.html"},
+                    "links@main": {templateUrl: "/system/templates/blog/links.html"}
                 }
             })
-            // .state("main.home", {
-            //     url: "/home/",
-            //     views: {
-            //         "content": {
-            //             templateUrl: "/system/templates/catalog.html",
-            //             controller: "CatalogLatestController",
-            //         }
-            //     }
-            // })
-            .state("login", {
-                url: "/login",
-                views: {
-                    "": {
-                        templateUrl: "/system/templates/login.html",
-                        controller: "AuthController",
-                    }
-                }
-            })
+            // Главная блога
             .state("main.home", {
                 url: "/home",
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/catalog.html",
-                        controller: "CatalogLatestController",
+                        templateUrl: "/system/templates/blog/catalog.html",
+                        controller: "CatalogLatestController"
                     }
                 }
             })
+            // Посты в каталоге
             .state("main.catalog", {
-                url: "/catalog/:aliasCatalog/:page",// {aliasCatalog:([\w-]+)}/{page:([\d+])}
+                url: "/catalog/:aliasCatalog/:page",
                 params: {
                     "aliasCatalog": "latest",
                     "page": "1"
                 },
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/catalog.html",
+                        templateUrl: "/system/templates/blog/catalog.html",
                         controller: "CatalogPostsController"
                     }
                 }
             })
+            // Просмотр поста
             .state("main.post", {
-                url: "/post/:aliasPost", // {alias_post:([\w-]+)}
+                url: "/post/:aliasPost",
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/post.html",
+                        templateUrl: "/system/templates/blog/post.html",
                         controller: "PostController"
                     }
                 }
             })
 
-            // NeuronStar - cinema
-            // .state("main", {
-            //     abstract: true,
-            //     url: "/main",
+            // recommendation movies
+            .state("main.recommendation", {
+                url: "/recommendation",
+                views: {
+                    "content": {
+                        templateUrl: "/system/templates/recommendation/index.html",
+                        controller: "RecommendationController"
+                    }
+                }
+            })
 
-            //     views: {
-            //         "": {
-            //             templateUrl: "/system/templates/main.html",
-            //             controller: "MainController"
-            //         },
-            //         "nav@main": {
-            //             templateUrl: "/system/templates/nav.html",
-            //             controller: "NavigatorController"
-            //         },
-            //         "quote@main": {templateUrl: "/system/templates/quote.html"},
-            //         "archives@main": {templateUrl: "/system/templates/archives.html"},
-            //         "links@main": {templateUrl: "/system/templates/links.html"}
-            //     }
-            // })
-            // .state("main.home", {
-            //     url: "/home",
-            //     views: {
-            //         "content": {
-            //             templateUrl: "/system/templates/catalog.html",
-            //             controller: "CatalogLatestController",
-            //         }
-            //     }
-            // })
-            // .state("main.catalog", {
-            //     url: "/catalog/{aliasCatalog:([\w-]+)}/{page:([\d+])}",
-            //     views: {
-            //         "content": {
-            //             templateUrl: "/system/templates/catalog.html",
-            //             controller: "CatalogPostsController"
-            //         }
-            //     }
-            // })
-            // .state("main.post", {
-            //     url: "/post/:alias_post", // {alias_post:([\w-]+)}
-            //     views: {
-            //         "content": {
-            //             templateUrl: "/system/templates/post.html",
-            //             controller: "CatalogPostController"
-            //         }
-            //     }
-            // })
 
             // MultiCriteria - processor
         ;
