@@ -20,7 +20,8 @@ class HarvestHandler(BaseHandler):
         data_critic = self.escape.json_decode(self.request.body)
 
         document_critic = yield CriticDocument().objects.filter({
-            CriticDocument.user.name: document_user,
+            # Фильтрация в motorengine по внешним полям идет через _id
+            CriticDocument.user.name: document_user._id,
             CriticDocument.imdb.name: data_critic[CriticDocument.imdb.name],
         }).find_all()
 
@@ -35,15 +36,12 @@ class HarvestHandler(BaseHandler):
         document_critic.year = int(data_critic[CriticDocument.year.name])
         document_critic.title = data_critic[CriticDocument.title.name]
 
+        yield document_critic.save()
 
-        print(document_critic)
-        # yield document_critic.save()
-
-
-        # self.result.update_content({
-        #     CriticDocument.imdb.name: data_critic.imdb,
-        #     CriticDocument.rate.name: data_critic.rate,
-        #     CriticDocument.year.name: data_critic.year,
-        #     CriticDocument.title.name: data_critic.title
-        # })
-        # self.write(self.result.get_message())
+        self.result.update_content({
+            CriticDocument.imdb.name: document_critic.imdb,
+            CriticDocument.rate.name: document_critic.rate,
+            CriticDocument.year.name: document_critic.year,
+            CriticDocument.title.name: document_critic.title
+        })
+        self.write(self.result.get_message())
