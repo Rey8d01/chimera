@@ -16,7 +16,7 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
             year: null,
             title: null
         };
-        //Title: "Re-cycle"Type: "movie"Year: "2006"imdbID: "tt0498311"
+        $scope.critics = [];
 
         $input.typeahead({
             source: function (s, cb) {
@@ -54,11 +54,16 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
             $scope.selectItem.rate = rate;
             if ($scope.selectItem.imdb) {
                 recommendationService.save($scope.selectItem, function (response) {
-                    console.log(response);
+                    // @todo в рамках одной сессии - могут быть повторы при изменении оценки
+                    $scope.critics.push(response.content);
                 });
             }
         }
 
+        // Начальные данные критики
+        recommendationService.get({}, function (response) {
+            $scope.critics = response.content.critics;
+        });
     }
 ]);
 

@@ -1,6 +1,6 @@
 __author__ = 'rey'
 
-from motorengine import Document, StringField, IntField, ReferenceField
+from motorengine import Document, StringField, IntField, ReferenceField, DateTimeField
 from documents.user import UserDocument
 
 
@@ -12,3 +12,6 @@ class CriticDocument(Document):
     rate = IntField()
     year = IntField()
     title = StringField()
+
+    dateCreate = DateTimeField(auto_now_on_insert=True)
+    dateUpdate = DateTimeField(auto_now_on_update=True)

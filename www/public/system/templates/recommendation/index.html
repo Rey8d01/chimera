@@ -20,11 +20,7 @@
 
     <!-- list group -->
     <div class="list-group">
-        <a class="list-group-item">Cras justo odio <span class="badge">14</span></a>
-        <a class="list-group-item">Dapibus ac facilisis in <span class="badge">14</span></a>
-        <a class="list-group-item">Morbi leo risus <span class="badge">14</span></a>
-        <a class="list-group-item">Porta ac consectetur ac <span class="badge">14</span></a>
-        <a class="list-group-item">Vestibulum at eros <span class="badge">14</span></a>
+        <a class="list-group-item" ng-repeat="critic in critics">{{critic.title}} <span class="badge">{{critic.rate}}</span></a>
     </div>
 </div>
 
