@@ -7,7 +7,7 @@ import tornado.web
 from tornado import gen
 
 
-class NeuronResultHandler(BaseHandler):
+class ResultHandler(BaseHandler):
 
     @tornado.web.asynchronous
     @gen.coroutine

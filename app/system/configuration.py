@@ -8,6 +8,10 @@ import handlers.blog.catalogs
 import handlers.blog.catalog
 import handlers.blog.post
 
+import handlers.recommendation.harvest
+import handlers.recommendation.process
+import handlers.recommendation.result
+
 DB_HOST = "localhost"
 DB_PORT = 27017
 DB_NAME = "chimera"
@@ -20,14 +24,15 @@ handlers = [
     (r"/index", handlers.main.MainerHandler),
     # (r"/navigator", handlers.navigator.NavigatorHandler),
 
+    # Blog
     (r"/catalog/([\w-]+)/([\d+]+)", handlers.blog.catalog.CatalogHandler),
     (r"/catalogs", handlers.blog.catalogs.CatalogsHandler),
     (r"/post/([\w-]+)", handlers.blog.post.PostHandler),
 
-    # Neuron
-    # (r"/cinema/process/([\w-]+)", CollectionHandler),
-    # (r"/cinema/harvest/([\w-]+)", CollectionHandler),
-    # (r"/cinema/result/([\w-]+)", CollectionHandler),
+    # Recommendation
+    (r"/recommendation/harvest", handlers.recommendation.harvest.HarvestHandler),
+    (r"/recommendation/process/([\w-]+)", handlers.recommendation.process.ProcessHandler),
+    (r"/recommendation/result/([\w-]+)", handlers.recommendation.result.ResultHandler),
 ]
 
 settings = {

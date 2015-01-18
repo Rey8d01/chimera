@@ -24,8 +24,6 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
                 $('.typeahead').parent().removeClass("has-error");
 
                 omdbapiService.search({s:s}, function (response) {
-                    console.log(response);
-
                     if(response.Error) {
                         $('.typeahead').parent().addClass("has-error");
                     } else {
@@ -54,9 +52,11 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
         // Установка оценки
         $scope.setRate = function(rate) {
             $scope.selectItem.rate = rate;
-            recommendationService.post($scope.selectItem, function (response) {
-
-            });
+            if ($scope.selectItem.imdb) {
+                recommendationService.save($scope.selectItem, function (response) {
+                    console.log(response);
+                });
+            }
         }
 
     }
@@ -64,7 +64,7 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
 
 chimera.system.recommendation.factory("recommendationService", ["$resource",
     function ($resource) {
-        return $resource(chimera.config.baseUrl + "/harvest");
+        return $resource(chimera.config.baseUrl + "/recommendation/harvest");
     }
 ]);
 

@@ -17,6 +17,7 @@ from system.utils.result_message import ResultMessage
 # from system.components.environment import Environment
 # from system.configuration import Configuration
 from system.utils.exceptions import ChimeraHTTPError
+from documents.user import UserDocument, UserOAuthDocument, UserMetaDocument
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -84,11 +85,26 @@ class BaseHandler(tornado.web.RequestHandler):
         Перекрытый метод определения пользователя
         :return:
         """
-        return self.get_secure_cookie("chimera_user")
-        # user_json = self.get_secure_cookie("chimera_user")
-        # if not user_json:
-        # return None
-        # return tornado.escape.json_decode(user_json)
+        user_data = self.get_secure_cookie("chimera_user")
+        if user_data:
+            return self.escape.json_decode(user_data)
+        else:
+            return None
+
+    @gen.coroutine
+    def get_data_current_user(self):
+        """
+        Вернуть данные из базы по текущему пользователю
+        """
+        user_data = self.get_current_user()
+
+        document_user = UserDocument()
+        users = yield document_user.objects.filter({UserDocument.oauth.name: {"$elemMatch": {
+            UserOAuthDocument.type.name: user_data["type"],
+            UserOAuthDocument.id.name: user_data["id"]
+        }}}).find_all()
+
+        return users[0]
 
 
 class MainHandler(BaseHandler):
@@ -104,9 +120,6 @@ class MainHandler(BaseHandler):
 
         if self.current_user is None:
             raise ChimeraHTTPError(401, error_message=u"Неизвестный пользователь")
-
-
-from documents.user import UserDocument, UserOAuthDocument, UserMetaDocument
 
 
 class IntroduceHandler(BaseHandler):
@@ -141,6 +154,8 @@ class IntroduceHandler(BaseHandler):
 
     def _load_user_from_post(self, auth_type, user_id):
         """
+        Сборка документа пользователя для его сохранения
+
         Вынесли всякое добро в отдельный метод, может потом с изменением архитектуры удобнее это будет вообще
         держать подальше
         """

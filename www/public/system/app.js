@@ -47,9 +47,10 @@ chimera.system.main.factory("sessionRecoverer", ["$q", "$location", function($q,
         responseError: function(rejection) {
             console.log("responseError");
             console.log(rejection);
-
-            $location.path("/login");
-            $location.replace();
+            if (rejection.status == 403) {
+                $location.path("/login");
+                $location.replace();
+            }
 
             return $q.reject(rejection);
         },

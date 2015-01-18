@@ -7,7 +7,7 @@ import tornado.web
 from tornado import gen
 
 
-class NeuronResultHandler(BaseHandler):
+class ProcessHandler(BaseHandler):
 
     @tornado.web.asynchronous
     @gen.coroutine
@@ -17,7 +17,7 @@ class NeuronResultHandler(BaseHandler):
         :param alias:
         :return:
         """
-        self.write(1)
+        self.write("1")
 
     @tornado.web.asynchronous
     @gen.coroutine
@@ -26,4 +26,4 @@ class NeuronResultHandler(BaseHandler):
 
         :return:
         """
-        self.write(2)
+        self.write("2")
