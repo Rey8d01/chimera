@@ -117,7 +117,6 @@ class MainHandler(BaseHandler):
         Перекрытие срабатывает перед вызовом всяческих гетов и постов
         :return:
         """
-
         if self.current_user is None:
             raise ChimeraHTTPError(401, error_message=u"Неизвестный пользователь")
 

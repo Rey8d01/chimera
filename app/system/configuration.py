@@ -11,6 +11,7 @@ import handlers.blog.post
 import handlers.recommendation.harvest
 import handlers.recommendation.process
 import handlers.recommendation.result
+import handlers.recommendation.fake
 
 DB_HOST = "localhost"
 DB_PORT = 27017
@@ -33,6 +34,7 @@ handlers = [
     (r"/recommendation/harvest", handlers.recommendation.harvest.HarvestHandler),
     (r"/recommendation/process/([\w-]+)", handlers.recommendation.process.ProcessHandler),
     (r"/recommendation/result/([\w-]+)", handlers.recommendation.result.ResultHandler),
+    (r"/recommendation/fake", handlers.recommendation.fake.FakeHandler),
 ]
 
 settings = {
