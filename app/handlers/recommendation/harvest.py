@@ -43,14 +43,12 @@ class HarvestHandler(BaseHandler):
         # }).find_all()
 
         if len(document_user.critic) == 0:
-            # document_user.critic
-            document_critic = CriticDocument()
-            document_critic.user = document_user
-            document_critic.imdb = data_critic[CriticDocument.imdb.name]
+            document_user.critic = {data_critic[CriticDocument.imdb.name]: int(data_critic[CriticDocument.rate.name])}
         else:
+            if data_critic[CriticDocument.rate.name] in document_user.critic
             document_critic = collection_critic[0]
 
-        document_critic.rate = int(data_critic[CriticDocument.rate.name])
+        document_critic.rate =
         document_critic.year = int(data_critic[CriticDocument.year.name])
         document_critic.title = data_critic[CriticDocument.title.name]
 
