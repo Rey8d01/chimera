@@ -20,7 +20,7 @@
 
     <!-- list group -->
     <div class="list-group">
-        <a class="list-group-item" ng-repeat="critic in critics">{{critic.title}} <span class="badge">{{critic.rate}}</span></a>
+        <a class="list-group-item" ng-repeat="(imdb, criticItem) in criticList">{{criticItem.title}} <span class="badge">{{criticItem.rate}}</span></a>
     </div>
 </div>
 

@@ -16,7 +16,8 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
             year: null,
             title: null
         };
-        $scope.critics = [];
+        $scope.criticList = {};
+        $scope.infoItems = {};
 
         $input.typeahead({
             source: function (s, cb) {
@@ -55,14 +56,49 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
             if ($scope.selectItem.imdb) {
                 recommendationService.save($scope.selectItem, function (response) {
                     // @todo в рамках одной сессии - могут быть повторы при изменении оценки
-                    $scope.critics.push(response.content);
+                    $scope.criticList[response.content.imdb] = response.content.rate;
+                    // getInfoItem(response.content.imdb);
+
+                    $scope.criticList[$scope.selectItem.imdb] = {
+                        // imdb: response.Search[item].imdbID,
+                        year: $scope.selectItem.year,
+                        title: $scope.selectItem.title,
+                        rate: rate
+                    };
+
                 });
             }
         }
 
         // Начальные данные критики
         recommendationService.get({}, function (response) {
-            $scope.critics = response.content.critics;
+            var criticList = response.content.critic;
+            if (criticList) {
+                for (var imdb in criticList) {
+                    console.log(imdb);
+
+                    omdbapiService.findByImdb({i:imdb}, function(response) {
+                        console.log(imdb);
+                        $scope.criticList[imdb] = {
+                            // imdb: response.Search[item].imdbID,
+                            year: response.Year,
+                            title: response.Title,
+                            rate: criticList[imdb]
+                        };
+                    });
+
+                    // omdbapiService.findByImdb({i:imdb}).$promise.then(function(response) {
+                    //     console.log(imdb);
+                    //     $scope.criticList[imdb] = {
+                    //         // imdb: response.Search[item].imdbID,
+                    //         year: response.Year,
+                    //         title: response.Title,
+                    //         rate: criticList[imdb]
+                    //     };
+                    // });
+
+                };
+            }
         });
     }
 ]);
@@ -77,7 +113,8 @@ chimera.system.recommendation.factory("omdbapiService", ["$resource",
     function ($resource) {
         var urlApi = "//www.omdbapi.com";
         return $resource(urlApi, {}, {
-            "search": {'method': "GET", isArray: false, url: urlApi + "/?s=:s", params: {s:''}}
+            "search": {'method': "GET", isArray: false, url: urlApi + "/?s=:s", params: {s:''}},
+            "findByImdb": {'method': "GET", isArray: false, url: urlApi + "/?i=:i", params: {i:''}}
         });
     }
 ]);
