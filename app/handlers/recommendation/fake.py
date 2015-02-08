@@ -14,7 +14,8 @@ class FakeHandler(MainHandler):
     @gen.coroutine
     def get(self):
         """
-
+        Запрос чистых данных по пользователям (случайные 10)
+        Список фильмов топ250
         :return:
         """
 
@@ -57,7 +58,9 @@ class FakeHandler(MainHandler):
     @gen.coroutine
     def post(self):
         """
+        Расчет статистики
 
+        В качестве параметров передавать список необходимых данных и расчеты для них
         :return:
         """
         self.write(2)

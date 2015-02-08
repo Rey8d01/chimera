@@ -2,7 +2,6 @@ __author__ = 'rey'
 
 from system.handlers import BaseHandler
 from documents.critic import CriticDocument
-from documents.user import UserDocument
 
 import tornado.web
 from tornado import gen
@@ -31,22 +30,18 @@ class HarvestHandler(BaseHandler):
 
         :return:
         """
+        # Начальный парсинг приходящих с ангулара через пост данных -
+        # потому что это не параметры формы а request payload
         document_user = yield self.get_data_current_user()
         data_critic = self.escape.json_decode(self.request.body)
-
-        # collection_critic = yield CriticDocument().objects.filter({
-        #     # Фильтрация в motorengine по внешним полям идет через _id
-        #     CriticDocument.user.name: document_user._id,
-        #     CriticDocument.imdb.name: data_critic[CriticDocument.imdb.name],
-        # }).find_all()
-
         imdb = data_critic[CriticDocument.imdb.name]
         rate = data_critic[CriticDocument.rate.name]
 
         if len(document_user.critic) == 0:
+            # Создание новой записи в случае если вообще никаких данных небыло до этого (вдруг там не dict)
             document_user.critic = {imdb: int(rate)}
         else:
-            # if data_critic[CriticDocument.imdb.name] in document_user.critic:
+            # Измнение (создание) критики по имдб
             document_user.critic[imdb] = int(rate)
 
         yield document_user.save()

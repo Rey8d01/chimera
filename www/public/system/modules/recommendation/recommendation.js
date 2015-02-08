@@ -75,28 +75,16 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
             var criticList = response.content.critic;
             if (criticList) {
                 for (var imdb in criticList) {
-                    console.log(imdb);
-
+                    // Сбор инфы по фильмам на основе имдб
                     omdbapiService.findByImdb({i:imdb}, function(response) {
-                        console.log(imdb);
-                        $scope.criticList[imdb] = {
-                            // imdb: response.Search[item].imdbID,
+                        console.log(response.imdbID);
+                        $scope.criticList[response.imdbID] = {
+                            imdb: response.imdbID,
                             year: response.Year,
                             title: response.Title,
-                            rate: criticList[imdb]
+                            rate: criticList[response.imdbID]
                         };
                     });
-
-                    // omdbapiService.findByImdb({i:imdb}).$promise.then(function(response) {
-                    //     console.log(imdb);
-                    //     $scope.criticList[imdb] = {
-                    //         // imdb: response.Search[item].imdbID,
-                    //         year: response.Year,
-                    //         title: response.Title,
-                    //         rate: criticList[imdb]
-                    //     };
-                    // });
-
                 };
             }
         });
