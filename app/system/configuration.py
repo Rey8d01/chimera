@@ -18,23 +18,23 @@ DB_PORT = 27017
 DB_NAME = "chimera"
 
 handlers = [
-    # (r"/auth", system.handlers.AuthHandler),
-    (r"/introduce", system.handlers.IntroduceHandler),
-    (r"/logout", system.handlers.LogoutHandler),
+    # (r"/_/auth", system.handlers.AuthHandler),
+    (r"/_/introduce", system.handlers.IntroduceHandler),
+    (r"/_/logout", system.handlers.LogoutHandler),
 
-    (r"/index", handlers.main.MainerHandler),
-    # (r"/navigator", handlers.navigator.NavigatorHandler),
+    (r"/_/index", handlers.main.MainerHandler),
+    # (r"/_/navigator", handlers.navigator.NavigatorHandler),
 
     # Blog
-    (r"/catalog/([\w-]+)/([\d+]+)", handlers.blog.catalog.CatalogHandler),
-    (r"/catalogs", handlers.blog.catalogs.CatalogsHandler),
-    (r"/post/([\w-]+)", handlers.blog.post.PostHandler),
+    (r"/_/catalog/([\w-]+)/([\d+]+)", handlers.blog.catalog.CatalogHandler),
+    (r"/_/catalogs", handlers.blog.catalogs.CatalogsHandler),
+    (r"/_/post/([\w-]+)", handlers.blog.post.PostHandler),
 
     # Recommendation
-    (r"/recommendation/harvest", handlers.recommendation.harvest.HarvestHandler),
-    (r"/recommendation/process/([\w-]+)", handlers.recommendation.process.ProcessHandler),
-    (r"/recommendation/result/([\w-]+)", handlers.recommendation.result.ResultHandler),
-    (r"/recommendation/fake", handlers.recommendation.fake.FakeHandler),
+    (r"/_/recommendation/harvest", handlers.recommendation.harvest.HarvestHandler),
+    (r"/_/recommendation/process/([\w-]+)", handlers.recommendation.process.ProcessHandler),
+    (r"/_/recommendation/result/([\w-]+)", handlers.recommendation.result.ResultHandler),
+    (r"/_/recommendation/fake", handlers.recommendation.fake.FakeHandler),
 ]
 
 settings = {

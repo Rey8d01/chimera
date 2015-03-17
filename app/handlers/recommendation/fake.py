@@ -14,23 +14,45 @@ class FakeHandler(MainHandler):
     @gen.coroutine
     def get(self):
         """
-        Запрос чистых данных по пользователям (случайные 10)
-        Список фильмов топ250
+        Запрос данных по пользователям (случайные 10)
         :return:
         """
+        import random
 
         collection_critic = yield UserDocument().objects.find_all()
 
-        list_criric = {}
+        # Перемешивание втупую и срез 10 пользователей
+        random.shuffle(collection_critic)
+        fake_user_list = {}
+        for document_critic in collection_critic[:10]:
+            fake_user_list[str(document_critic._id)] = document_critic.info.name
+
+        self.result.update_content({"fakeUserList": fake_user_list})
+        self.write(self.result.get_message())
+
+
+    @tornado.web.asynchronous
+    @gen.coroutine
+    def post(self):
+        """
+        Расчет статистики
+
+        В качестве параметров передавать список необходимых данных: двоих пользователей или фильм
+        Возвращать данные расщитанные данные
+        :return:
+        """
+        collection_critic = yield UserDocument().objects.find_all()
+
+        list_critic = {}
         for document_critic in collection_critic:
             # print(document_critic._id)
             # print(document_critic.critic)
-            list_criric[str(document_critic._id)] = document_critic.critic
+            list_critic[str(document_critic._id)] = document_critic.critic
 
         # Recommendations
-        # print(list_criric)
+        # print(list_critic)
         #
-        my_stat = Recommendations(list_criric)
+        my_stat = Recommendations(list_critic)
         test1 = '54c92bbc80a9e1252dff9949'
         test2 = '54c92bbc80a9e1252dff9d18'
         movie = 'tt0407887'
@@ -52,15 +74,4 @@ class FakeHandler(MainHandler):
             # 'Похожие фильмы	\n			', my_stat.similar_items, '\n',
             # 'Выработка рекомендации	по образцам	', my_stat.get_recommendations_items(test1), '\n',
         )
-        self.write({"ee":55})
-
-    @tornado.web.asynchronous
-    @gen.coroutine
-    def post(self):
-        """
-        Расчет статистики
-
-        В качестве параметров передавать список необходимых данных и расчеты для них
-        :return:
-        """
-        self.write(2)
+        self.write({"ee": 55})

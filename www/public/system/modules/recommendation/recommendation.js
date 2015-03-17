@@ -4,10 +4,8 @@
 
 chimera.system.recommendation = angular.module("recommendation", ["ngResource", "ngSanitize"]);
 
-chimera.system.recommendation.controller("RecommendationController", ["$scope", "$state", "recommendationService", "omdbapiService",
-    function ($scope, $state, recommendationService, omdbapiService) {
-        console.log("RecommendationController");
-
+chimera.system.recommendation.controller("RecommendationController", ["$scope", "$state", "recommendationService", "recommendationFakeService", "omdbapiService",
+    function ($scope, $state, recommendationService, recommendationFakeService, omdbapiService) {
         var $input = $('.typeahead');
 
         $scope.selectItem = {
@@ -19,6 +17,7 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
         $scope.criticList = {};
         $scope.infoItems = {};
 
+        // Инициализация автокомплита
         $input.typeahead({
             source: function (s, cb) {
                 var matches = [];
@@ -40,7 +39,6 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
 
                     cb(matches);
                 });
-
             },
             afterSelect: function (item) {
                 $scope.selectItem.imdb = item.imdb;
@@ -77,7 +75,6 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
                 for (var imdb in criticList) {
                     // Сбор инфы по фильмам на основе имдб
                     omdbapiService.findByImdb({i:imdb}, function(response) {
-                        console.log(response.imdbID);
                         $scope.criticList[response.imdbID] = {
                             imdb: response.imdbID,
                             year: response.Year,
@@ -88,12 +85,23 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
                 };
             }
         });
+
+        // Данные по фейковым юзерам
+        recommendationFakeService.get({}, function (response) {
+            $scope.fakeUserList = response.content.fakeUserList;
+        });
     }
 ]);
 
 chimera.system.recommendation.factory("recommendationService", ["$resource",
     function ($resource) {
         return $resource(chimera.config.baseUrl + "/recommendation/harvest");
+    }
+]);
+
+chimera.system.recommendation.factory("recommendationFakeService", ["$resource",
+    function ($resource) {
+        return $resource(chimera.config.baseUrl + "/recommendation/fake");
     }
 ]);
 

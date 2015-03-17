@@ -67,6 +67,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 error_message = object_error.error_message
             else:
                 error_message = object_error
+        print(error_message)
 
         result = self.escape.json_encode({'error': error_message})
         self.write(result)
