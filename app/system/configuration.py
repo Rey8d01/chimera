@@ -13,8 +13,8 @@ import handlers.recommendation.process
 import handlers.recommendation.result
 import handlers.recommendation.fake
 
-DB_HOST = "localhost"
-DB_PORT = 27017
+DB_HOST = "melchior"
+DB_PORT = 27111
 DB_NAME = "chimera"
 
 handlers = [

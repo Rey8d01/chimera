@@ -8,7 +8,7 @@ import tornado.web
 from tornado import gen
 
 
-class FakeHandler(MainHandler):
+class FakeHandler(BaseHandler):
 
     @tornado.web.asynchronous
     @gen.coroutine
@@ -30,7 +30,6 @@ class FakeHandler(MainHandler):
         self.result.update_content({"fakeUserList": fake_user_list})
         self.write(self.result.get_message())
 
-
     @tornado.web.asynchronous
     @gen.coroutine
     def post(self):
@@ -41,37 +40,77 @@ class FakeHandler(MainHandler):
         Возвращать данные расщитанные данные
         :return:
         """
-        collection_critic = yield UserDocument().objects.find_all()
+        # 5501eec480a9e10c639d60e0 5501eec480a9e10c639d60e4
+        user1 = self.get_argument("user1", "")
+        user2 = self.get_argument("user2", "")
+        movie = self.get_argument("movie", "")
 
+        ##################################
+        user1 = "5501eec480a9e10c639d60e0"
+        user2 = "5501eec480a9e10c639d60e4"
+        movie = "tt0407887"
+
+        collection_critic = yield UserDocument().objects.find_all()
+        # Формирование массива данных для анализа
         list_critic = {}
         for document_critic in collection_critic:
-            # print(document_critic._id)
-            # print(document_critic.critic)
+            # Массив данных имеет вид [ид пользователя => [ид объекта => оценка,] ]
             list_critic[str(document_critic._id)] = document_critic.critic
+        # print(list_critic)
 
         # Recommendations
-        # print(list_critic)
-        #
-        my_stat = Recommendations(list_critic)
-        test1 = '54c92bbc80a9e1252dff9949'
-        test2 = '54c92bbc80a9e1252dff9d18'
-        movie = 'tt0407887'
+        instance_recommendations = Recommendations(list_critic)
 
-        print(
-            'Люди:', test1, 'и', test2, '\n',
-            'Евклидово расстояние		', my_stat.distance(my_stat.source, test1, test2), '\n',
-            'Корреляця Пирсона			', my_stat.pearson(my_stat.source, test1, test2), '\n',
-            'Коэффициент Жаккара		', my_stat.jaccard(my_stat.source, test1, test2), '\n',
-            'Манхэттенское расстояние	', my_stat.manhattan(my_stat.source, test1, test2), '\n',
-            '\n',
-            'Ранжирование критиков		', my_stat.top_matches(test1, 2, my_stat.TYPE_SOURCE, my_stat.pearson), '\n',
-            'Выработка рекомендации		', my_stat.get_recommendations(test1), '\n',
-            '\n',
-            'Фильмы похожие на 			', movie, my_stat.top_matches(movie, 3, my_stat.TYPE_TRANSFORMS, my_stat.pearson), '\n',
-            'Кто еще не смотрел фильм	', movie, my_stat.get_recommendations_transforms(movie), '\n',
-            # 'AAAAAAAAAA	', my_stat.transforms, '\n',
-            # '\n',
-            # 'Похожие фильмы	\n			', my_stat.similar_items, '\n',
-            # 'Выработка рекомендации	по образцам	', my_stat.get_recommendations_items(test1), '\n',
-        )
-        self.write({"ee": 55})
+        if movie != "":
+            # Для проверки объектов
+            self.result.update_content({
+                # Фильмы похожие на
+                "matches": instance_recommendations.top_matches(movie, 3, instance_recommendations.TYPE_TRANSFORMS,
+                                                                instance_recommendations.pearson),
+                # Кто еще не смотрел фильм
+                "recommendations": instance_recommendations.get_recommendations_transforms(movie),
+                # Похожие фильмы
+                #"similarItems": instance_recommendations.similar_items,
+                # Выработка рекомендации по образцам
+                "pearson": instance_recommendations.get_recommendations_items(user1),
+            })
+        elif (user1 != "") and (user2 != ""):
+            # Для сравнения пользователей
+            self.result.update_content({
+                # Евклидово расстояние
+                "euclid": instance_recommendations.euclid(instance_recommendations.source, user1, user2),
+                # Корреляця Пирсона
+                "pearson": instance_recommendations.pearson(instance_recommendations.source, user1, user2),
+                # Коэффициент Жаккара
+                "jaccard": instance_recommendations.jaccard(instance_recommendations.source, user1, user2),
+                # Манхэттенское расстояние
+                "manhattan": instance_recommendations.manhattan(instance_recommendations.source, user1, user2),
+                # Ранжирование критиков
+                "matches": instance_recommendations.top_matches(user1, 2, instance_recommendations.TYPE_SOURCE,
+                                                                instance_recommendations.pearson),
+                # Выработка рекомендации
+                "recommendations": instance_recommendations.get_recommendations(user1),
+            })
+        else:
+            # self.result.update_content({})
+            pass
+
+        self.write(self.result.get_message())
+
+        # print(
+        #     'Люди:', user1, 'и', user2, '\n',
+        #     'Евклидово расстояние		', instance_recommendations.euclid(instance_recommendations.source, user1, user2), '\n',
+        #     'Корреляця Пирсона			', instance_recommendations.pearson(instance_recommendations.source, user1, user2), '\n',
+        #     'Коэффициент Жаккара		', instance_recommendations.jaccard(instance_recommendations.source, user1, user2), '\n',
+        #     'Манхэттенское расстояние	', instance_recommendations.manhattan(instance_recommendations.source, user1, user2), '\n',
+        #     '\n',
+        #     'Ранжирование критиков		', instance_recommendations.top_matches(user1, 2, instance_recommendations.TYPE_SOURCE, instance_recommendations.pearson), '\n',
+        #     'Выработка рекомендации		', instance_recommendations.get_recommendations(user1), '\n',
+        #     '\n',
+        #     'Фильмы похожие на 			', movie, instance_recommendations.top_matches(movie, 3, instance_recommendations.TYPE_TRANSFORMS, instance_recommendations.pearson), '\n',
+        #     'Кто еще не смотрел фильм	', movie, instance_recommendations.get_recommendations_transforms(movie), '\n',
+        #     # 'AAAAAAAAAA	', instance_recommendations.transforms, '\n',
+        #     # '\n',
+        #     # 'Похожие фильмы	\n			', instance_recommendations.similar_items, '\n',
+        #     # 'Выработка рекомендации по образцам', instance_recommendations.get_recommendations_items(user1), '\n',
+        # )

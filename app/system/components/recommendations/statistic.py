@@ -9,7 +9,7 @@ from math import sqrt, fabs, floor
 class Similarity:
     """ Коэффициенты сходимости """
 
-    def distance(self, source, p1, p2):
+    def euclid(self, source, p1, p2):
         """
         Оценка подобия на основе Евклидова расстояния
 
@@ -206,7 +206,7 @@ class Statistic(Similarity):
             if c % 100 == 0:
                 print("%d / %d" % (c, len(item_source)))
             # Найти образцы, максимально похожий на данный
-            scores = self.top_matches(item, n=n, source=item_source, similarity=self.distance)
+            scores = self.top_matches(item, n=n, source=item_source, similarity=self.euclid)
             result[item] = scores
         return result
 
@@ -399,7 +399,7 @@ class Recommendations(Statistic):
 #
 # print(
 #     'Люди:', test1, 'и', test2, '\n',
-#     'Евклидово расстояние		', my_stat.distance(my_stat.source, test1, test2), '\n',
+#     'Евклидово расстояние		', my_stat.euclid(my_stat.source, test1, test2), '\n',
 #     'Корреляця Пирсона			', my_stat.pearson(my_stat.source, test1, test2), '\n',
 #     'Коэффициент Жаккара		', my_stat.jaccard(my_stat.source, test1, test2), '\n',
 #     'Манхэттенское расстояние	', my_stat.manhattan(my_stat.source, test1, test2), '\n',
