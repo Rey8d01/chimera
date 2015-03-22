@@ -45,12 +45,13 @@ class FakeHandler(BaseHandler):
         user2 = self.get_argument("user2", "")
         movie = self.get_argument("movie", "")
 
-        ##################################
+        # todo
         user1 = "5501eec480a9e10c639d60e0"
         user2 = "5501eec480a9e10c639d60e4"
         movie = "tt0407887"
+        # todo
+        collection_critic = yield UserDocument().objects.limit(100).find_all()
 
-        collection_critic = yield UserDocument().objects.find_all()
         # Формирование массива данных для анализа
         list_critic = {}
         for document_critic in collection_critic:

@@ -203,8 +203,8 @@ class Statistic(Similarity):
         for item in item_source:
             # Обновление состояния для больших наборов данных
             c += 1
-            if c % 100 == 0:
-                print("%d / %d" % (c, len(item_source)))
+            # if c % 100 == 0:
+            #     print("%d / %d" % (c, len(item_source)))
             # Найти образцы, максимально похожий на данный
             scores = self.top_matches(item, n=n, source=item_source, similarity=self.euclid)
             result[item] = scores
