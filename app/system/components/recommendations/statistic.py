@@ -9,18 +9,31 @@ from math import sqrt, fabs, floor
 class Similarity:
     """ Коэффициенты сходимости """
 
-    def euclid(self, source, p1, p2):
+    @staticmethod
+    def normalize_vector(vector):
+        values_item_vector = list(vector.values())
+        sum_sqrt = pow(sum([pow(i, 2) for i in values_item_vector]), 1/2)
+        for (id, weight) in vector.items():
+            vector[id] = weight/sum_sqrt
+        return vector
+
+    @staticmethod
+    def normalize_weight(weight, vector):
+        return weight/pow(sum([pow(i, 2) for i in vector]), 1/2)
+
+    @staticmethod
+    def euclid(vector1, vector2):
         """
         Оценка подобия на основе Евклидова расстояния
 
-        :param p1:
-        :param p2:
+        :param vector1:
+        :param vector2:
         :return:
         """
         # Получить список предметов, оцененных обоими
         si = {}
-        for item in source[p1]:
-            if item in source[p2]:
+        for item in vector1:
+            if item in vector2:
                 si[item] = 1
 
         # Если нет ни одной общей оценки вернуть 0
@@ -28,23 +41,23 @@ class Similarity:
         if len(si) == 0: return 0
 
         # Сложить квадраты разностей
-        sum_of_squares = sum([pow(source[p1][item] - source[p2][item], 2)
-                              for item in source[p1] if item in source[p2]])
+        sum_of_squares = sum([pow(vector1[item] - vector2[item], 2) for item in vector1 if item in vector2])
 
         return round(1 / (1 + sum_of_squares), 3)
 
-    def pearson(self, source, p1, p2):
+    @staticmethod
+    def pearson(vector1, vector2):
         """
         Коэффициент корреляции Пирсона
 
-        :param p1:
-        :param p2:
+        :param vector1:
+        :param vector2:
         :return:
         """
         # Получить список предметов оцененных обоими
         si = {}
-        for item in source[p1]:
-            if item in source[p2]:
+        for item in vector1:
+            if item in vector2:
                 si[item] = 1
 
         # Найти число элементов
@@ -55,15 +68,15 @@ class Similarity:
             return 0
 
         # Вычислить сумму всех предпочтений
-        sum1 = sum([source[p1][it] for it in si])
-        sum2 = sum([source[p2][it] for it in si])
+        sum1 = sum([vector1[it] for it in si])
+        sum2 = sum([vector2[it] for it in si])
 
         # Вычислить сумму квадратов
-        sum1sq = sum([pow(source[p1][it], 2) for it in si])
-        sum2sq = sum([pow(source[p2][it], 2) for it in si])
+        sum1sq = sum([pow(vector1[it], 2) for it in si])
+        sum2sq = sum([pow(vector2[it], 2) for it in si])
 
         # Вычислить сумму произведений
-        psum = sum([source[p1][it] * source[p2][it] for it in si])
+        psum = sum([vector1[it] * vector2[it] for it in si])
 
         # Вычислить коэффициент Пирсона
         num = psum - (sum1 * sum2 / n)
@@ -73,42 +86,44 @@ class Similarity:
 
         return round(num / den, 3)
 
-    def jaccard(self, source, p1, p2):
+    @staticmethod
+    def jaccard(vector1, vector2):
         """
         Коэффициент Жаккара
 
-        :param p1:
-        :param p2:
+        :param vector1:
+        :param vector2:
         :return:
         """
         # Получить количество предметов оцененных обоими
         si = 0
-        for item in source[p1]:
-            if item in source[p2]:
+        for item in vector1:
+            if item in vector2:
                 si = si + 1
 
-        return round(si / (len(source[p1]) + len(source[p2]) - si), 3)
+        return round(si / (len(vector1) + len(vector2) - si), 3)
 
-    def manhattan(self, source, p1, p2):
+    @staticmethod
+    def manhattan(vector1, vector2):
         """
         Расстояние городских кварталов (манхэттенское расстояние)
 
-        :param p1:
-        :param p2:
+        :param vector1:
+        :param vector2:
         :return:
         """
         # Получить список предметов, оцененных обоими
         si = {}
-        for item in source[p1]:
-            if item in source[p2]:
+        for item in vector1:
+            if item in vector2:
                 si[item] = 1
 
         # Если нет ни одной общей оценки вернуть 0
         if len(si) == 0: return 0
 
         # Сложить модули разностей
-        sum_of_abs = sum([fabs(source[p1][item] - source[p2][item])
-                          for item in source[p1] if item in source[p2]])
+        sum_of_abs = sum([fabs(vector1[item] - vector2[item])
+                          for item in vector1 if item in vector2])
 
         return round(1 / (1 + sum_of_abs), 3)
 
@@ -227,7 +242,7 @@ class Statistic(Similarity):
         similarity = similarity or self.pearson
 
         # Сравнение person со всеми остальными (критиками) по одной из определенных метрик
-        scores = [(similarity(source, person, other), other)
+        scores = [(similarity(source[person], source[other]), other)
                   for other in source if other != person]
         # Отсортировать список по убыванию оценок
         scores.sort()
@@ -260,7 +275,7 @@ class Recommendations(Statistic):
             # Сравнивать пользователя с собой же не нужно
             if other == person:
                 continue
-            sim = similarity(source, person, other)
+            sim = similarity(source[person], source[other])
 
             # Игнорировать нулевые и отрицательные оценки
             if sim <= 0:
@@ -399,10 +414,10 @@ class Recommendations(Statistic):
 #
 # print(
 #     'Люди:', test1, 'и', test2, '\n',
-#     'Евклидово расстояние		', my_stat.euclid(my_stat.source, test1, test2), '\n',
-#     'Корреляця Пирсона			', my_stat.pearson(my_stat.source, test1, test2), '\n',
-#     'Коэффициент Жаккара		', my_stat.jaccard(my_stat.source, test1, test2), '\n',
-#     'Манхэттенское расстояние	', my_stat.manhattan(my_stat.source, test1, test2), '\n',
+#     'Евклидово расстояние		', my_stat.euclid(my_stat.source[test1], my_stat.source[test2]), '\n',
+#     'Корреляця Пирсона			', my_stat.pearson(my_stat.source[test1], my_stat.source[test2]), '\n',
+#     'Коэффициент Жаккара		', my_stat.jaccard(my_stat.source[test1], my_stat.source[test2]), '\n',
+#     'Манхэттенское расстояние	', my_stat.manhattan(my_stat.source[test1], my_stat.source[test2]), '\n',
 #     '\n',
 #     'Ранжирование критиков		', my_stat.top_matches(test1, 2, my_stat.TYPE_SOURCE, my_stat.pearson), '\n',
 #     'Выработка рекомендации		', my_stat.get_recommendations(test1), '\n',

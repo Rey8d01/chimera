@@ -32,6 +32,43 @@ class FakeHandler(BaseHandler):
 
     @tornado.web.asynchronous
     @gen.coroutine
+    def put(self):
+        from system.components.recommendations.kohonen import Kohonen, KohonenClusterDocument, ItemExtractor
+        # resource = {}
+        # # Населяем сеть кластерами из базы
+        # collection_cluster = yield KohonenClusterDocument().objects.find_all()
+        # for document_cluster in collection_cluster:
+        #     resource[str(document_cluster.name)] = document_cluster.critic
+
+        class UserItemExtractor(UserDocument, ItemExtractor):
+
+            __collection__ = UserDocument.__collection__
+
+            def get_item_id(self):
+                return self._id
+
+            def get_item_name(self):
+                return self.info.name
+
+            def get_item_vector(self):
+                return self.critic.copy()
+
+        list_user2 = yield UserItemExtractor().objects.limit(100).find_all()
+
+        # print(UserDocument.__collection__)
+        # print(UserItemExtractor.__collection__)
+        # print(list_user2)
+
+        k = Kohonen(list_cluster=[], list_source=list_user2)
+        print(k)
+        # print(len(k.clusters))
+        # print(k.clusters)
+        k.processing()
+        print(len(k.clusters))
+
+
+    @tornado.web.asynchronous
+    @gen.coroutine
     def post(self):
         """
         Расчет статистики
@@ -79,13 +116,17 @@ class FakeHandler(BaseHandler):
             # Для сравнения пользователей
             self.result.update_content({
                 # Евклидово расстояние
-                "euclid": instance_recommendations.euclid(instance_recommendations.source, user1, user2),
+                "euclid": instance_recommendations.euclid(instance_recommendations.source[user1],
+                                                          instance_recommendations.source[user2]),
                 # Корреляця Пирсона
-                "pearson": instance_recommendations.pearson(instance_recommendations.source, user1, user2),
+                "pearson": instance_recommendations.pearson(instance_recommendations.source[user1],
+                                                            instance_recommendations.source[user2]),
                 # Коэффициент Жаккара
-                "jaccard": instance_recommendations.jaccard(instance_recommendations.source, user1, user2),
+                "jaccard": instance_recommendations.jaccard(instance_recommendations.source[user1],
+                                                            instance_recommendations.source[user2]),
                 # Манхэттенское расстояние
-                "manhattan": instance_recommendations.manhattan(instance_recommendations.source, user1, user2),
+                "manhattan": instance_recommendations.manhattan(instance_recommendations.source[user1],
+                                                                instance_recommendations.source[user2]),
                 # Ранжирование критиков
                 "matches": instance_recommendations.top_matches(user1, 2, instance_recommendations.TYPE_SOURCE,
                                                                 instance_recommendations.pearson),
