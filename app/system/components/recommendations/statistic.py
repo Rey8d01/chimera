@@ -25,9 +25,10 @@ class Similarity:
     def euclid(vector1, vector2):
         """
         Оценка подобия на основе Евклидова расстояния
+        [0;+1]
 
-        :param vector1:
-        :param vector2:
+        :type vector1: dict
+        :type vector2: dict
         :return:
         """
         # Получить список предметов, оцененных обоими
@@ -49,10 +50,11 @@ class Similarity:
     def pearson(vector1, vector2):
         """
         Коэффициент корреляции Пирсона
+        [-1;+1]
 
-        :param vector1:
-        :param vector2:
-        :return:
+        :type vector1: dict
+        :type vector2: dict
+        :return: double
         """
         # Получить список предметов оцененных обоими
         si = {}
@@ -89,10 +91,12 @@ class Similarity:
     @staticmethod
     def jaccard(vector1, vector2):
         """
-        Коэффициент Жаккара
+        Коэффициент Жаккара (Танимото)
+        Используется для оценки схожести двух образцов
+        [0;+1]
 
-        :param vector1:
-        :param vector2:
+        :type vector1: dict
+        :type vector2: dict
         :return:
         """
         # Получить количество предметов оцененных обоими
@@ -104,12 +108,17 @@ class Similarity:
         return round(si / (len(vector1) + len(vector2) - si), 3)
 
     @staticmethod
+    def tanimoto(vector1, vector2):
+        return Similarity.jaccard(vector1, vector2)
+
+    @staticmethod
     def manhattan(vector1, vector2):
         """
         Расстояние городских кварталов (манхэттенское расстояние)
+        [0;+1]
 
-        :param vector1:
-        :param vector2:
+        :type vector1: dict
+        :type vector2: dict
         :return:
         """
         # Получить список предметов, оцененных обоими

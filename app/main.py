@@ -9,15 +9,18 @@ import tornado.web  # веб фреймворк, на котором постр�
 # import tornado.database   # Простая обертка вокруг MySQLdb для упрощения спользования СУБД MySQL
 # import tornado.template   # язык шаблонов, в основу которого положен синтаксис языка Python
 # import tornado.httpclient # неблокирующий HTTP клиент для работы с модулями web и httpserver
-# import tornado.auth       # реализация схем аутентификации и авторизации от третих разработчиков (Google OpenID/OAuth, Facebook Platform, Yahoo BBAuth, FriendFeed OpenID/OAuth, Twitter OAuth)
+# import tornado.auth       # реализация схем аутентификации и авторизации от третих разработчиков (Google OpenID/OAuth,
+#  Facebook Platform, Yahoo BBAuth, FriendFeed OpenID/OAuth, Twitter OAuth)
 # import tornado.locale     # поддержка локализации/интернационализации
-# import tornado.options    # синтаксический анализатор файлов настроек и аргументов коммандной строки, оптимизированный для использования в среде сервера
+# import tornado.options    # синтаксический анализатор файлов настроек и аргументов коммандной строки,
+#  оптимизированный для использования в среде сервера
 # Низкоуровневые модули
 import tornado.httpserver  # очень простой HTTP сервер, на основе которого построен модуль web
-# import tornado.iostream   # простая обертка вокруг неблокирующих сокетов для обеспечения общих шаблонов считывания и записи
+# import tornado.iostream   # простая обертка вокруг неблокирующих сокетов для обеспечения общих шаблонов
+#  считывания и записи
 import tornado.ioloop  # основная петля ввода/вывода
 # import tornado.websocket  #
-# import logging            #
+import tornado.log            #
 
 from tornado.options import define, options
 
@@ -30,12 +33,13 @@ define("port", default=8888, help="run on the given port", type=int)
 def main():
     tornado.options.parse_command_line()
 
+    # Передача настроек
     application = tornado.web.Application(system.configuration.handlers, **system.configuration.settings)
-
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(options.port)
 
-    motorengine.connect(system.configuration.DB_NAME,
+    # Соединение с бд через motorengine
+    motorengine.connect(db=system.configuration.DB_NAME,
                         host=system.configuration.DB_HOST,
                         port=system.configuration.DB_PORT)
 

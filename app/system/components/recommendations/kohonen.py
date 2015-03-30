@@ -4,7 +4,7 @@ from motorengine import Document, StringField, BaseField
 from documents.fake import UserDocument
 from system.components.recommendations.statistic import Similarity
 
-from tornado import gen
+from tornado import gen, log
 
 # Вектор для задачи про фильмы
 top250 = [
@@ -68,9 +68,9 @@ class Kohonen(Similarity):
 
     similarity = None
     # Минимальная допустимая сепень схожести для присоединения к существующему кластеру
-    allowable_similarity = 0.2
+    allowable_similarity = 0.55
     # Минимальная приемлемая степень схожести для присоединения к сущесвующему кластеру без изменения его прототипа
-    acceptable_similarity = 0.9
+    acceptable_similarity = 0.87
     _clusters = None
     _item_cluster = None
     _source = None
@@ -99,8 +99,10 @@ class Kohonen(Similarity):
         :param list_cluster: Список кластеров (список из классов KohonenClusterDocument)
         :return:
         """
+        log.app_log.debug("Инициализация сети Кохонена")
 
-        self.similarity = similarity if similarity is not None else self.pearson
+        # Выбранная функция расчета коэффцициента схожести
+        self.similarity = similarity if similarity is not None else self.euclid
 
         # Населяем сеть кластерами из базы или по переданной информации
         if list_cluster is None:
@@ -114,6 +116,7 @@ class Kohonen(Similarity):
         for document_cluster in list_cluster:
             clusters[str(document_cluster.name)] = document_cluster.vector
         self._clusters = clusters
+        log.app_log.debug("Инициализировано кластеров "+str(len(self._clusters)))
         self._item_cluster = {}
 
         # Если сеть пустая то создадим тестовый кластер для начала работы
@@ -121,6 +124,7 @@ class Kohonen(Similarity):
             self.create_cluster()
 
         self._source = list_source
+        log.app_log.debug("Кластеризацию ожидают образцов "+str(len(self._source)))
 
     def create_cluster(self, vector=None):
         """
@@ -135,6 +139,8 @@ class Kohonen(Similarity):
         Возвращается человеческий ид кластера для последующего к нему обращения
         :return:
         """
+        log.app_log.debug("Начато создание нового кластера")
+
         document_cluster = KohonenClusterDocument()
         document_cluster.name = "cluster" + str(len(self._clusters) + 1)
         # заполняем новый кластер случайными значениями весов для каждого фильма
@@ -149,10 +155,51 @@ class Kohonen(Similarity):
         self._clusters[document_cluster.name] = document_cluster.vector
 
         # document_cluster.save()
+
+        log.app_log.debug("Создание нового кластера завершено, кластеров в сети "+str(len(self._clusters)))
         return document_cluster.name
 
-    def processing(self, ):
+    def actualize_clusters(self):
         """
+        Ищет и удаляет неиспользуемые кластеры и сохраняет изменения в кластерах в бд
+
+        :return:
+        """
+        # Сбор уникальных имен используемых кластеров
+        used_clusters_name = list(self._item_cluster.values())
+        used_cluster = []
+        [used_cluster.append(item) for item in used_clusters_name if item not in used_cluster]
+        # Удаление кластеров, которые не приписаны ни одному образцу
+        all_clusters_name = list(self._clusters.keys())
+        [self._clusters.pop(cluster_name) for cluster_name in all_clusters_name if cluster_name not in used_cluster]
+
+        # Оищение базы перед сохранением
+        KohonenClusterDocument.objects.delete()
+        # Сохранение кластеров в бд
+        for (cluster_name, cluster_vector) in self._clusters.items():
+            cluster_document = KohonenClusterDocument()
+            cluster_document.name = cluster_name
+            cluster_document.vector = cluster_vector
+            cluster_document.save()
+
+        log.app_log.debug("Актуализация завершена, в сети кластеров "+str(len(self._clusters)))
+
+    def get_result_clustering(self):
+        """
+        Итог кластеризации
+        Список фенотипов и их прототипов
+        :return:
+        """
+        cluster_item = {}
+        for (cluster_name, cluster_vector) in self._clusters.items():
+            cluster_item[cluster_name] = [item_id for (item_id, item_cluster_name) in self._item_cluster.items() if item_cluster_name == cluster_name]
+            log.app_log.info(cluster_name + " - " + str(cluster_item[cluster_name]))
+        return cluster_item
+
+    def clustering(self):
+        """
+        Задача универсального кластера - если расстояние между входным вектором и нейроном кластера минимально то этот вектор относится к этому кластеру.
+        Процесс кластеризации. На входе функция получает массив кластеров и наборы данных
 
         :type source: list[ItemExtractor]
         :return:
@@ -170,16 +217,17 @@ class Kohonen(Similarity):
                 # от текущего элемента до каждого кластера
                 similarity = {}
                 for (cluster_name, cluster_vector) in self._clusters.items():
-                    similarity[cluster_name] = self.similarity(item_vector, cluster_vector)
+                    # abs необходим для функций корреляции, которые могут расчитывать обратную взаимосвязь
+                    # и возвращать результат на отрезке [-1;+1]
+                    similarity[cluster_name] = abs(self.similarity(item_vector, cluster_vector))
                 # После сравнения всех кластеров с текущим элементом - получаем максимальную степень схожести
                 # (минимальное расстояние, максимальную корреляцию, максимальная близость)
                 cluster_name_max_similarity = max(similarity, key=similarity.get)
                 max_similarity = similarity[cluster_name_max_similarity]
+                print((max_similarity, similarity))
 
                 # Условие допустимой схожести
                 if max_similarity < self.allowable_similarity:
-                    # print("max_similarity < self.allowable_similarity")
-
                     # Если степень схожести, среди всех кластеров, меньше допустимого порога,
                     # то создаем новый кластер, к которому будет относится данный образец
                     # Создаем новый кластер - новый кластер наследует характеристики основателя (текущего образца)
@@ -191,10 +239,9 @@ class Kohonen(Similarity):
                     # Если расчитанная максимальная схожесть удовлетворяет условию минимальной допустимой схожести
                     # то интегрируем образец в кластер
                     # Но если степень сходимости меньше минимальное приемлемой,
-                    # то прототип кластера необходимо скорректировать - иначе говоря обучить сеть, скорректировать ее веса
+                    # то прототип кластера необходимо скорректировать - иначе говоря обучить сеть,
+                    # скорректировать ее веса
                     if max_similarity < self.acceptable_similarity:
-                        # print("max_similarity < self.acceptable_similarity")
-                        # print(item_vector.items())
                         # Коррекция весов только по тем позициям, которые имеются в новом фенотипе
                         for (id, weight) in item_vector.items():
                             self._clusters[cluster_name_max_similarity][id] = \
@@ -205,35 +252,15 @@ class Kohonen(Similarity):
                 self._item_cluster[item_id] = cluster_name_max_similarity
         except KohonenExceptionClustering:
             self.deep += 1
-            if self.deep < 100:
-                return self.processing()
+            log.app_log.debug("Пересчет сети, глубина "+str(self.deep))
+            if self.deep < 200:
+                return self.clustering()
             else:
-                print("max recursion")
+                log.app_log.warning("Достигнута максимальная глубина")
 
-        self.delete_empty_clusters()
-        print("deep="+str(self.deep))
+        log.app_log.debug("Завершение кластеризации, глубина процесса "+str(self.deep))
+        self.actualize_clusters()
 
-    def delete_empty_clusters(self):
-        """
-        Ищет и удаляет неиспользуемые кластеры
 
-        :return:
-        """
-        # Сбор уникальных имен используемых кластеров
-        used_clusters_name = list(self._item_cluster.values())
-        used_cluster = []
-        [used_cluster.append(item) for item in used_clusters_name if item not in used_cluster]
-        # Удаление кластеров, которые не приписаны ни одному образцу
-        all_clusters_name = list(self._clusters.keys())
-        print("к этому моменту создано кластров "+str(len(all_clusters_name)))
-        [self._clusters.pop(cluster_name) for cluster_name in all_clusters_name if cluster_name not in used_cluster]
-
-    def clustering(self):
-        """
-        Задача универсального кластера - если расстояние между входным вектором и нейроном кластера минимально то этот вектор относится к этому кластеру.
-        Процесс кластеризации. На входе функция получает массив кластеров и наборы данных
-        :return:
-        """
-        pass
 
 

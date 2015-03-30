@@ -34,14 +34,11 @@ class FakeHandler(BaseHandler):
     @gen.coroutine
     def put(self):
         from system.components.recommendations.kohonen import Kohonen, KohonenClusterDocument, ItemExtractor
-        # resource = {}
-        # # Населяем сеть кластерами из базы
-        # collection_cluster = yield KohonenClusterDocument().objects.find_all()
-        # for document_cluster in collection_cluster:
-        #     resource[str(document_cluster.name)] = document_cluster.critic
 
         class UserItemExtractor(UserDocument, ItemExtractor):
-
+            """
+            Внутренний класс для определения ключевых позиций необходимых для кластеризации
+            """
             __collection__ = UserDocument.__collection__
 
             def get_item_id(self):
@@ -53,18 +50,14 @@ class FakeHandler(BaseHandler):
             def get_item_vector(self):
                 return self.critic.copy()
 
-        list_user2 = yield UserItemExtractor().objects.limit(100).find_all()
+        # Готовые кластеры
+        collection_cluster = yield KohonenClusterDocument().objects.find_all()
+        # Образцы
+        list_user = yield UserItemExtractor().objects.limit(100).find_all()
 
-        # print(UserDocument.__collection__)
-        # print(UserItemExtractor.__collection__)
-        # print(list_user2)
-
-        k = Kohonen(list_cluster=[], list_source=list_user2)
-        print(k)
-        # print(len(k.clusters))
-        # print(k.clusters)
-        k.processing()
-        print(len(k.clusters))
+        net = Kohonen(list_cluster=collection_cluster, list_source=list_user)
+        net.clustering()
+        net.get_result_clustering()
 
 
     @tornado.web.asynchronous
