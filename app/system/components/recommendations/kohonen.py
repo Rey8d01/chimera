@@ -1,7 +1,6 @@
 __author__ = 'rey'
 
 from motorengine import Document, StringField, BaseField
-from documents.fake import UserDocument
 from system.components.recommendations.statistic import Similarity
 
 from tornado import gen, log
@@ -47,6 +46,9 @@ class KohonenClusterDocument(Document):
 
 
 class KohonenExceptionClustering(Exception):
+    """
+    Исключение для процесса кластеризации
+    """
     pass
 
 
@@ -66,11 +68,13 @@ class Kohonen(Similarity):
     Сеть Кохонена для кластеризации
     """
 
+    # Функция расчета коэффициента сходства
     similarity = None
-    # Минимальная допустимая сепень схожести для присоединения к существующему кластеру
-    allowable_similarity = 0.55
-    # Минимальная приемлемая степень схожести для присоединения к сущесвующему кластеру без изменения его прототипа
-    acceptable_similarity = 0.87
+    # Минимальный допустимый коэффициент сходства для присоединения образца к существующему кластеру
+    allowable_similarity = None
+    # Минимальный приемлемый коэффициент сходства для присоединения образца к существующему кластеру
+    # без изменения его прототипа
+    acceptable_similarity = None
     _clusters = None
     _item_cluster = None
     _source = None
@@ -92,7 +96,8 @@ class Kohonen(Similarity):
         return self._source
 
     @gen.engine
-    def __init__(self, list_cluster=None, list_source=None, similarity=None):
+    def __init__(self, list_cluster=None, list_source=None, similarity=None, allowable_similarity=None,
+                 acceptable_similarity=None):
         """
         Инициализация кластеров. Инстанс сети Кохонена содержит в свойстве resource список кластеров фильмов и весов.
 
@@ -101,8 +106,10 @@ class Kohonen(Similarity):
         """
         log.app_log.debug("Инициализация сети Кохонена")
 
-        # Выбранная функция расчета коэффцициента схожести
+        # Выбранная функция расчета коэффициента сходства
         self.similarity = similarity if similarity is not None else self.euclid
+        self.allowable_similarity = allowable_similarity if allowable_similarity is not None else 0.55
+        self.acceptable_similarity = acceptable_similarity if acceptable_similarity is not None else 0.87
 
         # Населяем сеть кластерами из базы или по переданной информации
         if list_cluster is None:
@@ -116,7 +123,7 @@ class Kohonen(Similarity):
         for document_cluster in list_cluster:
             clusters[str(document_cluster.name)] = document_cluster.vector
         self._clusters = clusters
-        log.app_log.debug("Инициализировано кластеров "+str(len(self._clusters)))
+        log.app_log.debug("Инициализировано кластеров " + str(len(self._clusters)))
         self._item_cluster = {}
 
         # Если сеть пустая то создадим тестовый кластер для начала работы
@@ -124,7 +131,7 @@ class Kohonen(Similarity):
             self.create_cluster()
 
         self._source = list_source
-        log.app_log.debug("Кластеризацию ожидают образцов "+str(len(self._source)))
+        log.app_log.debug("Кластеризацию ожидают образцов " + str(len(self._source)))
 
     def create_cluster(self, vector=None):
         """
@@ -156,7 +163,7 @@ class Kohonen(Similarity):
 
         # document_cluster.save()
 
-        log.app_log.debug("Создание нового кластера завершено, кластеров в сети "+str(len(self._clusters)))
+        log.app_log.debug("Создание нового кластера завершено, кластеров в сети " + str(len(self._clusters)))
         return document_cluster.name
 
     def actualize_clusters(self):
@@ -182,7 +189,7 @@ class Kohonen(Similarity):
             cluster_document.vector = cluster_vector
             cluster_document.save()
 
-        log.app_log.debug("Актуализация завершена, в сети кластеров "+str(len(self._clusters)))
+        log.app_log.debug("Актуализация завершена, в сети кластеров " + str(len(self._clusters)))
 
     def get_result_clustering(self):
         """
@@ -192,7 +199,8 @@ class Kohonen(Similarity):
         """
         cluster_item = {}
         for (cluster_name, cluster_vector) in self._clusters.items():
-            cluster_item[cluster_name] = [item_id for (item_id, item_cluster_name) in self._item_cluster.items() if item_cluster_name == cluster_name]
+            cluster_item[cluster_name] = [item_id for (item_id, item_cluster_name) in self._item_cluster.items() if
+                                          item_cluster_name == cluster_name]
             log.app_log.info(cluster_name + " - " + str(cluster_item[cluster_name]))
         return cluster_item
 
@@ -213,22 +221,22 @@ class Kohonen(Similarity):
                 item_name = item.get_item_name()
                 item_vector = self.normalize_vector(item.get_item_vector())
 
-                # dict в котором будут храниться информация о расстояниях (схожести)
+                # dict в котором будут храниться информация о расстояниях (коэффициентах сходства)
                 # от текущего элемента до каждого кластера
                 similarity = {}
                 for (cluster_name, cluster_vector) in self._clusters.items():
                     # abs необходим для функций корреляции, которые могут расчитывать обратную взаимосвязь
                     # и возвращать результат на отрезке [-1;+1]
                     similarity[cluster_name] = abs(self.similarity(item_vector, cluster_vector))
-                # После сравнения всех кластеров с текущим элементом - получаем максимальную степень схожести
+                # После сравнения всех кластеров с текущим элементом - получаем максимальный коэффициент сходства
                 # (минимальное расстояние, максимальную корреляцию, максимальная близость)
                 cluster_name_max_similarity = max(similarity, key=similarity.get)
                 max_similarity = similarity[cluster_name_max_similarity]
                 print((max_similarity, similarity))
 
-                # Условие допустимой схожести
+                # Условие допустимого сходства
                 if max_similarity < self.allowable_similarity:
-                    # Если степень схожести, среди всех кластеров, меньше допустимого порога,
+                    # Если коэффициент сходства, среди всех кластеров, меньше допустимого порога,
                     # то создаем новый кластер, к которому будет относится данный образец
                     # Создаем новый кластер - новый кластер наследует характеристики основателя (текущего образца)
                     self.create_cluster(item_vector)
@@ -236,8 +244,8 @@ class Kohonen(Similarity):
                     # при сравнении со всеми образцами
                     raise KohonenExceptionClustering
                 else:
-                    # Если расчитанная максимальная схожесть удовлетворяет условию минимальной допустимой схожести
-                    # то интегрируем образец в кластер
+                    # Если расчитанный максимальный коэффициент сходства удовлетворяет условию
+                    # минимального допустимого коэффициента сходства то интегрируем образец в кластер
                     # Но если степень сходимости меньше минимальное приемлемой,
                     # то прототип кластера необходимо скорректировать - иначе говоря обучить сеть,
                     # скорректировать ее веса
@@ -252,13 +260,13 @@ class Kohonen(Similarity):
                 self._item_cluster[item_id] = cluster_name_max_similarity
         except KohonenExceptionClustering:
             self.deep += 1
-            log.app_log.debug("Пересчет сети, глубина "+str(self.deep))
+            log.app_log.debug("Пересчет сети, глубина " + str(self.deep))
             if self.deep < 200:
                 return self.clustering()
             else:
                 log.app_log.warning("Достигнута максимальная глубина")
 
-        log.app_log.debug("Завершение кластеризации, глубина процесса "+str(self.deep))
+        log.app_log.debug("Завершение кластеризации, глубина процесса " + str(self.deep))
         self.actualize_clusters()
 
 

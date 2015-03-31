@@ -7,7 +7,7 @@ from math import sqrt, fabs, floor
 
 
 class Similarity:
-    """ Коэффициенты сходимости """
+    """ Методы для расчета коэффициентов сходства """
 
     @staticmethod
     def normalize_vector(vector):
