@@ -11,6 +11,12 @@ class Similarity:
 
     @staticmethod
     def normalize_vector(vector):
+        """
+        Нормализация вектора
+
+        :param vector:
+        :return:
+        """
         values_item_vector = list(vector.values())
         sum_sqrt = pow(sum([pow(i, 2) for i in values_item_vector]), 1/2)
         for (id, weight) in vector.items():
@@ -19,6 +25,13 @@ class Similarity:
 
     @staticmethod
     def normalize_weight(weight, vector):
+        """
+        Нормализация значения в векторе
+
+        :param weight:
+        :param vector:
+        :return:
+        """
         return weight/pow(sum([pow(i, 2) for i in vector]), 1/2)
 
     @staticmethod
@@ -359,84 +372,83 @@ class Recommendations(Statistic):
         rankings.reverse()
         return rankings
 
-#
-# # Словарь кинокитиков и выставленных ими оценок для небольшого набора данных о фильмах
-# critics = {
-#     "Lisa Rose": {
-#         "Lady in the Water": 2.5,
-#         "Snakes on a Plane": 3.5,
-#         "Just My Luck": 3.0,
-#         "Superman Returns": 3.5,
-#         "You, Me, and Dupree": 2.5,
-#         "The Night Listener": 3.0},
-#     "Gene Seymour": {
-#         "Lady in the Water": 3.0,
-#         "Snakes on a Plane": 3.5,
-#         "Just My Luck": 1.5,
-#         "Superman Returns": 5.0,
-#         "The Night Listener": 3.0,
-#         "You, Me, and Dupree": 3.5},
-#     "Michael Phillips": {
-#         "Lady in the Water": 2.5,
-#         "Snakes on a Plane": 3.0,
-#         "Superman Returns": 3.5,
-#         "The Night Listener": 4.0},
-#     "Claudia Puig": {
-#         "Snakes on a Plane": 3.5,
-#         "Just My Luck": 3.0,
-#         "The Night Listener": 4.5,
-#         "Superman Returns": 4.0,
-#         "You, Me, and Dupree": 2.5},
-#     "Mick LaSalle": {
-#         "Lady in the Water": 3.0,
-#         "Snakes on a Plane": 4.0,
-#         "Just My Luck": 2.0,
-#         "Superman Returns": 3.0,
-#         "The Night Listener": 3.0,
-#         "You, Me, and Dupree": 2.0},
-#     "Jack Matthews": {
-#         "Lady in the Water": 3.0,
-#         "Snakes on a Plane": 4.0,
-#         "The Night Listener": 3.0,
-#         "Superman Returns": 5.0,
-#         "You, Me, and Dupree": 3.5},
-#     "Toby": {
-#         "Snakes on a Plane": 4.5,
-#         "You, Me, and Dupree": 1.0,
-#         "Superman Returns": 4.0}
-# }
-#
-# # Тестовый прогон
-# # Lisa Rose
-# # Gene Seymour
-# # Michael Phillips
-# # Claudia Puig
-# # Mick LaSalle
-# # Jack Matthews
-# # Toby
-# test1 = 'Toby'
-# test2 = 'Gene Seymour'
-#
-# movie = 'You, Me, and Dupree'
-#
-# my_stat = Recommendations(critics)
-#
-# print(
-#     'Люди:', test1, 'и', test2, '\n',
-#     'Евклидово расстояние		', my_stat.euclid(my_stat.source[test1], my_stat.source[test2]), '\n',
-#     'Корреляця Пирсона			', my_stat.pearson(my_stat.source[test1], my_stat.source[test2]), '\n',
-#     'Коэффициент Жаккара		', my_stat.jaccard(my_stat.source[test1], my_stat.source[test2]), '\n',
-#     'Манхэттенское расстояние	', my_stat.manhattan(my_stat.source[test1], my_stat.source[test2]), '\n',
-#     '\n',
-#     'Ранжирование критиков		', my_stat.top_matches(test1, 2, my_stat.TYPE_SOURCE, my_stat.pearson), '\n',
-#     'Выработка рекомендации		', my_stat.get_recommendations(test1), '\n',
-#     '\n',
-#     'Фильмы похожие на 			', movie, my_stat.top_matches(movie, 3, my_stat.TYPE_TRANSFORMS, my_stat.pearson), '\n',
-#     'Кто еще не смотрел фильм	', movie, my_stat.get_recommendations_transforms(movie), '\n',
-#     'AAAAAAAAAA	', my_stat.transforms, '\n',
-#     '\n',
-#     'Похожие фильмы	\n			', my_stat.similar_items, '\n',
-#     'Выработка рекомендации	по образцам	', my_stat.get_recommendations_items(test1), '\n',
-# )
-#
-#
+
+if __name__ == "__main__":
+    # Словарь кинокитиков и выставленных ими оценок для небольшого набора данных о фильмах
+    critics = {
+        "Lisa Rose": {
+            "Lady in the Water": 2.5,
+            "Snakes on a Plane": 3.5,
+            "Just My Luck": 3.0,
+            "Superman Returns": 3.5,
+            "You, Me, and Dupree": 2.5,
+            "The Night Listener": 3.0},
+        "Gene Seymour": {
+            "Lady in the Water": 3.0,
+            "Snakes on a Plane": 3.5,
+            "Just My Luck": 1.5,
+            "Superman Returns": 5.0,
+            "The Night Listener": 3.0,
+            "You, Me, and Dupree": 3.5},
+        "Michael Phillips": {
+            "Lady in the Water": 2.5,
+            "Snakes on a Plane": 3.0,
+            "Superman Returns": 3.5,
+            "The Night Listener": 4.0},
+        "Claudia Puig": {
+            "Snakes on a Plane": 3.5,
+            "Just My Luck": 3.0,
+            "The Night Listener": 4.5,
+            "Superman Returns": 4.0,
+            "You, Me, and Dupree": 2.5},
+        "Mick LaSalle": {
+            "Lady in the Water": 3.0,
+            "Snakes on a Plane": 4.0,
+            "Just My Luck": 2.0,
+            "Superman Returns": 3.0,
+            "The Night Listener": 3.0,
+            "You, Me, and Dupree": 2.0},
+        "Jack Matthews": {
+            "Lady in the Water": 3.0,
+            "Snakes on a Plane": 4.0,
+            "The Night Listener": 3.0,
+            "Superman Returns": 5.0,
+            "You, Me, and Dupree": 3.5},
+        "Toby": {
+            "Snakes on a Plane": 4.5,
+            "You, Me, and Dupree": 1.0,
+            "Superman Returns": 4.0}
+    }
+
+    # Тестовый прогон
+    # Lisa Rose
+    # Gene Seymour
+    # Michael Phillips
+    # Claudia Puig
+    # Mick LaSalle
+    # Jack Matthews
+    # Toby
+    test1 = 'Toby'
+    test2 = 'Gene Seymour'
+
+    movie = 'You, Me, and Dupree'
+
+    my_stat = Recommendations(critics)
+
+    print(
+        'Люди:', test1, 'и', test2, '\n',
+        'Евклидово расстояние		', my_stat.euclid(my_stat.source[test1], my_stat.source[test2]), '\n',
+        'Корреляця Пирсона			', my_stat.pearson(my_stat.source[test1], my_stat.source[test2]), '\n',
+        'Коэффициент Жаккара		', my_stat.jaccard(my_stat.source[test1], my_stat.source[test2]), '\n',
+        'Манхэттенское расстояние	', my_stat.manhattan(my_stat.source[test1], my_stat.source[test2]), '\n',
+        '\n',
+        'Ранжирование критиков		', my_stat.top_matches(test1, 2, my_stat.TYPE_SOURCE, my_stat.pearson), '\n',
+        'Выработка рекомендации		', my_stat.get_recommendations(test1), '\n',
+        '\n',
+        'Фильмы похожие на 			', movie, my_stat.top_matches(movie, 3, my_stat.TYPE_TRANSFORMS, my_stat.pearson), '\n',
+        'Кто еще не смотрел фильм	', movie, my_stat.get_recommendations_transforms(movie), '\n',
+        'AAAAAAAAAA	', my_stat.transforms, '\n',
+        '\n',
+        'Похожие фильмы	\n			', my_stat.similar_items, '\n',
+        'Выработка рекомендации	по образцам	', my_stat.get_recommendations_items(test1), '\n',
+    )

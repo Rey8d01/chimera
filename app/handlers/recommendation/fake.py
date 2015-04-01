@@ -5,6 +5,7 @@ from documents.fake import UserDocument
 from system.components.recommendations.statistic import Recommendations
 
 import tornado.web
+import random
 from tornado import gen
 
 
@@ -17,8 +18,6 @@ class FakeHandler(BaseHandler):
         Запрос данных по пользователям (случайные 10)
         :return:
         """
-        import random
-
         collection_critic = yield UserDocument().objects.find_all()
 
         # Перемешивание втупую и срез 10 пользователей
@@ -53,11 +52,22 @@ class FakeHandler(BaseHandler):
         # Готовые кластеры
         collection_cluster = yield KohonenClusterDocument().objects.find_all()
         # Образцы
-        list_user = yield UserItemExtractor().objects.limit(100).find_all()
+        list_user = yield UserItemExtractor().objects.limit(1000).find_all()
+        random.shuffle(list_user)
 
-        net = Kohonen(list_cluster=collection_cluster, list_source=list_user)
+        net = Kohonen(
+            list_cluster=[],
+            list_source=list_user[:50],
+            similarity=Kohonen.euclid,
+            allowable_similarity=0.7,
+            acceptable_similarity=0.9,
+            # similarity=Kohonen.manhattan,
+            # allowable_similarity=0.15,
+            # acceptable_similarity=0.9,
+        )
         net.clustering()
         net.get_result_clustering()
+        net.save()
 
 
     @tornado.web.asynchronous
