@@ -63,7 +63,6 @@ class ItemExtractor():
 
         :return: str
         """
-        pass
 
     @abstractmethod
     def get_item_name(self):
@@ -72,7 +71,6 @@ class ItemExtractor():
 
         :return: str
         """
-        pass
 
     @abstractmethod
     def get_item_vector(self):
@@ -83,7 +81,6 @@ class ItemExtractor():
 
         :return: dict
         """
-        pass
 
     @abstractmethod
     def associate_cluster(self, cluster_name):
@@ -91,7 +88,6 @@ class ItemExtractor():
         Методу передается имя кластера к которому будет принадлежать образец. Для удобства воспроизведение этой информации
         желательно ее записать в специальное поле.
         """
-        pass
 
 
 class Kohonen(Similarity):
