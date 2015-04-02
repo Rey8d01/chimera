@@ -2,6 +2,7 @@ __author__ = 'rey'
 
 from motorengine import Document, StringField, BaseField
 from system.components.recommendations.statistic import Similarity
+from abc import abstractmethod
 
 # Вектор для задачи про фильмы
 top250 = [
@@ -51,63 +52,100 @@ class KohonenExceptionClustering(Exception):
 
 
 class ItemExtractor():
+    """
+    Интерфейсный класс который необходимо отнаследовать для класса с образцами данных.
+    Методы этого интерфейса должны реализовать функционал для доступа к данным образца.
+    """
+    @abstractmethod
     def get_item_id(self):
+        """
+        Должен вернуть уникальный id образца, например id в БД.
+
+        :return: str
+        """
         pass
 
+    @abstractmethod
     def get_item_name(self):
+        """
+        Должен вернуть человекопонятное имя образца, например имя человека.
+
+        :return: str
+        """
         pass
 
+    @abstractmethod
     def get_item_vector(self):
+        """
+        Должен вернуть массив с данными для кластеризации, например массив оценок к фильмам.
+
+        dict(id1: rate1, id2: rate2, ... idN: rateN)
+
+        :return: dict
+        """
+        pass
+
+    @abstractmethod
+    def associate_cluster(self, cluster_name):
+        """
+        Методу передается имя кластера к которому будет принадлежать образец. Для удобства воспроизведение этой информации
+        желательно ее записать в специальное поле.
+        """
         pass
 
 
 class Kohonen(Similarity):
     """
     Сеть Кохонена для кластеризации
+
+    :type _similarity: callable Функция расчета коэффициента сходства
+    :type _allowable_similarity: float Минимальный допустимый коэффициент сходства для присоединения образца к существующему кластеру
+    :type _acceptable_similarity: float Минимальный приемлемый коэффициент сходства для присоединения образца к существующему кластеру
+                                        без изменения его прототипа
+    :type _alpha_learning: float Коэффициент обучения, понижающийся в процессе
+    :type _clusters: dict[dict] Массив данных кластеров
+    :type _item_cluster: dict[list] Временная информация о закрепленных к кластерам обрзцах
+    :type _source: list[ItemExtractor] Массив данных образцов для обучения
+    :type _max_deep: int Макисмальная глубина рекурсии по достижении которого обучение останавливается
+    :type _current_deep: int Текущий уровень глубины рекурсии при обучении
     """
 
-    # Функция расчета коэффициента сходства
-    similarity = None
-    # Минимальный допустимый коэффициент сходства для присоединения образца к существующему кластеру
-    allowable_similarity = None
-    # Минимальный приемлемый коэффициент сходства для присоединения образца к существующему кластеру
-    # без изменения его прототипа
-    acceptable_similarity = None
+    _similarity = None
+    _allowable_similarity = None
+    _acceptable_similarity = None
+    _alpha_learning = None
     _clusters = None
     _item_cluster = None
     _source = None
-
-    deep = 0
-    k_learning = 0.8
+    _max_deep = None
+    _current_deep = 0
 
     @property
     def clusters(self):
         """
-        :return: dict
+        :return: dict[dict]
         """
         return self._clusters
 
-    @property
-    def source(self):
-        """
-        :return: list[ItemExtractor]
-        """
-        return self._source
-
     def __init__(self, list_cluster=None, list_source=None, similarity=None, allowable_similarity=None,
-                 acceptable_similarity=None):
+                 acceptable_similarity=None, _max_deep=None):
         """
         Инициализация кластеров. Инстанс сети Кохонена содержит в свойстве resource список кластеров фильмов и весов.
 
-        :param list_cluster: Список кластеров (список из классов KohonenClusterDocument)
+        :type list_cluster: list[KohonenClusterDocument] Список кластеров (список из классов KohonenClusterDocument)
+        :type list_source: list[ItemExtractor]
+        :type similarity: callable
+        :type allowable_similarity: float
+        :type acceptable_similarity: float
         :return:
         """
         print("Инициализация сети Кохонена")
 
-        # Выбранная функция расчета коэффициента сходства
-        self.similarity = similarity if similarity is not None else self.euclid
-        self.allowable_similarity = allowable_similarity if allowable_similarity is not None else 0.55
-        self.acceptable_similarity = acceptable_similarity if acceptable_similarity is not None else 0.87
+        # Установка стандартных значений на этапе инициализации
+        self._similarity = similarity if similarity is not None else self.euclid
+        self._allowable_similarity = allowable_similarity if allowable_similarity is not None else 0.55
+        self._acceptable_similarity = acceptable_similarity if acceptable_similarity is not None else 0.95
+        self._max_deep = _max_deep if _max_deep is not None else 200
 
         if list_cluster is None or not isinstance(list_cluster, list) or len(list_cluster) <= 0:
             list_cluster = []
@@ -136,16 +174,17 @@ class Kohonen(Similarity):
         то необходимо контролировать идентефикаторы для весов и фильмов к которым они соотносятся
 
         Возвращается человеческий ид кластера для последующего к нему обращения
+
+        :type vector: dict
         :return:
         """
         print("Начато создание нового кластера")
 
         # Расчет значения весового коэффициента принимаемого по умолчанию
-        default_weight = 1/pow(len(top250), 1/2)
+        default_weight = 1 / pow(len(top250), 1 / 2)
 
         cluster_name = "cluster" + str(len(self._clusters) + 1)
-        # заполняем новый кластер случайными значениями весов для каждого фильма
-        # или не случайными если кластер задается под вектор
+        # Заполняем новый кластер стандартными значениями весов для каждого фильма или веса задаются под вектор
         if vector is None:
             cluster_vector = {id: default_weight for id in top250}
         else:
@@ -174,6 +213,11 @@ class Kohonen(Similarity):
         print("Актуализация завершена, в сети кластеров " + str(len(self._clusters)))
 
     def save(self):
+        """
+        Сохранение кластера в бд
+
+        :return:
+        """
         # Оищение базы перед сохранением
         KohonenClusterDocument.objects.delete()
         # Сохранение кластеров в бд
@@ -185,8 +229,9 @@ class Kohonen(Similarity):
 
     def get_result_clustering(self):
         """
-        Итог кластеризации
+        Итог обучения
         Список фенотипов и их прототипов
+
         :return:
         """
         cluster_item = {}
@@ -196,75 +241,98 @@ class Kohonen(Similarity):
             print(cluster_name + " - " + str(cluster_item[cluster_name]))
         return cluster_item
 
-    def clustering(self):
+    def learning(self, start_alpha_learning=0.8):
         """
-        Задача универсального кластера - если расстояние между входным вектором и нейроном кластера минимально то этот вектор относится к этому кластеру.
-        Процесс кластеризации. На входе функция получает массив кластеров и наборы данных
+        Процесс обучения сети по массе образцов
 
-        :type source: list[ItemExtractor]
+        :type start_alpha_learning: int Начальный коэффициент при обучении, по умолчанию стремится к 1
         :return:
         """
-        source = self._source
-
+        self._alpha_learning = start_alpha_learning
         try:
             # Перебор всех элементов для их кластеризации
-            for item in source:
+            for item in self._source:
                 item_id = item.get_item_id()
                 item_name = item.get_item_name()
                 item_vector = self.normalize_vector(item.get_item_vector())
-
-                # dict в котором будут храниться информация о расстояниях (коэффициентах сходства)
-                # от текущего элемента до каждого кластера
-                similarity = {}
-                for (cluster_name, cluster_vector) in self._clusters.items():
-                    # abs необходим для функций корреляции, которые могут расчитывать обратную взаимосвязь
-                    # и возвращать результат на отрезке [-1;+1]
-                    similarity[cluster_name] = abs(self.similarity(item_vector, cluster_vector))
-                # После сравнения всех кластеров с текущим элементом - получаем максимальный коэффициент сходства
-                # (минимальное расстояние, максимальную корреляцию, максимальная близость)
-                cluster_name_max_similarity = max(similarity, key=similarity.get)
-                max_similarity = similarity[cluster_name_max_similarity]
-                print((max_similarity, similarity))
-
-                # Условие допустимого сходства
-                if max_similarity < self.allowable_similarity:
-                    # Если коэффициент сходства, среди всех кластеров, меньше допустимого порога,
-                    # то создаем новый кластер, к которому будет относится данный образец
-                    # Создаем новый кластер - новый кластер наследует характеристики основателя (текущего образца)
-                    self.create_cluster(item_vector)
-                    # Перезапускаем процесс кластеризации для того, что бы новый кластер тоже учитывался
-                    # при сравнении со всеми образцами
-                    raise KohonenExceptionClustering
-                else:
-                    # Если расчитанный максимальный коэффициент сходства удовлетворяет условию
-                    # минимального допустимого коэффициента сходства то интегрируем образец в кластер
-                    # Но если степень сходимости меньше минимальное приемлемой,
-                    # то прототип кластера необходимо скорректировать - иначе говоря обучить сеть,
-                    # скорректировать ее веса
-                    if max_similarity < self.acceptable_similarity:
-                        # Коррекция весов только по тем позициям, которые имеются в новом фенотипе
-                        # Обучение методом поиска среднего
-                        for (id, weight) in item_vector.items():
-                            self._clusters[cluster_name_max_similarity][id] = \
-                                (weight * max_similarity + self._clusters[cluster_name_max_similarity][id]) / 2
-                        # Обучение методом уравнения Кохонена
-                        # for (id, weight) in item_vector.items():
-                        #     self._clusters[cluster_name_max_similarity][id] += self.k_learning * \
-                        #         (weight - self._clusters[cluster_name_max_similarity][id])
-
-                        self.k_learning -= 0.005 if self.k_learning > 0.1 else 0
-
-                self._item_cluster[item_id] = cluster_name_max_similarity
+                self.clustering(item_id, item_name, item_vector)
         except KohonenExceptionClustering:
-            self.deep += 1
-            print("Пересчет сети, глубина " + str(self.deep))
-            if self.deep < 200:
-                return self.clustering()
+            self._current_deep += 1
+            if self._current_deep < self._max_deep:
+                # Создаем новый кластер - новый кластер наследует характеристики основателя (текущего образца)
+                self.create_cluster(item_vector)
+                # Перезапускаем процесс кластеризации для того, что бы новый кластер тоже учитывался при сравнении со всеми образцами
+                print("Переобучение сети, глубина " + str(self._current_deep))
+                return self.learning(self._alpha_learning)
             else:
-                print("Достигнута максимальная глубина")
+                print("Достигнута максимальная глубина, дальнейшее обучение сети невозможно!")
 
-        print("Завершение кластеризации, глубина процесса " + str(self.deep) + " k="+str(self.k_learning))
+        print("Завершение кластеризации")
         self.actualize_clusters()
+
+    def working(self, item, start_alpha_learning=0.1):
+        """
+        Процесс работы сети по одному экземпляру
+
+        :type start_alpha_learning: int Начальный коэффициент при работе много меньше чем при обучении
+        :param item: ItemExtractor
+        :return:
+        """
+        self._alpha_learning = start_alpha_learning
+        try:
+            item_id = item.get_item_id()
+            item_name = item.get_item_name()
+            item_vector = self.normalize_vector(item.get_item_vector())
+            return self.clustering(item_id, item_name, item_vector)
+        except KohonenExceptionClustering:
+            return False
+
+    def clustering(self, item_id, item_name, item_vector):
+        """
+        Процесс кластеризации по одному объекту.
+
+        :type item_id: str
+        :type item_name: str
+        :type item_vector: dict
+        :return:
+        """
+
+        # dict - матрица расстояний (точнее коэффициенты сходства) от текущего элемента до каждого кластера
+        similarity = {cluster_name: self._similarity(item_vector, cluster_vector)
+                      for (cluster_name, cluster_vector) in self._clusters.items()}
+
+        # После сравнения всех кластеров с текущим элементом - получаем максимальный коэффициент сходства
+        # (минимальное расстояние, максимальную корреляцию, максимальная близость)
+        cluster_name_max_similarity = max(similarity, key=similarity.get)
+        max_similarity = similarity[cluster_name_max_similarity]
+
+        # Условие допустимого сходства
+        if max_similarity < self._allowable_similarity:
+            # Если коэффициент сходства, среди всех кластеров, меньше допустимого порога, это значит что образец находится слишком далеко
+            # и на этапе обучения это порождает новый кластер, а на этапе работы сети следует оценить необходимость переобучения сети
+            raise KohonenExceptionClustering
+        else:
+            # Если расчитанный максимальный коэффициент сходства удовлетворяет условию
+            # минимального допустимого коэффициента сходства то интегрируем образец в кластер
+            # Но если степень сходимости меньше минимальное приемлемой,
+            # то прототип кластера необходимо скорректировать - иначе говоря обучить сеть,
+            # скорректировать ее веса
+            if max_similarity < self._acceptable_similarity:
+                # Коррекция весов только по тем позициям, которые имеются в новом фенотипе
+                # Обучение методом поиска среднего
+                # for (id, weight) in item_vector.items():
+                # self._clusters[cluster_name_max_similarity][id] = \
+                # (weight * max_similarity + self._clusters[cluster_name_max_similarity][id]) / 2
+                # Обучение методом уравнения Кохонена
+                for (id, weight) in item_vector.items():
+                    self._clusters[cluster_name_max_similarity][id] += self._alpha_learning * (weight - self._clusters[
+                        cluster_name_max_similarity][id])
+
+                self._alpha_learning -= 0.001 if self._alpha_learning > 0.1 else 0
+
+        self._item_cluster[item_id] = cluster_name_max_similarity
+        item.associate_cluster(cluster_name_max_similarity)
+        return cluster_name_max_similarity
 
 
 if __name__ == "__main__":
@@ -310,7 +378,8 @@ if __name__ == "__main__":
     u3.name = "C"
     u4.name = "D"
     u5.name = "E"
-    u1.vector = Similarity.normalize_vector({top250[0]: 0.9, top250[1]: 0.9, top250[2]: 1.0, top250[3]: 0.6, top250[4]: 0.4})  # Близок к 1 кластеру
+    u1.vector = Similarity.normalize_vector(
+        {top250[0]: 0.9, top250[1]: 0.9, top250[2]: 1.0, top250[3]: 0.6, top250[4]: 0.4})  # Близок к 1 кластеру
     u2.vector = Similarity.normalize_vector({top250[0]: 0.3, top250[1]: 0.1, top250[2]: 0.1, top250[3]: 0.5, top250[4]: 0.5})  # Близок к 2
     u3.vector = Similarity.normalize_vector({top250[0]: 0.5, top250[1]: 0.1, top250[2]: 1.0, top250[3]: 0.05, top250[4]: 0.4})  # Близок к 3
     u4.vector = Similarity.normalize_vector({top250[0]: 0.7, top250[1]: 0.5, top250[2]: 0.6, top250[3]: 0.6, top250[4]: 0.3})  # Между 1 и 2
@@ -318,15 +387,20 @@ if __name__ == "__main__":
     print("euclid clusters")
 
     # Кластеры равно удалены друг от друга
-    print("cl1 - cl2 = "+str(Similarity.euclid(cl1.vector, cl2.vector)))
-    print("cl2 - cl3 = "+str(Similarity.euclid(cl2.vector, cl3.vector)))
-    print("cl1 - cl3 = "+str(Similarity.euclid(cl1.vector, cl3.vector)))
+    print("cl1 - cl2 = " + str(Similarity.euclid(cl1.vector, cl2.vector)))
+    print("cl2 - cl3 = " + str(Similarity.euclid(cl2.vector, cl3.vector)))
+    print("cl1 - cl3 = " + str(Similarity.euclid(cl1.vector, cl3.vector)))
     print("euclid clusters - users")
-    print(str(Similarity.euclid(cl1.vector, u1.vector)) + "; " + str(Similarity.euclid(cl2.vector, u1.vector)) + "; " + str(Similarity.euclid(cl3.vector, u1.vector)))
-    print(str(Similarity.euclid(cl1.vector, u2.vector)) + "; " + str(Similarity.euclid(cl2.vector, u2.vector)) + "; " + str(Similarity.euclid(cl3.vector, u2.vector)))
-    print(str(Similarity.euclid(cl1.vector, u3.vector)) + "; " + str(Similarity.euclid(cl2.vector, u3.vector)) + "; " + str(Similarity.euclid(cl3.vector, u3.vector)))
-    print(str(Similarity.euclid(cl1.vector, u4.vector)) + "; " + str(Similarity.euclid(cl2.vector, u4.vector)) + "; " + str(Similarity.euclid(cl3.vector, u4.vector)))
-    print(str(Similarity.euclid(cl1.vector, u5.vector)) + "; " + str(Similarity.euclid(cl2.vector, u5.vector)) + "; " + str(Similarity.euclid(cl3.vector, u5.vector)))
+    print(str(Similarity.euclid(cl1.vector, u1.vector)) + "; " + str(Similarity.euclid(cl2.vector, u1.vector)) + "; " + str(
+        Similarity.euclid(cl3.vector, u1.vector)))
+    print(str(Similarity.euclid(cl1.vector, u2.vector)) + "; " + str(Similarity.euclid(cl2.vector, u2.vector)) + "; " + str(
+        Similarity.euclid(cl3.vector, u2.vector)))
+    print(str(Similarity.euclid(cl1.vector, u3.vector)) + "; " + str(Similarity.euclid(cl2.vector, u3.vector)) + "; " + str(
+        Similarity.euclid(cl3.vector, u3.vector)))
+    print(str(Similarity.euclid(cl1.vector, u4.vector)) + "; " + str(Similarity.euclid(cl2.vector, u4.vector)) + "; " + str(
+        Similarity.euclid(cl3.vector, u4.vector)))
+    print(str(Similarity.euclid(cl1.vector, u5.vector)) + "; " + str(Similarity.euclid(cl2.vector, u5.vector)) + "; " + str(
+        Similarity.euclid(cl3.vector, u5.vector)))
 
     list_user = [u1, u2, u3, u4, u5]
     net = Kohonen(
