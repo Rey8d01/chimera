@@ -243,7 +243,7 @@ class Kohonen(Similarity):
 
     def learning(self, start_alpha_learning=0.8):
         """
-        Процесс обучения сети по массе образцов
+        Процесс обучения сети по массе образцов.
 
         :type start_alpha_learning: int Начальный коэффициент при обучении, по умолчанию стремится к 1
         :return:
@@ -255,7 +255,8 @@ class Kohonen(Similarity):
                 item_id = item.get_item_id()
                 item_name = item.get_item_name()
                 item_vector = self.normalize_vector(item.get_item_vector())
-                self.clustering(item_id, item_name, item_vector)
+                cluster_name = self.clustering(item_id, item_name, item_vector)
+                item.associate_cluster(cluster_name)
         except KohonenExceptionClustering:
             self._current_deep += 1
             if self._current_deep < self._max_deep:
@@ -272,7 +273,7 @@ class Kohonen(Similarity):
 
     def working(self, item, start_alpha_learning=0.1):
         """
-        Процесс работы сети по одному экземпляру
+        Процесс работы сети по одному экземпляру.
 
         :type start_alpha_learning: int Начальный коэффициент при работе много меньше чем при обучении
         :param item: ItemExtractor
@@ -331,7 +332,6 @@ class Kohonen(Similarity):
                 self._alpha_learning -= 0.001 if self._alpha_learning > 0.1 else 0
 
         self._item_cluster[item_id] = cluster_name_max_similarity
-        item.associate_cluster(cluster_name_max_similarity)
         return cluster_name_max_similarity
 
 
@@ -353,6 +353,7 @@ if __name__ == "__main__":
         id = None
         name = None
         vector = None
+        cluster = None
 
         def get_item_id(self):
             return self.id
@@ -362,6 +363,9 @@ if __name__ == "__main__":
 
         def get_item_vector(self):
             return self.vector
+
+        def associate_cluster(self, cluster_name):
+            self.cluster = cluster_name
 
     u1 = UserItemExtractor()
     u2 = UserItemExtractor()
@@ -413,6 +417,7 @@ if __name__ == "__main__":
         # allowable_similarity=0.15,
         # acceptable_similarity=0.9,
     )
-    net.clustering()
+    net.learning()
     net.get_result_clustering()
     print(net.clusters)
+    print(net.working(u5))
