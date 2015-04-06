@@ -32,7 +32,7 @@ class FakeHandler(BaseHandler):
     @tornado.web.asynchronous
     @gen.coroutine
     def put(self):
-        from system.components.recommendations.kohonen import Kohonen, KohonenClusterDocument, ItemExtractor
+        from system.components.recommendations.kohonen import Kohonen, KohonenClusterExtractor, ItemExtractor, top250
 
         class UserItemExtractor(UserDocument, ItemExtractor):
             """
@@ -50,22 +50,23 @@ class FakeHandler(BaseHandler):
                 return self.critic.copy()
 
         # Готовые кластеры
-        collection_cluster = yield KohonenClusterDocument().objects.find_all()
+        collection_cluster = yield KohonenClusterExtractor().objects.find_all()
         # Образцы
-        list_user = yield UserItemExtractor().objects.limit(1000).find_all()
+        list_user = yield UserItemExtractor().objects.limit(10).find_all()
         random.shuffle(list_user)
 
         net = Kohonen(
             list_cluster=[],
-            list_source=list_user[:50],
             similarity=Kohonen.euclid,
             allowable_similarity=0.7,
             acceptable_similarity=0.9,
             # similarity=Kohonen.manhattan,
             # allowable_similarity=0.15,
             # acceptable_similarity=0.9,
+            components=top250,
+            cluster_class=KohonenClusterExtractor
         )
-        net.clustering()
+        net.learning(source=list_user[:50])
         net.get_result_clustering()
         net.save()
 
