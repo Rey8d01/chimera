@@ -2,7 +2,7 @@ __author__ = 'rey'
 
 from system.components.recommendations.statistic import Similarity
 from abc import abstractmethod, abstractproperty
-
+import operator
 
 class KohonenExceptionClustering(Exception):
     """
@@ -36,7 +36,7 @@ class ClusterExtractor():
 class ItemExtractor():
     """
     Интерфейсный класс который необходимо отнаследовать для класса с образцами данных.
-    Методы этого интерфейса должны реализовать функционал для доступа к данным образца.
+    Методы этого интерфейса должны реализовать функционал для доступа к данным образца, которые пройдут этап кластеризации.
     """
 
     @abstractmethod
@@ -71,6 +71,14 @@ class ItemExtractor():
         Методу передается имя кластера к которому будет принадлежать образец. Для удобства воспроизведение этой информации
         желательно ее записать в специальное поле.
         """
+
+    count_recommendation = 10
+    list_recommendation = None
+
+    def set_item_recommendation(self, beta_vector):
+        # Сортировка оценок в порядке убывания: начиная с наибольшей, заканчивая наименьшей
+        # Выполняется срез по установленному количеству
+        return sorted(beta_vector.items(), key=lambda x: -x[1])[:self.count_recommendation]
 
 
 class Kohonen(Similarity):
@@ -234,7 +242,8 @@ class Kohonen(Similarity):
                 cluster = self._clustered(item_id, item_name, item_vector) if clustering else \
                     self._classify(item_id, item_name, item_vector)
                 item.associate_cluster(cluster.get_cluster_id())
-                if isinstance(callback_after_learn_item, object):
+                import types
+                if callback_after_learn_item is not None:
                     # :type callback_after_learn_item: callable
                     callback_after_learn_item(item, cluster)
         except KohonenExceptionClustering:
@@ -356,6 +365,148 @@ class Kohonen(Similarity):
         self._alpha_learning -= 0.001 if self._alpha_learning > 0.1 else 0
 
         return winner_cluster
+
+
+class GrossbergMulti():
+    """
+    Сеть Гроссберга по модели зависимой от слоя Кохонена
+
+    """
+    _beta_vector = None
+    _beta_learning = None
+    _start_beta_learning = None
+    _minus_beta = None
+    _components = None
+
+    @property
+    def beta_vector(self):
+        return self._beta_vector
+
+    def __init__(self, components=None, count_items=None, start_beta_learning=None):
+        """
+
+        :param components:
+        :type components: list[str]
+        :param count_items:
+        :type count_items: int
+        :param start_beta_learning:
+        :type start_beta_learning: float
+        :return:
+        """
+        print("Инициализация сети Гроссберга")
+        self._components = components if components is not None else top250
+        self._beta_vector = {}
+        self._beta_learning = {}
+        # Определение степени понижения обучения слоя Гроссберга
+        self._start_beta_learning = start_beta_learning if start_beta_learning is not None else 0.8
+        self._minus_beta = self._start_beta_learning / count_items if count_items > 0 else 0.0001
+
+    def learning(self, item, cluster):
+        """
+        i индекс нейрона кохонена (его id или имя)
+        j индекс параметра выхода (его imdb)
+        beta коэффициент скорости обучения
+        beta_vector
+
+        vector
+
+        :param item: Объект содержащий вектор входа в слой Кохонена, он же является желаемым выходом
+        :type item: ItemExtractor
+        :param cluster: Объект (нейрон-победитель слоя Кохонена) содержащий вектор выхода
+        :type cluster: KohonenClusterExtractor
+        :return:
+        """
+        print("Обучение слоя Гроссберга")
+        item_vector = item.get_item_vector()
+        cluster_vector = cluster.get_cluster_vector()
+        cluster_id = cluster.get_cluster_id()
+
+        # С целью повысить динамику у необученных векторов (и снизить динамику обучения у переученных) устанавливается,
+        # что коэффициенты обучения для разных кластеров сети Кохонена будут своими
+        if cluster_id not in self._beta_learning:
+            self._beta_learning[cluster_id] = self._start_beta_learning
+        # В случае если в сети Гроссберга нейрон Кохонена не был определен, для него создаются веса по умолчанию
+        if cluster_id not in self._beta_vector:
+            self._beta_vector[cluster_id] = {component: 0.6 for component in self._components}
+
+        # Корректировка весов
+        cluster_beta_vector = self._beta_vector[cluster_id]
+        for component in self._components:
+            item_component = item_vector[component] if component in item_vector else 0
+            cluster_beta_vector[component] += self._beta_learning[cluster_id] * (item_component - cluster_beta_vector[component]) * cluster_vector[component]
+
+        # Понижение коэффициента обучения
+        self._beta_learning[cluster_id] -= self._minus_beta
+
+        item.set_item_recommendation(cluster_beta_vector.copy())
+        return cluster_beta_vector
+
+
+class GrossbergSingle():
+    """
+    Сеть Гроссберга по модели частично зависимой от слоя Кохонена
+
+    """
+    _ideal_vector = None
+    _beta_learning = None
+    _start_beta_learning = None
+    _minus_beta = None
+    _components = None
+
+    def __init__(self, components=None, count_items=None, start_beta_learning=None):
+        self._components = components if components is not None else top250
+        self._ideal_vector = {component: 0.6 for component in self._components}
+        self._beta_learning = {}
+        self._start_beta_learning = start_beta_learning if start_beta_learning is not None else 0.8
+        self._minus_beta = self._start_beta_learning / count_items if count_items > 0 else 0.0001
+
+    def learning(self, item, cluster):
+        item_vector = item.get_item_vector()
+        cluster_vector = cluster.get_cluster_vector()
+        cluster_id = cluster.get_cluster_id()
+        if cluster_id not in self._beta_learning:
+            self._beta_learning[cluster_id] = self._start_beta_learning
+        for component in self._components:
+            item_component = item_vector[component] if component in item_vector else 0
+            self._ideal_vector[component] += self._beta_learning[cluster_id] * (item_component - self._ideal_vector[component]) * \
+                                             cluster_vector[component]
+        self._beta_learning[cluster_id] -= self._minus_beta
+
+        item.set_item_recommendation(self._ideal_vector.copy())
+        return self._ideal_vector
+
+
+class CPN():
+    """
+    Counterpropagation network
+    """
+
+    net_kohonen = None
+    net_grossberg = None
+
+    def __init__(self, net_kohonen=None, net_grossberg=None):
+        """
+
+        :type net_kohonen: Kohonen
+        :type net_grossberg: Grossberg
+        :return:
+        """
+        self.net_kohonen = net_kohonen
+        self.net_grossberg = net_grossberg
+
+    def run(self, source=None, clustering=True):
+        """
+
+        :param source:
+        :param start_alpha_learning:
+        :param clustering:
+        :return:
+        """
+        self.net_kohonen.learning(source=source,
+                                  clustering=clustering,
+                                  # Возбуждение нейронов Гроссберга, срабатывает после того как слой Кохонена сформирует ответ
+                                  callback_after_learn_item=self.net_grossberg.learning)
+
 
 ############################################################################################################################################
 
@@ -489,17 +640,40 @@ if __name__ == "__main__":
         Similarity.euclid(cl3.vector, u5.vector)))
 
     list_user = [u1, u2, u3, u4, u5]
-    net = Kohonen(
-        list_cluster=list_clusters,
+    net_kohonen = Kohonen(
+        # list_cluster=list_clusters,
         similarity=Kohonen.euclid,
         allowable_similarity=0.8,
         acceptable_similarity=0.9,
         # similarity=Kohonen.manhattan,
         # allowable_similarity=0.15,
         # acceptable_similarity=0.9,
+        components=top250,
         cluster_class=KohonenClusterExtractor
     )
-    net.learning(source=list_user)
-    net.get_result_clustering()
-    print(net.clusters)
-    print(net.classify_item(u5))
+    net_kohonen.learning(source=list_user)
+    net_kohonen.get_result_clustering()
+    print(net_kohonen.clusters)
+    print(net_kohonen.classify_item(u5))
+
+    net_grossberg = GrossbergSingle(
+        components=top250,
+        count_items=len(list_user)
+    )
+
+    net_cpn = CPN(
+        net_kohonen=net_kohonen,
+        net_grossberg=net_grossberg,
+    )
+
+    net_cpn.run(
+        source=list_user,
+        clustering=True
+    )
+
+    # print(net_kohonen.clusters[0])
+    l = net_grossberg.learning(u1, net_kohonen.clusters[0])
+    print({top250[0]: l[top250[0]], top250[1]: l[top250[1]], top250[2]: l[top250[2]], top250[3]: l[top250[3]], top250[4]: l[top250[4]]})
+    print(u1.get_item_vector())
+
+    print('Завершено')

@@ -32,7 +32,7 @@ class FakeHandler(BaseHandler):
     @tornado.web.asynchronous
     @gen.coroutine
     def put(self):
-        from system.components.recommendations.kohonen import Kohonen, KohonenClusterExtractor, ItemExtractor, top250
+        from system.components.recommendations.cpn import Kohonen, KohonenClusterExtractor, ItemExtractor, top250
 
         class UserItemExtractor(UserDocument, ItemExtractor):
             """
