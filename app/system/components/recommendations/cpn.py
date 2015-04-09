@@ -4,6 +4,7 @@ from system.components.recommendations.statistic import Similarity
 from abc import abstractmethod, abstractproperty
 import operator
 
+
 class KohonenExceptionClustering(Exception):
     """
     Исключение для процесса кластеризации
@@ -243,6 +244,7 @@ class Kohonen(Similarity):
                     self._classify(item_id, item_name, item_vector)
                 item.associate_cluster(cluster.get_cluster_id())
                 import types
+
                 if callback_after_learn_item is not None:
                     # :type callback_after_learn_item: callable
                     callback_after_learn_item(item, cluster)
@@ -433,7 +435,8 @@ class GrossbergMulti():
         cluster_beta_vector = self._beta_vector[cluster_id]
         for component in self._components:
             item_component = item_vector[component] if component in item_vector else 0
-            cluster_beta_vector[component] += self._beta_learning[cluster_id] * (item_component - cluster_beta_vector[component]) * cluster_vector[component]
+            cluster_beta_vector[component] += self._beta_learning[cluster_id] * (item_component - cluster_beta_vector[component]) * \
+                                              cluster_vector[component]
 
         # Понижение коэффициента обучения
         self._beta_learning[cluster_id] -= self._minus_beta
@@ -656,7 +659,7 @@ if __name__ == "__main__":
     print(net_kohonen.clusters)
     print(net_kohonen.classify_item(u5))
 
-    net_grossberg = GrossbergSingle(
+    net_grossberg = GrossbergMulti(
         components=top250,
         count_items=len(list_user)
     )
