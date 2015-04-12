@@ -1,8 +1,7 @@
 __author__ = 'rey'
 
 from system.components.recommendations.statistic import Similarity
-from abc import abstractmethod, abstractproperty
-import operator
+from abc import abstractmethod
 
 
 class KohonenExceptionClustering(Exception):
@@ -76,10 +75,10 @@ class ItemExtractor():
     count_recommendation = 10
     list_recommendation = None
 
-    def set_item_recommendation(self, beta_vector):
+    def set_item_recommendation(self, recommendation_vector):
         # Сортировка оценок в порядке убывания: начиная с наибольшей, заканчивая наименьшей
         # Выполняется срез по установленному количеству
-        return sorted(beta_vector.items(), key=lambda x: -x[1])[:self.count_recommendation]
+        self.list_recommendation = dict(sorted(recommendation_vector.items(), key=lambda x: -x[1])[:self.count_recommendation])
 
 
 class Kohonen(Similarity):
@@ -369,20 +368,29 @@ class Kohonen(Similarity):
         return winner_cluster
 
 
-class GrossbergMulti():
+class GrossbergOutStar(Similarity):
     """
-    Сеть Гроссберга по модели зависимой от слоя Кохонена
+    Сеть Гроссберга для аппроксимации результатов слоя Кохонена. Каждый нейрон в сети гроссберга по сути является одной из компонент
+    вектора входа в слой Гроссберга. Например, если каждый нейрон слоя Кохонена генерирует выходной вектор размером в 250 компонент,
+    то на слое Гроссберга будет 250 нейронов и каждый будет отвечать за свою компоненту, соответственно каждый нейрон слоя Гроссберга
+    получит то значение из слоя Кохонена, которое ему соответствует, и на выходе этот нейрон тоже вернет одно значение. Таким образом на
+    выходе всего слоя Гроссберга образуется выходной вектор в 250 компонент.
+
+    Обучение сети проиходит с корректировкой по вектору входа в слой Кохонена и именно с ним будет корректироваться выход.
+    Такой тип сети Гроссберга называется "выходна звезда" - сеть которая обучается выдавать правильный выход вне зависимости от того,
+    какое значение пришло на вход.
+
 
     """
-    _beta_vector = None
+    _out_star_vector = None
     _beta_learning = None
     _start_beta_learning = None
     _minus_beta = None
     _components = None
 
     @property
-    def beta_vector(self):
-        return self._beta_vector
+    def out_star_vector(self):
+        return self._out_star_vector
 
     def __init__(self, components=None, count_items=None, start_beta_learning=None):
         """
@@ -395,22 +403,16 @@ class GrossbergMulti():
         :type start_beta_learning: float
         :return:
         """
-        print("Инициализация сети Гроссберга")
         self._components = components if components is not None else top250
-        self._beta_vector = {}
+        # Начальные значения весов
+        self._out_star_vector = {component: 0.6 for component in self._components}
         self._beta_learning = {}
-        # Определение степени понижения обучения слоя Гроссберга
         self._start_beta_learning = start_beta_learning if start_beta_learning is not None else 0.8
+        # Определение степени понижения обучения слоя Гроссберга
         self._minus_beta = self._start_beta_learning / count_items if count_items > 0 else 0.0001
 
     def learning(self, item, cluster):
         """
-        i индекс нейрона кохонена (его id или имя)
-        j индекс параметра выхода (его imdb)
-        beta коэффициент скорости обучения
-        beta_vector
-
-        vector
 
         :param item: Объект содержащий вектор входа в слой Кохонена, он же является желаемым выходом
         :type item: ItemExtractor
@@ -418,65 +420,25 @@ class GrossbergMulti():
         :type cluster: KohonenClusterExtractor
         :return:
         """
-        print("Обучение слоя Гроссберга")
-        item_vector = item.get_item_vector()
-        cluster_vector = cluster.get_cluster_vector()
+        item_vector = self.normalize_vector(item.get_item_vector())
         cluster_id = cluster.get_cluster_id()
 
         # С целью повысить динамику у необученных векторов (и снизить динамику обучения у переученных) устанавливается,
         # что коэффициенты обучения для разных кластеров сети Кохонена будут своими
         if cluster_id not in self._beta_learning:
             self._beta_learning[cluster_id] = self._start_beta_learning
-        # В случае если в сети Гроссберга нейрон Кохонена не был определен, для него создаются веса по умолчанию
-        if cluster_id not in self._beta_vector:
-            self._beta_vector[cluster_id] = {component: 0.6 for component in self._components}
 
         # Корректировка весов
-        cluster_beta_vector = self._beta_vector[cluster_id]
         for component in self._components:
             item_component = item_vector[component] if component in item_vector else 0
-            cluster_beta_vector[component] += self._beta_learning[cluster_id] * (item_component - cluster_beta_vector[component]) * \
-                                              cluster_vector[component]
+            self._out_star_vector[component] += self._beta_learning[cluster_id] * (item_component - self._out_star_vector[component])
 
         # Понижение коэффициента обучения
         self._beta_learning[cluster_id] -= self._minus_beta
 
-        item.set_item_recommendation(cluster_beta_vector.copy())
-        return cluster_beta_vector
-
-
-class GrossbergSingle():
-    """
-    Сеть Гроссберга по модели частично зависимой от слоя Кохонена
-
-    """
-    _ideal_vector = None
-    _beta_learning = None
-    _start_beta_learning = None
-    _minus_beta = None
-    _components = None
-
-    def __init__(self, components=None, count_items=None, start_beta_learning=None):
-        self._components = components if components is not None else top250
-        self._ideal_vector = {component: 0.6 for component in self._components}
-        self._beta_learning = {}
-        self._start_beta_learning = start_beta_learning if start_beta_learning is not None else 0.8
-        self._minus_beta = self._start_beta_learning / count_items if count_items > 0 else 0.0001
-
-    def learning(self, item, cluster):
-        item_vector = item.get_item_vector()
-        cluster_vector = cluster.get_cluster_vector()
-        cluster_id = cluster.get_cluster_id()
-        if cluster_id not in self._beta_learning:
-            self._beta_learning[cluster_id] = self._start_beta_learning
-        for component in self._components:
-            item_component = item_vector[component] if component in item_vector else 0
-            self._ideal_vector[component] += self._beta_learning[cluster_id] * (item_component - self._ideal_vector[component]) * \
-                                             cluster_vector[component]
-        self._beta_learning[cluster_id] -= self._minus_beta
-
-        item.set_item_recommendation(self._ideal_vector.copy())
-        return self._ideal_vector
+        result = self._out_star_vector.copy()
+        item.set_item_recommendation(result)
+        return self._out_star_vector
 
 
 class CPN():
@@ -491,7 +453,7 @@ class CPN():
         """
 
         :type net_kohonen: Kohonen
-        :type net_grossberg: Grossberg
+        :type net_grossberg: GrossbergOutStar
         :return:
         """
         self.net_kohonen = net_kohonen
@@ -580,9 +542,12 @@ if __name__ == "__main__":
     cl1.name = 'cl1'
     cl2.name = 'cl2'
     cl3.name = 'cl3'
-    cl1.vector = {top250[0]: 1.0, top250[1]: 0.9, top250[2]: 0.9, top250[3]: 0.5, top250[4]: 0.3}
-    cl2.vector = {top250[0]: 0.4, top250[1]: 0.2, top250[2]: 0.2, top250[3]: 0.6, top250[4]: 0.3}
-    cl3.vector = {top250[0]: 0.5, top250[1]: 0.1, top250[2]: 0.9, top250[3]: 0.1, top250[4]: 0.5}
+    cl1_vector = {top250[0]: 5, top250[1]: 5, top250[2]: 5, top250[3]: 3, top250[4]: 2}
+    cl1.vector = Similarity.normalize_vector(cl1_vector)
+    cl2_vector = {top250[0]: 3, top250[1]: 1, top250[2]: 1, top250[3]: 4, top250[4]: 2}
+    cl2.vector = Similarity.normalize_vector(cl2_vector)
+    cl3_vector = {top250[0]: 4, top250[1]: 1, top250[2]: 5, top250[3]: 1, top250[4]: 4}
+    cl3.vector = Similarity.normalize_vector(cl3_vector)
     list_clusters = [cl1, cl2, cl3]
 
     class UserItemExtractor(ItemExtractor):
@@ -618,29 +583,17 @@ if __name__ == "__main__":
     u3.name = "C"
     u4.name = "D"
     u5.name = "E"
-    u1.vector = Similarity.normalize_vector(
-        {top250[0]: 0.9, top250[1]: 0.9, top250[2]: 1.0, top250[3]: 0.6, top250[4]: 0.4})  # Близок к 1 кластеру
-    u2.vector = Similarity.normalize_vector({top250[0]: 0.3, top250[1]: 0.1, top250[2]: 0.1, top250[3]: 0.5, top250[4]: 0.5})  # Близок к 2
-    u3.vector = Similarity.normalize_vector({top250[0]: 0.5, top250[1]: 0.1, top250[2]: 1.0, top250[3]: 0.05, top250[4]: 0.4})  # Близок к 3
-    u4.vector = Similarity.normalize_vector({top250[0]: 0.7, top250[1]: 0.5, top250[2]: 0.6, top250[3]: 0.6, top250[4]: 0.3})  # Между 1 и 2
-    u5.vector = Similarity.normalize_vector({top250[0]: 0.1, top250[1]: 0.5, top250[2]: 0.5, top250[3]: 1.0, top250[4]: 1.0})  # Сам по себе
+    u1.vector = {top250[0]: 4, top250[1]: 4, top250[2]: 5, top250[3]: 3, top250[4]: 3}  # Близок к 1 кластеру
+    u2.vector = {top250[0]: 2, top250[1]: 1, top250[2]: 1, top250[3]: 4, top250[4]: 4}  # Близок к 2
+    u3.vector = {top250[0]: 4, top250[1]: 1, top250[2]: 5, top250[3]: 1, top250[4]: 3}  # Близок к 3
+    u4.vector = {top250[0]: 3, top250[1]: 3, top250[2]: 3, top250[3]: 4, top250[4]: 3}  # Между 1 и 2
+    u5.vector = {top250[0]: 1, top250[1]: 5, top250[2]: 1, top250[3]: 3, top250[4]: 3}  # Сам по себе
     print("euclid clusters")
 
     # Кластеры равно удалены друг от друга
     print("cl1 - cl2 = " + str(Similarity.euclid(cl1.vector, cl2.vector)))
     print("cl2 - cl3 = " + str(Similarity.euclid(cl2.vector, cl3.vector)))
     print("cl1 - cl3 = " + str(Similarity.euclid(cl1.vector, cl3.vector)))
-    print("euclid clusters - users")
-    print(str(Similarity.euclid(cl1.vector, u1.vector)) + "; " + str(Similarity.euclid(cl2.vector, u1.vector)) + "; " + str(
-        Similarity.euclid(cl3.vector, u1.vector)))
-    print(str(Similarity.euclid(cl1.vector, u2.vector)) + "; " + str(Similarity.euclid(cl2.vector, u2.vector)) + "; " + str(
-        Similarity.euclid(cl3.vector, u2.vector)))
-    print(str(Similarity.euclid(cl1.vector, u3.vector)) + "; " + str(Similarity.euclid(cl2.vector, u3.vector)) + "; " + str(
-        Similarity.euclid(cl3.vector, u3.vector)))
-    print(str(Similarity.euclid(cl1.vector, u4.vector)) + "; " + str(Similarity.euclid(cl2.vector, u4.vector)) + "; " + str(
-        Similarity.euclid(cl3.vector, u4.vector)))
-    print(str(Similarity.euclid(cl1.vector, u5.vector)) + "; " + str(Similarity.euclid(cl2.vector, u5.vector)) + "; " + str(
-        Similarity.euclid(cl3.vector, u5.vector)))
 
     list_user = [u1, u2, u3, u4, u5]
     net_kohonen = Kohonen(
@@ -659,7 +612,7 @@ if __name__ == "__main__":
     print(net_kohonen.clusters)
     print(net_kohonen.classify_item(u5))
 
-    net_grossberg = GrossbergMulti(
+    net_grossberg = GrossbergOutStar(
         components=top250,
         count_items=len(list_user)
     )
@@ -674,9 +627,12 @@ if __name__ == "__main__":
         clustering=True
     )
 
-    # print(net_kohonen.clusters[0])
-    l = net_grossberg.learning(u1, net_kohonen.clusters[0])
-    print({top250[0]: l[top250[0]], top250[1]: l[top250[1]], top250[2]: l[top250[2]], top250[3]: l[top250[3]], top250[4]: l[top250[4]]})
-    print(u1.get_item_vector())
+    # # print(net_kohonen.clusters[0])
+    # print(u5.get_item_vector())
+    # l = net_grossberg.learning(u5, net_kohonen.clusters[2])
+    # print({top250[0]: l[top250[0]], top250[1]: l[top250[1]], top250[2]: l[top250[2]], top250[3]: l[top250[3]], top250[4]: l[top250[4]]})
+    # print(u5.list_recommendation)
+    # print(Similarity.unormalize_vector(u5.list_recommendation, u5.get_item_vector()))
+    # exit()
 
     print('Завершено')

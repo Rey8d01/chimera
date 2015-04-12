@@ -10,18 +10,33 @@ class Similarity:
     """ Методы для расчета коэффициентов сходства """
 
     @staticmethod
-    def normalize_vector(vector):
+    def normalize_vector(source_vector):
         """
         Нормализация вектора
 
-        :param vector:
+        :param source_vector:
         :return:
         """
-        values_item_vector = list(vector.values())
-        sum_sqrt = pow(sum([pow(i, 2) for i in values_item_vector]), 1/2)
+        vector = source_vector.copy()
+
+        sum_sqrt = pow(sum([pow(i, 2) for i in list(vector.values())]), 1/2)
         for (id, weight) in vector.items():
             vector[id] = weight/sum_sqrt
         return vector
+
+    @staticmethod
+    def unormalize_vector(normalize_vector, source_vector):
+        """
+        Денормализация вектора
+
+        :param source_vector:
+        :return:
+        """
+        normalize_vector = normalize_vector.copy()
+        vector = source_vector.copy()
+
+        sum_sqrt = pow(sum([pow(i, 2) for i in list(vector.values())]), 1/2)
+        return {id: weight*sum_sqrt for (id, weight) in normalize_vector.items()}
 
     @staticmethod
     def normalize_weight(weight, vector):
