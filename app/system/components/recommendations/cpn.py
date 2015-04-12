@@ -4,35 +4,6 @@ from system.components.recommendations.statistic import Similarity
 from abc import abstractmethod
 
 
-class KohonenExceptionClustering(Exception):
-    """
-    Исключение для процесса кластеризации
-    """
-    pass
-
-
-class ClusterExtractor():
-    """
-    Класс прослойка для реализации методов пригодных для работы с каждым нейроном сети
-    """
-
-    @abstractmethod
-    def get_cluster_id(self):
-        pass
-
-    @abstractmethod
-    def set_cluster_id(self, cluster_id):
-        pass
-
-    @abstractmethod
-    def get_cluster_vector(self):
-        pass
-
-    @abstractmethod
-    def set_cluster_vector(self, cluster_vector):
-        pass
-
-
 class ItemExtractor():
     """
     Интерфейсный класс который необходимо отнаследовать для класса с образцами данных.
@@ -72,13 +43,52 @@ class ItemExtractor():
         желательно ее записать в специальное поле.
         """
 
-    count_recommendation = 10
-    list_recommendation = None
 
-    def set_item_recommendation(self, recommendation_vector):
-        # Сортировка оценок в порядке убывания: начиная с наибольшей, заканчивая наименьшей
-        # Выполняется срез по установленному количеству
-        self.list_recommendation = dict(sorted(recommendation_vector.items(), key=lambda x: -x[1])[:self.count_recommendation])
+class ClusterExtractor():
+    """
+    Класс прослойка для реализации методов пригодных для работы с каждым нейроном сети Кохонена.
+    """
+
+    @abstractmethod
+    def get_cluster_id(self):
+        """
+        Должен вернуть идентификатор кластра, например его имя или значение поля id.
+
+        :return: str
+        """
+
+    @abstractmethod
+    def set_cluster_id(self, cluster_id):
+        """
+        Установка значения в качестве идентификатора, передается id сформированный сетью.
+
+        :param cluster_id:
+        :type cluster_id: str
+        """
+
+    @abstractmethod
+    def get_cluster_vector(self):
+        """
+        Должен вернуть вектор весовых коэффициентов для данного кластера.
+
+        :return: dict
+        """
+
+    @abstractmethod
+    def set_cluster_vector(self, cluster_vector):
+        """
+        Метод запишет в свойство своего оъекта данные по вектору весов, для последующего сохранения.
+
+        :param cluster_vector: Вектор весовых коэффициентов кластера
+        :type cluster_vector: dict
+        """
+
+
+class KohonenExceptionClustering(Exception):
+    """
+    Исключение для процесса кластеризации
+    """
+    pass
 
 
 class Kohonen(Similarity):
@@ -143,7 +153,6 @@ class Kohonen(Similarity):
         :type components: list[str]
         :param cluster_class:
         :type cluster_class: ClusterExtractor
-        :return:
         """
         print("Инициализация сети Кохонена")
         # Установка стандартных значений на этапе инициализации
@@ -171,8 +180,8 @@ class Kohonen(Similarity):
 
         Возвращается человеческий ид кластера для последующего к нему обращения
 
+        :param vector:
         :type vector: dict
-        :return:
         """
         print("Начато создание нового кластера")
         # Экземпляр нового кластера
@@ -195,8 +204,6 @@ class Kohonen(Similarity):
     def actualize_clusters(self):
         """
         Ищет и удаляет неиспользуемые кластеры и сохраняет изменения в кластерах в бд
-
-        :return:
         """
         # Сбор уникальных имен используемых кластеров
         used_clusters_name = list(self._item_cluster.values())
@@ -209,10 +216,9 @@ class Kohonen(Similarity):
 
     def get_result_clustering(self):
         """
-        Итог обучения
-        Список фенотипов и их прототипов
+        Итог обучения: список фенотипов и их прототипов.
 
-        :return:
+        :return: dict
         """
         cluster_item = {}
         for cluster in self._clusters:
@@ -222,7 +228,8 @@ class Kohonen(Similarity):
             print(cluster_id + " - " + str(cluster_item[cluster_id]))
         return cluster_item
 
-    def learning(self, source=None, start_alpha_learning=0.8, clustering=True, callback_after_learn_item=None):
+    def learning(self, source=None, start_alpha_learning=0.8, clustering=True, callback_after_learn_item=None,
+                 callback_after_learning=None):
         """
         Процесс обучения сети по массе образцов.
 
@@ -230,7 +237,10 @@ class Kohonen(Similarity):
         :type source: list[ItemExtractor]
         :param start_alpha_learning:  Начальный коэффициент при обучении, по умолчанию стремится к 1
         :type start_alpha_learning: float
-        :return:
+        :param callback_after_learn_item: Функция вызываемая каждый раз после прохождения этапа обучения
+        :type callback_after_learn_item: callable
+        :param callback_after_learning: Функция вызываемая после прохождения этапа обучения всех объектов
+        :type callback_after_learning: callable
         """
         self._alpha_learning = start_alpha_learning
         try:
@@ -242,10 +252,8 @@ class Kohonen(Similarity):
                 cluster = self._clustered(item_id, item_name, item_vector) if clustering else \
                     self._classify(item_id, item_name, item_vector)
                 item.associate_cluster(cluster.get_cluster_id())
-                import types
-
+                # Вызов переданного метода после обучения (этап генерации выходного импульса для следующего слоя сети)
                 if callback_after_learn_item is not None:
-                    # :type callback_after_learn_item: callable
                     callback_after_learn_item(item, cluster)
         except KohonenExceptionClustering:
             self._current_deep += 1
@@ -261,6 +269,8 @@ class Kohonen(Similarity):
                 print("Достигнута максимальная глубина, дальнейшее обучение сети невозможно!")
 
         print("Завершение кластеризации")
+        if callback_after_learning is not None:
+            callback_after_learning()
         self.actualize_clusters()
 
     def classify_item(self, item, start_alpha_learning=0.1):
@@ -368,6 +378,30 @@ class Kohonen(Similarity):
         return winner_cluster
 
 
+class OutStarExtractor:
+    """
+    Класс прослойка для реализации методов пригодных для работы слоя Гроссберга, предназначенного для обработки данных пользователей
+    после их кластеризации. Класс используется как средство для доступа к данным сети и их сохранению, вся работа с этими данными
+    осуществляется в классе GrossbergOutStar.
+    """
+
+    @abstractmethod
+    def get_out_star_vector(self):
+        """
+        Должен вернуть вектор звезды Гроссберга
+
+        :return: dict
+        """
+
+    @abstractmethod
+    def get_beta_learning(self):
+        """
+        Должен вернуть вектор с коэффициентами обучения для звезды.
+
+        :return: dict
+        """
+
+
 class GrossbergOutStar(Similarity):
     """
     Сеть Гроссберга для аппроксимации результатов слоя Кохонена. Каждый нейрон в сети гроссберга по сути является одной из компонент
@@ -380,65 +414,105 @@ class GrossbergOutStar(Similarity):
     Такой тип сети Гроссберга называется "выходна звезда" - сеть которая обучается выдавать правильный выход вне зависимости от того,
     какое значение пришло на вход.
 
-
+    :type _out_star: OutStarExtractor
+    :type _out_star_vector: dict
+    :type _beta_learning: dict
+    :type _start_beta_learning: float
+    :type _minus_beta: float
+    :type _min_beta_learning: float
+    :type _components: dict
     """
+    _out_star = None
     _out_star_vector = None
     _beta_learning = None
     _start_beta_learning = None
     _minus_beta = None
+    _min_beta_learning = None
     _components = None
 
     @property
     def out_star_vector(self):
         return self._out_star_vector
 
-    def __init__(self, components=None, count_items=None, start_beta_learning=None):
-        """
+    @property
+    def beta_learning(self):
+        return self._beta_learning
 
+    def __init__(self, out_star=None, components=None, count_items=None, start_beta_learning=None, min_beta_learning=None):
+        """
+        Инициализация звезды Гроссберга.
+
+        :param out_star:
+        :type out_star: OutStarExtractor
         :param components:
         :type components: list[str]
         :param count_items:
         :type count_items: int
         :param start_beta_learning:
         :type start_beta_learning: float
-        :return:
         """
         self._components = components if components is not None else top250
-        # Начальные значения весов
-        self._out_star_vector = {component: 0.6 for component in self._components}
-        self._beta_learning = {}
-        self._start_beta_learning = start_beta_learning if start_beta_learning is not None else 0.8
+
+
+        if out_star is None:
+            # Начальные значения весов
+            self._out_star_vector = {component: 0.6 for component in self._components}
+            self._beta_learning = {}
+        else:
+            self._out_star = out_star
+            self._out_star_vector = self._out_star.get_out_star_vector()
+            self._beta_learning = self._out_star.get_beta_learning()
+
+        # Установка стартового коэффициента обучения
+        self._start_beta_learning = start_beta_learning if start_beta_learning is not None else 0.1
+        self._min_beta_learning = min_beta_learning if min_beta_learning is not None else 0.0001
         # Определение степени понижения обучения слоя Гроссберга
         self._minus_beta = self._start_beta_learning / count_items if count_items > 0 else 0.0001
 
+    def get_cluster_beta_learning(self, cluster_id):
+        """
+        С целью повысить динамику у необученных векторов (и снизить динамику обучения у переученных) устанавливается,
+        что коэффициенты обучения для разных кластеров сети Кохонена будут своими
+
+        :param cluster_id:
+        :type cluster_id: str
+        :return: float
+        """
+        if cluster_id not in self._beta_learning:
+            self._beta_learning[cluster_id] = self._start_beta_learning
+        return self._beta_learning[cluster_id]
+
+    def reduction_cluster_beta_learning(self, cluster_id):
+        """
+        Уменьшение коэффциента обучения.
+
+        :param cluster_id:
+        :type cluster_id: str
+        """
+        cluster_beta_learning = self.get_cluster_beta_learning(cluster_id)
+        if (cluster_beta_learning > self._min_beta_learning) and (cluster_beta_learning - self._minus_beta < 0):
+            cluster_beta_learning -= self._minus_beta
+        self._beta_learning[cluster_id] = cluster_beta_learning
+
     def learning(self, item, cluster):
         """
+        Активация процесса обучения при подаче данных в слой Гроссберга.
 
         :param item: Объект содержащий вектор входа в слой Кохонена, он же является желаемым выходом
         :type item: ItemExtractor
         :param cluster: Объект (нейрон-победитель слоя Кохонена) содержащий вектор выхода
         :type cluster: KohonenClusterExtractor
-        :return:
         """
         item_vector = self.normalize_vector(item.get_item_vector())
         cluster_id = cluster.get_cluster_id()
-
-        # С целью повысить динамику у необученных векторов (и снизить динамику обучения у переученных) устанавливается,
-        # что коэффициенты обучения для разных кластеров сети Кохонена будут своими
-        if cluster_id not in self._beta_learning:
-            self._beta_learning[cluster_id] = self._start_beta_learning
+        beta_learning = self.get_cluster_beta_learning(cluster_id)
 
         # Корректировка весов
         for component in self._components:
             item_component = item_vector[component] if component in item_vector else 0
-            self._out_star_vector[component] += self._beta_learning[cluster_id] * (item_component - self._out_star_vector[component])
-
+            self._out_star_vector[component] += beta_learning * (item_component - self._out_star_vector[component])
         # Понижение коэффициента обучения
-        self._beta_learning[cluster_id] -= self._minus_beta
-
-        result = self._out_star_vector.copy()
-        item.set_item_recommendation(result)
-        return self._out_star_vector
+        self.reduction_cluster_beta_learning(cluster_id)
 
 
 class CPN():
@@ -452,18 +526,19 @@ class CPN():
     def __init__(self, net_kohonen=None, net_grossberg=None):
         """
 
+        :param net_kohonen: Объект сети Кохонена
         :type net_kohonen: Kohonen
+        :param net_grossberg:
         :type net_grossberg: GrossbergOutStar
         :return:
         """
         self.net_kohonen = net_kohonen
         self.net_grossberg = net_grossberg
 
-    def run(self, source=None, clustering=True):
+    def run(self, source=None, clustering=False):
         """
 
         :param source:
-        :param start_alpha_learning:
         :param clustering:
         :return:
         """
@@ -511,7 +586,7 @@ from motorengine import Document, StringField, BaseField
 
 
 class ClusterDocument(Document):
-    __collection__ = "kohonenCluster"
+    __collection__ = "netKohonenCluster"
 
     name = StringField()
     vector = BaseField()
@@ -531,6 +606,23 @@ class KohonenClusterExtractor(ClusterDocument, ClusterExtractor):
 
     def set_cluster_vector(self, cluster_vector):
         self.vector = cluster_vector
+
+
+class OutStarDocument(Document):
+    __collection__ = "netOutStar"
+
+    learning = BaseField()
+    vector = BaseField()
+
+
+class GrossberOutStarExtractor(OutStarDocument, OutStarExtractor):
+    __collection__ = OutStarDocument.__collection__
+
+    def get_out_star_vector(self):
+        return self.vector
+
+    def get_beta_learning(self):
+        return self.learning
 
 
 if __name__ == "__main__":
@@ -609,30 +701,28 @@ if __name__ == "__main__":
     )
     net_kohonen.learning(source=list_user)
     net_kohonen.get_result_clustering()
-    print(net_kohonen.clusters)
-    print(net_kohonen.classify_item(u5))
 
+    print("Демонстрация сети CPN (Сеть Кохонена-Гроссберга)")
+
+    # Инициализация классов для работы сети
     net_grossberg = GrossbergOutStar(
         components=top250,
         count_items=len(list_user)
     )
-
     net_cpn = CPN(
         net_kohonen=net_kohonen,
-        net_grossberg=net_grossberg,
+        net_grossberg=net_grossberg
     )
-
-    net_cpn.run(
-        source=list_user,
-        clustering=True
-    )
-
-    # # print(net_kohonen.clusters[0])
-    # print(u5.get_item_vector())
-    # l = net_grossberg.learning(u5, net_kohonen.clusters[2])
-    # print({top250[0]: l[top250[0]], top250[1]: l[top250[1]], top250[2]: l[top250[2]], top250[3]: l[top250[3]], top250[4]: l[top250[4]]})
-    # print(u5.list_recommendation)
-    # print(Similarity.unormalize_vector(u5.list_recommendation, u5.get_item_vector()))
-    # exit()
-
+    print("Запуск сети")
+    net_cpn.run(source=list_user)
+    print("Вывод результатов на примере пользователя u5")
+    print("Проекция нормализованного вектора весов слоя Гроссберга на оценки пользователя u5 (нефильтрованный лист рекомендаций)")
+    list_recommendation = Similarity.recovery_vector(net_grossberg.out_star_vector, u5.get_item_vector())
+    print(list_recommendation)
+    print("Проверка сходимости вектора оценок пользователя u5 с листом рекомендаций")
+    print(Similarity.euclid(u5.get_item_vector(), list_recommendation))
+    print("На момент теста близость не превышает 0,7 - тоесть с определенной долей вероятности можно утверждать что вектор выходной звезды "
+          "содержит средние оценки всех кластеров (и их образцов) и не имеет перекоса в чью либо сторону")
+    print("Этой информации должно быть достаточно для составления рекоммендаций тем людям интересы которых могут выходить за рамки "
+          "действия их кластера (что может быть полезно при добавлении новых фильмов к возможности оценивания)")
     print('Завершено')

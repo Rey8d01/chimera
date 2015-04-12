@@ -7,7 +7,9 @@ from math import sqrt, fabs, floor
 
 
 class Similarity:
-    """ Методы для расчета коэффициентов сходства """
+    """
+    Методы для расчета коэффициентов сходства и другие утилитарные методы
+    """
 
     @staticmethod
     def normalize_vector(source_vector):
@@ -15,7 +17,8 @@ class Similarity:
         Нормализация вектора
 
         :param source_vector:
-        :return:
+        :type source_vector:
+        :return: dict
         """
         vector = source_vector.copy()
 
@@ -25,12 +28,15 @@ class Similarity:
         return vector
 
     @staticmethod
-    def unormalize_vector(normalize_vector, source_vector):
+    def recovery_vector(normalize_vector, source_vector):
         """
-        Денормализация вектора
+        Восстановлние нормализованного вектора по данным исходного вектора
 
+        :param normalize_vector:
+        :type normalize_vector: dict
         :param source_vector:
-        :return:
+        :type source_vector: dict
+        :return: dict
         """
         normalize_vector = normalize_vector.copy()
         vector = source_vector.copy()
