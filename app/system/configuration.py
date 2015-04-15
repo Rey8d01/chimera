@@ -11,7 +11,8 @@ import handlers.blog.post
 import handlers.recommendation.harvest
 import handlers.recommendation.process
 import handlers.recommendation.result
-import handlers.recommendation.fake
+import handlers.recommendation.fake.cpn
+import handlers.recommendation.fake.statistic
 
 DB_HOST = "melchior"
 DB_PORT = 27111
@@ -34,7 +35,9 @@ handlers = [
     (r"/_/recommendation/harvest", handlers.recommendation.harvest.HarvestHandler),
     (r"/_/recommendation/process/([\w-]+)", handlers.recommendation.process.ProcessHandler),
     (r"/_/recommendation/result/([\w-]+)", handlers.recommendation.result.ResultHandler),
-    (r"/_/recommendation/fake", handlers.recommendation.fake.FakeHandler),
+
+    (r"/_/recommendation/fake/statistic", handlers.recommendation.fake.statistic.FakeStatisticHandler),
+    (r"/_/recommendation/fake/cpn", handlers.recommendation.fake.cpn.FakeCPNHandler),
 ]
 
 settings = {

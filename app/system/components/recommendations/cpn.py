@@ -453,12 +453,8 @@ class GrossbergOutStar(Similarity):
         """
         self._components = components if components is not None else top250
 
-
-        if out_star is None:
-            # Начальные значения весов
-            self._out_star_vector = {component: 0.6 for component in self._components}
-            self._beta_learning = {}
-        else:
+        self._beta_learning = {}
+        if out_star is not None:
             self._out_star = out_star
             self._out_star_vector = self._out_star.get_out_star_vector()
             self._beta_learning = self._out_star.get_beta_learning()
@@ -501,7 +497,7 @@ class GrossbergOutStar(Similarity):
         :param item: Объект содержащий вектор входа в слой Кохонена, он же является желаемым выходом
         :type item: ItemExtractor
         :param cluster: Объект (нейрон-победитель слоя Кохонена) содержащий вектор выхода
-        :type cluster: KohonenClusterExtractor
+        :type cluster: ClusterExtractor
         """
         item_vector = self.normalize_vector(item.get_item_vector())
         cluster_id = cluster.get_cluster_id()
@@ -510,6 +506,9 @@ class GrossbergOutStar(Similarity):
         # Корректировка весов
         for component in self._components:
             item_component = item_vector[component] if component in item_vector else 0
+            # Начальные значения весов
+            if component not in self._out_star_vector:
+                self._out_star_vector[component] = 0.6
             self._out_star_vector[component] += beta_learning * (item_component - self._out_star_vector[component])
         # Понижение коэффициента обучения
         self.reduction_cluster_beta_learning(cluster_id)
@@ -582,51 +581,10 @@ top250 = [
     'tt0101414', 'tt0118694', 'tt1392214', 'tt0154420', 'tt0040746', 'tt0374546', 'tt0381681'
 ]
 
-from motorengine import Document, StringField, BaseField
-
-
-class ClusterDocument(Document):
-    __collection__ = "netKohonenCluster"
-
-    name = StringField()
-    vector = BaseField()
-
-
-class KohonenClusterExtractor(ClusterDocument, ClusterExtractor):
-    __collection__ = ClusterDocument.__collection__
-
-    def get_cluster_id(self):
-        return self.name
-
-    def set_cluster_id(self, cluster_id):
-        self.name = cluster_id
-
-    def get_cluster_vector(self):
-        return self.vector
-
-    def set_cluster_vector(self, cluster_vector):
-        self.vector = cluster_vector
-
-
-class OutStarDocument(Document):
-    __collection__ = "netOutStar"
-
-    learning = BaseField()
-    vector = BaseField()
-
-
-class GrossberOutStarExtractor(OutStarDocument, OutStarExtractor):
-    __collection__ = OutStarDocument.__collection__
-
-    def get_out_star_vector(self):
-        return self.vector
-
-    def get_beta_learning(self):
-        return self.learning
-
-
 if __name__ == "__main__":
     print("Демонстрация сети Кохонена")
+
+    from documents.cpn import KohonenClusterExtractor, GrossberOutStarExtractor
 
     cl1 = KohonenClusterExtractor()
     cl2 = KohonenClusterExtractor()
@@ -721,8 +679,9 @@ if __name__ == "__main__":
     print(list_recommendation)
     print("Проверка сходимости вектора оценок пользователя u5 с листом рекомендаций")
     print(Similarity.euclid(u5.get_item_vector(), list_recommendation))
-    print("На момент теста близость не превышает 0,7 - тоесть с определенной долей вероятности можно утверждать что вектор выходной звезды "
-          "содержит средние оценки всех кластеров (и их образцов) и не имеет перекоса в чью либо сторону")
+    print("На момент теста близость не превышает 0,7 - то есть с определенной долей вероятности можно утверждать что вектор выходной "
+          "звезды содержит средние оценки всех кластеров (и их образцов) и не имеет перекоса в чью либо сторону")
     print("Этой информации должно быть достаточно для составления рекоммендаций тем людям интересы которых могут выходить за рамки "
           "действия их кластера (что может быть полезно при добавлении новых фильмов к возможности оценивания)")
+
     print('Завершено')
