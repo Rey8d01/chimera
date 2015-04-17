@@ -34,7 +34,7 @@ class OutStarDocument(Document):
     vector = BaseField()
 
 
-class GrossberOutStarExtractor(OutStarDocument, OutStarExtractor):
+class GrossbergOutStarExtractor(OutStarDocument, OutStarExtractor):
     __collection__ = OutStarDocument.__collection__
 
     def get_out_star_vector(self):

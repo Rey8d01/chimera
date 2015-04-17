@@ -27,7 +27,7 @@ class UserItemExtractor(UserDocument, ItemExtractor):
     __collection__ = UserDocument.__collection__
 
     def get_item_id(self):
-        return self._id
+        return str(self._id)
 
     def get_item_name(self):
         return self.info.name
@@ -36,4 +36,4 @@ class UserItemExtractor(UserDocument, ItemExtractor):
         return self.critic.copy()
 
     def associate_cluster(self, cluster_name):
-        self.cluster = cluster_name
+        self.cluster = str(cluster_name)

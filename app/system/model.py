@@ -14,11 +14,7 @@ import system.configuration
 
 
 class BaseModel(motor.MotorCollection, Loader):
-    """
-    :todo использовать стандартные декораторы для свойств @property
-    """
     _client = None
-
     _collection = None
 
     def __init__(self):

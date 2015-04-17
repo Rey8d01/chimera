@@ -25,7 +25,7 @@ import tornado.log            #
 from tornado.options import define, options
 
 import system.configuration
-import motorengine
+
 
 define("port", default=8888, help="run on the given port", type=int)
 
@@ -37,11 +37,6 @@ def main():
     application = tornado.web.Application(system.configuration.handlers, **system.configuration.settings)
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(options.port)
-
-    # Соединение с бд через motorengine
-    motorengine.connect(db=system.configuration.DB_NAME,
-                        host=system.configuration.DB_HOST,
-                        port=system.configuration.DB_PORT)
 
     tornado.ioloop.IOLoop.instance().start()
 

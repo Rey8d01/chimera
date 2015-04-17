@@ -14,8 +14,6 @@ import tornado.auth
 
 from system.utils.result_message import ResultMessage
 
-# from system.components.environment import Environment
-# from system.configuration import Configuration
 from system.utils.exceptions import ChimeraHTTPError
 from documents.user import UserDocument, UserOAuthDocument, UserMetaDocument
 
@@ -29,14 +27,11 @@ class BaseHandler(tornado.web.RequestHandler):
     web = None
     escape = None
     result = None
-    # config = None
 
     def initialize(self):
         self.web = tornado.web
         self.escape = tornado.escape
         self.result = ResultMessage()
-        # self.config = Configuration()
-
         # sleep(1)
 
     def on_finish(self):

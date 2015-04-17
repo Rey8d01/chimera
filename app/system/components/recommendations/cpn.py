@@ -454,6 +454,7 @@ class GrossbergOutStar(Similarity):
         self._components = components if components is not None else top250
 
         self._beta_learning = {}
+        self._out_star_vector = {}
         if out_star is not None:
             self._out_star = out_star
             self._out_star_vector = self._out_star.get_out_star_vector()
@@ -584,7 +585,7 @@ top250 = [
 if __name__ == "__main__":
     print("Демонстрация сети Кохонена")
 
-    from documents.cpn import KohonenClusterExtractor, GrossberOutStarExtractor
+    from documents.cpn import KohonenClusterExtractor, GrossbergOutStarExtractor
 
     cl1 = KohonenClusterExtractor()
     cl2 = KohonenClusterExtractor()

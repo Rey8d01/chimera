@@ -14,10 +14,6 @@ import handlers.recommendation.result
 import handlers.recommendation.fake.cpn
 import handlers.recommendation.fake.statistic
 
-DB_HOST = "melchior"
-DB_PORT = 27111
-DB_NAME = "chimera"
-
 handlers = [
     # (r"/_/auth", system.handlers.AuthHandler),
     (r"/_/introduce", system.handlers.IntroduceHandler),
@@ -40,15 +36,20 @@ handlers = [
     (r"/_/recommendation/fake/cpn", handlers.recommendation.fake.cpn.FakeCPNHandler),
 ]
 
+DB_HOST = "melchior"
+DB_PORT = 27111
+DB_NAME = "chimera"
+
+import motorengine
+import motor
+# Соединение с бд через motorengine
+motorengine.connect(db=DB_NAME, host=DB_HOST, port=DB_PORT)
+
 settings = {
     "cookie_secret": "__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
     "login_url": "/login/",
 
-    "twitter_consumer_key": "54HALYb2DrpC3VmdDN5jM9HZB",
-    "twitter_consumer_secret": "RtkuUQPhKkk3uk1HclggzCPJk1L3jLfc6P7L6Hz6mZ5Lsadhqt",
-
-    "google_oauth": {
-        "key": "484611128919-82v2ugod9iam9v1ipvmo61bfsvhj3c6q.apps.googleusercontent.com",
-        "secret": "_ITW0YImv3pfxjJN1UVYoPdU"
-    }
+    # Соединение с бд через motor
+    "db": motor.MotorClient(host=DB_HOST, port=DB_PORT)[DB_NAME]
 }
+
