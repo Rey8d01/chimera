@@ -278,14 +278,17 @@ class Kohonen(Similarity):
         print("Завершение кластеризации")
         if callback_after_learning is not None:
             callback_after_learning()
-        self.actualize_clusters()
+        if clustering:
+            self.actualize_clusters()
 
     def classify_item(self, item, start_alpha_learning=0.1):
         """
         Процесс работы сети по одному экземпляру.
 
-        :type start_alpha_learning: int Начальный коэффициент при работе много меньше чем при обучении
-        :param item: ItemExtractor
+        :param start_alpha_learning: Начальный коэффициент при работе много меньше чем при обучении
+        :type start_alpha_learning: float
+        :param item:
+        :type item: ItemExtractor
         :return:
         :rtype: ClusterExtractor
         """
@@ -544,15 +547,30 @@ class CPN():
 
     def run(self, source=None, clustering=False):
         """
+        Метод для запуска сети на массе пользователей для их классификации
 
         :param source:
+        :type source: list[ItemExtractor]
         :param clustering:
+        :type clustering: bool
         :return:
         """
         self.net_kohonen.learning(source=source,
                                   clustering=clustering,
                                   # Возбуждение нейронов Гроссберга, срабатывает после того как слой Кохонена сформирует ответ
                                   callback_after_learn_item=self.net_grossberg.learning)
+
+    def run_for_item(self, item):
+        """
+        Получение агрегатной информации для определенного образца.
+
+        :param item:
+        :type item: ItemExtractor
+        :return: ClusterExtractor
+        """
+        cluster = self.net_kohonen.classify_item(item)
+        self.net_grossberg.learning(item, cluster)
+        return cluster
 
 
 ############################################################################################################################################
@@ -689,7 +707,7 @@ if __name__ == "__main__":
     print(Similarity.euclid(u5.get_item_vector(), list_recommendation))
     print("На момент теста близость не превышает 0,7 - то есть с определенной долей вероятности можно утверждать что вектор выходной "
           "звезды содержит средние оценки всех кластеров (и их образцов) и не имеет перекоса в чью либо сторону")
-    print("Этой информации должно быть достаточно для составления рекоммендаций тем людям интересы которых могут выходить за рамки "
+    print("Этой информации должно быть достаточно для составления рекомендаций тем людям интересы которых могут выходить за рамки "
           "действия их кластера (что может быть полезно при добавлении новых фильмов к возможности оценивания)")
 
     print('Завершено')

@@ -335,13 +335,9 @@ class Recommendations(Statistic):
                     sim_sums[item] += sim
 
         # Создать нормализованный список
-        rankings = [(round(total / sim_sums[item], 3), item) for item, total in totals.items()]
-
+        rankings = {item: round(total / sim_sums[item], 3) for item, total in totals.items()}
         # Вернуть отсортированный список
-        rankings.sort()
-        rankings.reverse()
-
-        return rankings[0:n]
+        return sorted(rankings.items(), key=lambda x: x[1], reverse=True)[:n]
 
     def get_recommendations_transforms(self, person, n=5, similarity=None):
         return self.get_recommendations(person, n, Statistic.TYPE_TRANSFORMS, similarity)

@@ -10,6 +10,7 @@ from system.components.recommendations.cpn import Kohonen, GrossbergOutStar, CPN
 
 from bson.objectid import ObjectId
 import random
+from system.components.recommendations.statistic import Recommendations, Similarity
 
 
 class FakeCPNHandler(BaseHandler):
@@ -22,10 +23,6 @@ class FakeCPNHandler(BaseHandler):
 
         :return:
         """
-        # Образцы
-        collection_user = yield UserItemExtractor().objects.limit(1000).find_all()
-        random.shuffle(collection_user)
-
         # Готовая звезда
         collection_out_star = yield GrossbergOutStarExtractor().objects.find_all()
         if len(collection_out_star) > 0:
@@ -46,6 +43,9 @@ class FakeCPNHandler(BaseHandler):
             cluster_class=KohonenClusterExtractor
         )
 
+        # Образцы
+        collection_user = yield UserItemExtractor().objects.limit(1000).find_all()
+        random.shuffle(collection_user)
         print("Kohonen learning 50")
         net_kohonen.learning(source=collection_user[:50])
         # net_kohonen.get_result_clustering()
@@ -68,11 +68,9 @@ class FakeCPNHandler(BaseHandler):
         # Очистка всей коллекции с кластерами
         yield KohonenClusterExtractor().objects.delete()
         # И сохранение тех документов которые образовались в процессе кластеризации
-        print("Сохранение каждого кластера")
-        for document_cluster in net_kohonen.clusters:
-            yield document_cluster.save()
+        print("Сохранение кластеров")
+        yield KohonenClusterExtractor().objects.bulk_insert(net_kohonen.clusters)
         print("Сохранение звезды")
-        yield GrossbergOutStarExtractor().objects.delete()
         yield out_star.save()
         print("Сохранение пользователей")  # (у них изменилась принадлежность к кластеру)
         for document_user in collection_user:
@@ -101,26 +99,17 @@ class FakeCPNHandler(BaseHandler):
     @asynchronous
     @coroutine
     def post(self):
+        """
+        Выработка персональных рекомендаций
+
+        :return:
+        """
         user = self.get_argument("user")
-        # collection_critic = UserItemExtractor()
-        # collection_critic.fake_id="11111"
-        # #
-        # t = yield collection_critic.save()
-        # print(t)
-        # return True
-
-        # db = self.settings['db']
-        # print(db)
         # Запрошенный пользователь
-        # collection_critic = yield UserItemExtractor().objects.filter({"fake_id": "11112"}).find_all()
+        collection_user = yield UserItemExtractor().objects.filter({"_id": ObjectId(user)}).find_all()
+        document_user = collection_user[0]
+        """ :type: UserItemExtractor """
 
-        # print(collection_critic[0]._id)
-        collection_critic = yield UserItemExtractor().objects.filter({"fake_id": "11112"}).update({"fake_id": "11113"})
-        # print(collection_critic[0].info.name)
-        # t = yield collection_critic[0].save()
-        # print(t)
-        return True
-        """ :type: UserItemExtractor"""
         # Готовая звезда
         collection_out_star = yield GrossbergOutStarExtractor().objects.find_all()
         out_star = collection_out_star[0]
@@ -128,39 +117,55 @@ class FakeCPNHandler(BaseHandler):
         # Готовые кластеры
         collection_cluster = yield KohonenClusterExtractor().objects.find_all()
 
+        # Запуск сети для одного пользователя
         net_kohonen = Kohonen(list_cluster=collection_cluster, cluster_class=KohonenClusterExtractor)
         net_grossberg = GrossbergOutStar(out_star=out_star, count_items=1)
         net_cpn = CPN(net_kohonen=net_kohonen, net_grossberg=net_grossberg)
-        net_cpn.run(source=collection_critic)
+        cluster_for_user = net_cpn.run_for_item(document_user)
+        cluster_id_for_user = cluster_for_user.get_cluster_id()
 
-        # net_kohonen.get_result_clustering()
+        # Выборка среди тех людей которые входят в тот же кластер
+        collection_user_in_cluster = yield UserItemExtractor().objects.filter({UserItemExtractor.cluster.name:
+                                                                              cluster_id_for_user}).find_all()
 
-        document_critic = collection_critic[0]
-        print(document_critic)
-        print(document_critic.cluster)
-        self.result.update_content({"cluster": document_critic.cluster})
+        # Случайным образом выбираем одно из пользователей кластера (можно предложить на выбор друзей пользователя)
+        random.shuffle(collection_user_in_cluster)
+        document_other_user = collection_user_in_cluster[0]
+        """ :type: UserItemExtractor """
+        # Отфильтруем из списка фильмов те что не были просмотрены ни одним из двух людей
+        top250_filtered = set(top250).difference(document_other_user.get_item_vector().keys(), document_user.get_item_vector().keys())
+        if len(top250_filtered) == 0:
+            # Если суммарно оба человека смотрели увже все фильмы - предложим из тех что не смотрел только один из них
+            top250_filtered = set(top250).difference(document_user.get_item_vector().keys())
+
+        # if len(top250_filtered) > 0:
+        # Фильтрация вектора звезды
+        out_star_vector_filtered = {imdb: weight for (imdb, weight) in out_star.get_out_star_vector().items() if imdb in top250_filtered}
+        # Сортировка по убыванию в отфильтрованном векторе звезды
+        sort_out_star_vector_filtered = sorted(out_star_vector_filtered.items(), key=lambda x: x[1], reverse=True)
+        # Тоже самое но с вектором кластера
+        cluster_vector_filtered = {imdb: weight for (imdb, weight) in cluster_for_user.get_cluster_vector().items() if imdb in top250_filtered}
+        sort_cluster_vector_filtered = sorted(cluster_vector_filtered.items(), key=lambda x: x[1], reverse=True)
+        # Для персональных рекомендаций из НС будем использовать восстановленный вектор оценок кластера
+        # Для общего привлечения внимания к отдельным фильмам будем использовать данные звезды
+        neuro_recommendations = Similarity.recovery_vector(dict(sort_cluster_vector_filtered), document_user.get_item_vector())
+
+        # Для статистического анализа подготовим данные
+        data_cluster_user = {}
+        for document_cluster_user in collection_user_in_cluster:
+            data_cluster_user[document_cluster_user.get_item_id()] = document_cluster_user.get_item_vector()
+        # К данным для статистики добаляется новый пользователь кластера (или его данные актуализируются)
+        data_cluster_user[document_user.get_item_id()] = document_user.get_item_vector()
+        # После локализации выборки пользователей можно использовать статистические методы для выработки рекомендаций
+        # Формируется класс стистики
+        user_stat = Recommendations(data_cluster_user)
+        # Выработка рекомендаций через статистику
+        stat_recommendations = dict(user_stat.get_recommendations(document_user.get_item_id(), 250))
+
+        self.result.update_content({
+            UserItemExtractor.cluster.name: cluster_id_for_user,
+            "neuroRecommendations": neuro_recommendations,  # Более быстрая рекомендация с усредненными значениями
+            "statRecommendations": stat_recommendations,  # Более точная в оценке рекомендация
+            "outStarRecommendations": dict(sort_out_star_vector_filtered),
+        })
         self.write(self.result.get_message())
-        # return True
-
-    @asynchronous
-    @coroutine
-    def head(self):
-
-        db = self.settings['db']
-        print(db)
-        # print(db.server_info())
-        # print(db.host)
-        # print(db.is_mongos)
-        # print(db.is_primary)
-        collection = db.fakeUser
-        print(collection)
-
-        old_document = yield collection.find_one({"fake_id": "11111"})
-        _id = old_document['_id']
-        print(_id)
-        result = yield collection.update({"_id": _id}, {"$set":{'key': '55555'}})
-        # print('replaced', result['n'], 'document')
-        new_document = yield collection.find_one({'_id': _id})
-        print('document is now', new_document)
-
-        return True
