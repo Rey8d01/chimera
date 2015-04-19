@@ -40,9 +40,8 @@ DB_HOST = "melchior"
 DB_PORT = 27111
 DB_NAME = "chimera"
 
+# import motor
 import motorengine
-import motor
-# Соединение с бд через motorengine
 motorengine.connect(db=DB_NAME, host=DB_HOST, port=DB_PORT)
 
 settings = {
@@ -50,6 +49,7 @@ settings = {
     "login_url": "/login/",
 
     # Соединение с бд через motor
-    "db": motor.MotorClient(host=DB_HOST, port=DB_PORT)[DB_NAME]
+    # "db": motor.MotorClient(host=DB_HOST, port=DB_PORT)[DB_NAME]
+    # "db": motorengine.connect(db=DB_NAME, host=DB_HOST, port=DB_PORT)  # Соединение с бд через motorengine
 }
 

@@ -4,7 +4,7 @@ from tornado.web import asynchronous
 from tornado.gen import coroutine
 
 from system.handlers import BaseHandler
-from documents.fake import UserItemExtractor
+from documents.fake import UserItemExtractor, UserDocument
 from documents.cpn import KohonenClusterExtractor, GrossbergOutStarExtractor
 from system.components.recommendations.cpn import Kohonen, GrossbergOutStar, CPN, top250
 
@@ -23,7 +23,7 @@ class FakeCPNHandler(BaseHandler):
         :return:
         """
         # Образцы
-        collection_user = yield UserItemExtractor().objects.limit(10).find_all()
+        collection_user = yield UserItemExtractor().objects.limit(1000).find_all()
         random.shuffle(collection_user)
 
         # Готовая звезда
@@ -41,6 +41,8 @@ class FakeCPNHandler(BaseHandler):
         print("Kohonen")
         net_kohonen = Kohonen(
             list_cluster=collection_cluster,
+            allowable_similarity=0.67,
+            acceptable_similarity=0.95,
             cluster_class=KohonenClusterExtractor
         )
 
@@ -63,17 +65,19 @@ class FakeCPNHandler(BaseHandler):
         net_cpn.run(source=collection_user)
 
         print("Сохранение результатов")
+        # Очистка всей коллекции с кластерами
+        yield KohonenClusterExtractor().objects.delete()
+        # И сохранение тех документов которые образовались в процессе кластеризации
         print("Сохранение каждого кластера")
-        [document_cluster.save() for document_cluster in collection_cluster]
+        for document_cluster in net_kohonen.clusters:
+            yield document_cluster.save()
         print("Сохранение звезды")
+        yield GrossbergOutStarExtractor().objects.delete()
         yield out_star.save()
         print("Сохранение пользователей")  # (у них изменилась принадлежность к кластеру)
-        print(dir(collection_user[0]))
-        print(collection_user[0]._id)
-        print(collection_user[0].info.name)
-        t = yield collection_user[0].save()
-        print(t)
-        # [document_user.save() for document_user in collection_user]
+        for document_user in collection_user:
+            yield UserItemExtractor().objects.filter({"_id": ObjectId(document_user._id)}).update({UserItemExtractor.cluster.name: document_user.cluster})
+        print("Завершено")
 
     @asynchronous
     @coroutine
@@ -83,7 +87,7 @@ class FakeCPNHandler(BaseHandler):
 
         :return:
         """
-        collection_critic = yield UserItemExtractor().objects.find_all()
+        collection_critic = yield UserDocument().objects.find_all()
 
         # Перемешивание втупую и срез 10 пользователей
         random.shuffle(collection_critic)
@@ -100,18 +104,21 @@ class FakeCPNHandler(BaseHandler):
         user = self.get_argument("user")
         # collection_critic = UserItemExtractor()
         # collection_critic.fake_id="11111"
-        #
+        # #
         # t = yield collection_critic.save()
         # print(t)
         # return True
 
+        # db = self.settings['db']
+        # print(db)
         # Запрошенный пользователь
-        collection_critic = yield UserItemExtractor().objects.filter({"fake_id": "11111"}).find_all()
+        # collection_critic = yield UserItemExtractor().objects.filter({"fake_id": "11112"}).find_all()
 
         # print(collection_critic[0]._id)
+        collection_critic = yield UserItemExtractor().objects.filter({"fake_id": "11112"}).update({"fake_id": "11113"})
         # print(collection_critic[0].info.name)
-        t = yield collection_critic[0].save()
-        print(t)
+        # t = yield collection_critic[0].save()
+        # print(t)
         return True
         """ :type: UserItemExtractor"""
         # Готовая звезда
@@ -146,12 +153,12 @@ class FakeCPNHandler(BaseHandler):
         # print(db.is_mongos)
         # print(db.is_primary)
         collection = db.fakeUser
-        print(db.fakeUser)
+        print(collection)
 
         old_document = yield collection.find_one({"fake_id": "11111"})
         _id = old_document['_id']
         print(_id)
-        result = yield collection.update({"fake_id": "11111"}, {'key': 'value'})
+        result = yield collection.update({"_id": _id}, {"$set":{'key': '55555'}})
         # print('replaced', result['n'], 'document')
         new_document = yield collection.find_one({'_id': _id})
         print('document is now', new_document)

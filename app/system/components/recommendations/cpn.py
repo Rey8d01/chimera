@@ -2,6 +2,7 @@ __author__ = 'rey'
 
 from system.components.recommendations.statistic import Similarity
 from abc import abstractmethod
+import time
 
 
 class ItemExtractor():
@@ -143,15 +144,16 @@ class Kohonen(Similarity):
 
         :param list_cluster: Список кластеров (список из классов KohonenClusterDocument)
         :type list_cluster: list[KohonenClusterDocument]
-        :param similarity:
+        :param similarity: Функция расчета схожести должна принимать 2 вектора и вовзращать результат от 0 до 1 (результат корреляции от -1
+        до 1 плохо тестрировался)
         :type similarity: callable
-        :param allowable_similarity:
+        :param allowable_similarity: Чем ближе этот коэффициент к 1 (но не выше ее) тем больше кластеров будет образовывать сеть
         :type allowable_similarity: float
-        :param acceptable_similarity:
+        :param acceptable_similarity: Чем меньше 1 этот коэффициент (но не меньше 0) тем реже сеть будет корректрировать свои веса
         :type acceptable_similarity: float
-        :param components:
+        :param components: Список всех возможных ключей для векторов кластеров и образцов
         :type components: list[str]
-        :param cluster_class:
+        :param cluster_class: Класс из которого будут создаваться новые кластеры
         :type cluster_class: ClusterExtractor
         """
         print("Инициализация сети Кохонена")
@@ -187,7 +189,7 @@ class Kohonen(Similarity):
         # Экземпляр нового кластера
         cluster = self._cluster_class()
         # Установка его ид
-        cluster.set_cluster_id("cluster" + str(len(self._clusters) + 1))
+        cluster.set_cluster_id("cluster" + str(int(time.time() * 1000000)))
 
         # Заполняем новый кластер стандартными значениями весов для каждого фильма или веса задаются под вектор
         if vector is None:
@@ -246,9 +248,14 @@ class Kohonen(Similarity):
         try:
             # Перебор всех элементов для их кластеризации
             for item in source:
+                # Подготовка данных для процесса обучения
                 item_id = item.get_item_id()
+                """ :type: str """
                 item_name = item.get_item_name()
+                """ :type: str """
                 item_vector = self.normalize_vector(item.get_item_vector())
+                """ :type: dict """
+                # Запуск процедуры обучения в зависимости от настроек
                 cluster = self._clustered(item_id, item_name, item_vector) if clustering else \
                     self._classify(item_id, item_name, item_vector)
                 item.associate_cluster(cluster.get_cluster_id())
