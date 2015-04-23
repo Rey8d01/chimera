@@ -48,8 +48,7 @@ settings = {
     "cookie_secret": "__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
     "login_url": "/login/",
 
-    # Соединение с бд через motor
     # "db": motor.MotorClient(host=DB_HOST, port=DB_PORT)[DB_NAME]
-    # "db": motorengine.connect(db=DB_NAME, host=DB_HOST, port=DB_PORT)  # Соединение с бд через motorengine
+    # "db": motorengine.connect(db=DB_NAME, host=DB_HOST, port=DB_PORT)
 }
 

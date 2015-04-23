@@ -39,7 +39,8 @@ chimera.system.main = angular.module("main", [
     "catalogs",
     "post",
 
-    "recommendation"
+    "recommendation",
+    "recommendationFake",
 ]);
 
 chimera.system.main.factory("sessionRecoverer", ["$q", "$location", function($q, $location) {
@@ -148,6 +149,15 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                     "content": {
                         templateUrl: "/system/templates/recommendation/index.html",
                         controller: "RecommendationController"
+                    }
+                }
+            })
+            .state("main.recommendationFake", {
+                url: "/recommendationFake",
+                views: {
+                    "content": {
+                        templateUrl: "/system/templates/recommendation/fake/index.html",
+                        controller: "RecommendationFakeController"
                     }
                 }
             })
