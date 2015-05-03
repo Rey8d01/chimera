@@ -163,7 +163,8 @@ class FakeCPNHandler(BaseHandler):
         stat_recommendations = dict(user_stat.get_recommendations(document_user.get_item_id(), 250))
 
         self.result.update_content({
-            UserItemExtractor.cluster.name: cluster_id_for_user,
+            "cluster": cluster_id_for_user,
+            "otherUser": document_other_user.get_item_name(),  # Более быстрая рекомендация с усредненными значениями
             "neuroRecommendations": neuro_recommendations,  # Более быстрая рекомендация с усредненными значениями
             "statRecommendations": stat_recommendations,  # Более точная в оценке рекомендация
             "outStarRecommendations": dict(sort_out_star_vector_filtered),

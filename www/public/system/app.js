@@ -48,7 +48,7 @@ chimera.system.main.factory("sessionRecoverer", ["$q", "$location", function($q,
         responseError: function(rejection) {
             console.log("responseError");
             console.log(rejection);
-            if (rejection.status == 403) {
+            if (rejection.status == 401) {
                 $location.path("/login");
                 $location.replace();
             }
@@ -62,6 +62,7 @@ chimera.system.main.factory("sessionRecoverer", ["$q", "$location", function($q,
 chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationProvider", "$httpProvider",
     function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
         $httpProvider.interceptors.push("sessionRecoverer");
+        $httpProvider.defaults.headers.post = {'Content-Type': 'application/x-www-form-urlencoded'};
 
         // без # в урле
         $locationProvider.html5Mode(true);
@@ -161,7 +162,6 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                     }
                 }
             })
-
 
             // MultiCriteria - processor
         ;

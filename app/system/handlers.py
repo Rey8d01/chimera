@@ -174,7 +174,6 @@ class IntroduceHandler(BaseHandler):
 
         return document_user
 
-
     @tornado.web.asynchronous
     @gen.coroutine
     def post(self):

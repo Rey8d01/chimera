@@ -2,7 +2,27 @@
 <div>
     <p>Демонстрация системы рекомендаций на примере случайных данных</p>
     <p>Выберите двух пользователей и посмотрите на их рекомендации</p>
-    <p ng-repeat="(id, name) in fakeUserList">{{id}} - {{name}}</p>
-    <p>Или укажите фильм из списка TOP 250 IMDB (по состоянию на начало 2015 года) что бы узнать его схожесть с остальными фильмами на основе оценок пользователей </p>
+    <p ng-repeat="(id, name) in fakeUserList"><a href="#" ng-click="getRecommendation(id)">{{name}}</a></p>
+
+
+    <div ng-if="recommendation.fakeUserId">
+        <div ng-if="recommendation.progress">
+            <div class="progress">
+              <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                <span class="sr-only"></span>
+              </div>
+            </div>
+        </div>
+
+
+        <h4>Кластерный анализ</h4>
+
+        Выбранный пользователь () относится к кластеру () в котором так же находятся пользователи
+        И выбранный пользователь () с пользователем () может вместе посмотреть кино
+
+        Персональные рекомендации для выбранного пользователя ()
+
+    </div>
+
     
 </div>
