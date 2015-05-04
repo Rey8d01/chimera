@@ -81,19 +81,28 @@ class FakeCPNHandler(BaseHandler):
     @coroutine
     def get(self):
         """
-        Запрос данных по пользователям (случайные 10)
-
         :return:
         """
-        collection_critic = yield UserDocument().objects.find_all()
+        user = self.get_argument("user", None)
 
-        # Перемешивание втупую и срез 10 пользователей
-        random.shuffle(collection_critic)
-        fake_user_list = {}
-        for document_critic in collection_critic[:10]:
-            fake_user_list[str(document_critic._id)] = document_critic.info.name
+        if user:
+            """ Запрос информации по конкретному пользователю """
+            collection_user = yield UserDocument().objects.filter({"_id": ObjectId(user)}).find_all()
+            document_user = collection_user[0]
+            """ :type: UserItemExtractor """
+            self.result.update_content({"": document_user.get_item_name()})
+        else:
+            """ Запрос данных по пользователям (случайные 10) """
+            collection_critic = yield UserDocument().objects.find_all()
 
-        self.result.update_content({"fakeUserList": fake_user_list})
+            # Перемешивание втупую и срез 10 пользователей
+            random.shuffle(collection_critic)
+            fake_user_list = {}
+            for document_critic in collection_critic[:10]:
+                fake_user_list[str(document_critic._id)] = document_critic.info.name
+
+            self.result.update_content({"fakeUserList": fake_user_list})
+
         self.write(self.result.get_message())
 
     @asynchronous
@@ -113,7 +122,7 @@ class FakeCPNHandler(BaseHandler):
         # Готовая звезда
         collection_out_star = yield GrossbergOutStarExtractor().objects.find_all()
         out_star = collection_out_star[0]
-        """ :type: GrossbergOutStarExtractor"""
+        """ :type: GrossbergOutStarExtractor """
         # Готовые кластеры
         collection_cluster = yield KohonenClusterExtractor().objects.find_all()
 
@@ -142,13 +151,13 @@ class FakeCPNHandler(BaseHandler):
         # Фильтрация вектора звезды
         out_star_vector_filtered = {imdb: weight for (imdb, weight) in out_star.get_out_star_vector().items() if imdb in top250_filtered}
         # Сортировка по убыванию в отфильтрованном векторе звезды
-        sort_out_star_vector_filtered = sorted(out_star_vector_filtered.items(), key=lambda x: x[1], reverse=True)
+        sort_out_star_vector_filtered = dict(sorted(out_star_vector_filtered.items(), key=lambda x: x[1], reverse=True))
         # Тоже самое но с вектором кластера
         cluster_vector_filtered = {imdb: weight for (imdb, weight) in cluster_for_user.get_cluster_vector().items() if imdb in top250_filtered}
-        sort_cluster_vector_filtered = sorted(cluster_vector_filtered.items(), key=lambda x: x[1], reverse=True)
+        sort_cluster_vector_filtered = dict(sorted(cluster_vector_filtered.items(), key=lambda x: x[1], reverse=True))
         # Для персональных рекомендаций из НС будем использовать восстановленный вектор оценок кластера
         # Для общего привлечения внимания к отдельным фильмам будем использовать данные звезды
-        neuro_recommendations = Similarity.recovery_vector(dict(sort_cluster_vector_filtered), document_user.get_item_vector())
+        neuro_recommendations = Similarity.recovery_vector(sort_cluster_vector_filtered, document_user.get_item_vector())
 
         # Для статистического анализа подготовим данные
         data_cluster_user = {}
@@ -162,11 +171,22 @@ class FakeCPNHandler(BaseHandler):
         # Выработка рекомендаций через статистику
         stat_recommendations = dict(user_stat.get_recommendations(document_user.get_item_id(), 250))
 
+        # Сбор общей информации по кластерам
+        count_users = yield UserDocument().objects.count()
+        pipeline = [
+            {"$group": {"_id": "$cluster", "count": {"$sum": 1}}},
+            {"$project": {"percentage": {"$multiply": ["$count", 100 / count_users]}}}
+        ]
+        aggregation_cluster_user = yield UserDocument().objects.aggregate.raw(pipeline).fetch()
+        result_aggregation = {info_cluster_user["_id"]: info_cluster_user["percentage"] for info_cluster_user in aggregation_cluster_user}
+
+        # Вывод результатов
         self.result.update_content({
             "cluster": cluster_id_for_user,
             "otherUser": document_other_user.get_item_name(),  # Более быстрая рекомендация с усредненными значениями
             "neuroRecommendations": neuro_recommendations,  # Более быстрая рекомендация с усредненными значениями
             "statRecommendations": stat_recommendations,  # Более точная в оценке рекомендация
-            "outStarRecommendations": dict(sort_out_star_vector_filtered),
+            "outStarRecommendations": sort_out_star_vector_filtered,
+            "infoClusters": result_aggregation,
         })
         self.write(self.result.get_message())
