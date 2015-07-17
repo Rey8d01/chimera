@@ -17,6 +17,7 @@ import handlers.recommendation.fake.statistic
 handlers = [
     # (r"/_/auth", system.handlers.AuthHandler),
     (r"/_/introduce", system.handlers.IntroduceHandler),
+    (r"/_/private", system.handlers.PrivateIntroduceHandler),
     (r"/_/logout", system.handlers.LogoutHandler),
 
     (r"/_/index", handlers.main.MainerHandler),

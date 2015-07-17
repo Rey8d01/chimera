@@ -15,6 +15,7 @@ class CatalogsHandler(system.handlers.MainHandler):
     @gen.coroutine
     def get(self):
         """
+        Список категорий
 
         :param alias:
         :return:
@@ -35,6 +36,7 @@ class CatalogsHandler(system.handlers.MainHandler):
     @gen.coroutine
     def post(self):
         """
+        Редактирование критериев отображения списка каталогов
 
         :return:
         """

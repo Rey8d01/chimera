@@ -21,7 +21,7 @@ var chimera = {
         baseUrl: "http://www.chimera.rey/_",
         // baseUrl: "http://api.chimera.rey",
         // baseUrl: "/system/responses/",
-        auth: ["twitter", "github"],
+        auth: ["manual", "twitter", "github"],
         test: ""
     },
     system: {},
@@ -65,7 +65,10 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
         $httpProvider.defaults.headers.post = {'Content-Type': 'application/x-www-form-urlencoded'};
 
         // без # в урле
-        $locationProvider.html5Mode(true);
+        $locationProvider.html5Mode({
+            enabled: true,
+            requireBase: false
+        });
 
         // Роутинг
         // Главная

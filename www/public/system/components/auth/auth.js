@@ -1,9 +1,10 @@
-
 chimera.system.auth = angular.module('auth', ['ngCookies']);
 
 // Внедрение компонента авторизации в систему
-chimera.system.main.controller("AuthController", ["$scope", "$q", "authService", 
+chimera.system.main.controller("AuthController", ["$scope", "$q", "authService",
     function($scope, $q, authService) {
+
+        console.log('AuthController');
 
         authService.initialize();
 
@@ -29,6 +30,16 @@ chimera.system.main.controller("AuthController", ["$scope", "$q", "authService",
             });
         }
 
+        $scope.pass = {
+            word: ''
+        };
+        $scope.privateConnectButton = function() {
+            authService.private($scope.pass.word).then(function(data) {
+                $(".sign-in-button").fadeOut();
+                $(".sign-out-button").fadeIn();
+            });
+        }
+
         $scope.signOut = function() {
             authService.disconnect();
             $(".sign-in-button").fadeIn();
@@ -44,8 +55,8 @@ chimera.system.main.controller("AuthController", ["$scope", "$q", "authService",
 ]);
 
 
-chimera.system.auth.factory("authService", ["$q", "$location", "$cookieStore", 
-    function($q, $location, $cookieStore) {
+chimera.system.auth.factory("authService", ["$q", "$location", "$cookies",
+    function($q, $location, $cookies) {
 
         // Объект авторизации через который происходят все соединения с сервером авторизации
         var authorization = false;
@@ -54,13 +65,18 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookieStore",
 
         // Попытка пересоздать подключение при перезагрузке страницы
         var reConnect = function() {
-            var tryAuthorization = false
-            for(var i in chimera.config.auth) {
-                tryAuthorization = OAuth.create(chimera.config.auth[i]);
-                if (tryAuthorization) {
-                    authorizationType = chimera.config.auth[i];
-                    authorization = tryAuthorization
-                    return true;
+            console.log($cookies.getAll());
+            var tryAuthorization = false,
+                authType = null;
+            for (var i in chimera.config.auth) {
+                authType = chimera.config.auth[i];
+                if (authType != 'manual') {
+                    tryAuthorization = OAuth.create(authType);
+                    if (tryAuthorization) {
+                        authorizationType = authType;
+                        authorization = tryAuthorization
+                        return true;
+                    }
                 }
             }
             return false;
@@ -68,13 +84,14 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookieStore",
 
         // Представление серверу
         var introduce = function(full) {
+            console.log('introduce', full);
             authorization.me().done(function(data) {
-                if(!data.id) {
+                if (!data.id) {
                     disconnect();
                 }
 
-                $.post(chimera.config.baseUrl+"/introduce", {
-                    auth_type: authorizationType, 
+                $.post(chimera.config.baseUrl + "/introduce", {
+                    auth_type: authorizationType,
                     user_id: data.id,
                     user_info: full ? data : null
                 }, function(response) {
@@ -86,24 +103,28 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookieStore",
         };
 
         var disconnect = function() {
+            console.log('disconnect', authorization);
             // Выход из системы, очистка кук
             OAuth.clearCache(authorizationType);
             authorization = authorizationType = false;
 
-            $.get(chimera.config.baseUrl+"/logout");
+            $.get(chimera.config.baseUrl + "/logout");
             $location.path("/login").replace();
         };
 
         return {
             initialize: function() {
+                console.log('init', authorization);
                 // Соединение с OAuth.io
-                OAuth.initialize("t3zjIiwpODrlse81ifHaaTC-VPs", {cache:true});
-                // authorizationResult = OAuth.create('twitter');
-                // console.log(authorizationResult);
+                OAuth.initialize("t3zjIiwpODrlse81ifHaaTC-VPs", {
+                    cache: true
+                });
                 if (reConnect()) {
-                    introduce();
+                    console.log('reConnect true', authorization);
+                    authorization || introduce();
                 } else {
-                    disconnect();
+                    console.log('reConnect false', authorization);
+                    authorization || disconnect();
                 }
             },
             isReady: function() {
@@ -116,7 +137,9 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookieStore",
                 }
 
                 var deferred = $q.defer();
-                OAuth.popup(typeAuthService, {cache:true}, function(error, result) { //cache means to execute the callback if the tokens are already present
+                OAuth.popup(typeAuthService, {
+                    cache: true
+                }, function(error, result) { //cache means to execute the callback if the tokens are already present
                     if (!error) {
                         authorization = result;
                         authorizationType = typeAuthService;
@@ -124,23 +147,61 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookieStore",
 
                         introduce(true);
                     } else {
+                        deferred.reject();
                         console.log("error");
                     }
                 });
                 return deferred.promise;
             },
+            private: function(passphrase) {
+                var deferred = $q.defer();
+                $.post(chimera.config.baseUrl + "/private", {
+                    passphrase: passphrase
+                }, function(response) {
+                    if (response.content.auth && ($location.path() == "/login")) {
+                        deferred.resolve();
+                        authorization = true;
+                        authorizationType = 'manual'
+                        $location.path("/main/home").replace();
+                    } else {
+                        deferred.reject();
+                    }
+                });
+
+                return deferred.promise;
+            },
             disconnect: disconnect,
-            getMeData: function () {
+            getMeData: function() {
                 //create a deferred object using Angular's $q service
                 var deferred = $q.defer();
-                var promise = authorization.me().done(function(data) {
-                    //when the data is retrieved resolved the deferred object
-                    deferred.resolve(data)
-                });
+
+                if (authorizationType == 'manual') {
+                    var data = {
+                        id: '',
+                        name: 'Admin',
+                        firstname: '',
+                        lastname: '',
+                        alias: '',
+                        email: '',
+                        birthdate: '',
+                        gender: '',
+                        location: '',
+                        local: '',
+                        company: '',
+                        occupation: '',
+                        raw: {}
+                    };
+                    deferred.resolve(data);
+                } else {
+                    var promise = authorization.me().done(function(data) {
+                        //when the data is retrieved resolved the deferred object
+                        deferred.resolve(data);
+                    });
+                }
                 //return the promise of the deferred object
                 return deferred.promise;
             }
         }
-        
+
     }
 ]);

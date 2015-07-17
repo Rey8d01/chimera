@@ -21,12 +21,13 @@ class CatalogHandler(system.handlers.MainHandler):
     @gen.coroutine
     def get(self, alias, currentPage):
         """
+        Запрос на получение информации по содержимому определенного каталога.
 
         :param alias:
         :return:
         """
         if alias in self.special_aliases:
-            # Для особых слагов генерируем свой набор данных
+            # Для особых псевдонимов генерируем свой набор данных
             count_post = yield PostDocument().objects.count()
             pagination = Pagination(count_post, currentPage, 2)
 
@@ -97,6 +98,7 @@ class CatalogHandler(system.handlers.MainHandler):
     @gen.coroutine
     def post(self):
         """
+        Создание нового каталога и занесение в базу актуальной по нему информации
 
         :return:
         """

@@ -117,35 +117,44 @@ class MainHandler(BaseHandler):
             raise ChimeraHTTPError(401, error_message=u"Неизвестный пользователь")
 
 
+class PrivateIntroduceHandler(BaseHandler):
+    """
+    Вход по парольной фразе для привелегированного пользователя
+    """
+
+    @gen.coroutine
+    def post(self):
+        """
+        Авторизация по парольной фразе
+        """
+        import bcrypt
+
+        hash = '$2a$15$jsDxfdO6tL1gVLoUVZh4AuyBRg92e.sjYY/kA2xKSGM.0MBU7smSq'  # passphrase
+        passphrase = self.get_argument("passphrase")
+
+        result = {"auth": False}
+        if bcrypt.hashpw(passphrase, hash) == hash:
+            chimera_user = self.escape.json_encode({"type": "admin", "id": "-1"})
+            result["auth"] = True
+            self.set_secure_cookie("chimera_user", chimera_user, domain=".chimera.rey")
+            self.set_secure_cookie("chimera_user", chimera_user, domain=".chimera.rey")
+            print(24)
+
+        self.result.update_content(result)
+        self.write(self.result.get_message())
+
+
 class IntroduceHandler(BaseHandler):
     """
     Класс через который будет проводится представление пользователя системе, прошедшего клиентскую авторизацию
     """
 
-    @tornado.web.asynchronous
-    @gen.coroutine
     def get(self):
         """
         test
         """
         print('get')
         print(self.cookies)
-
-    @tornado.web.asynchronous
-    @gen.coroutine
-    def head(self):
-        """
-        test
-        """
-        # document_user = UserDocument()
-
-        # users = yield document_user.objects.filter({"oauth": {"$elemMatch": {
-        # "type": "twitter",
-        #     "id": "2213719321"
-        # }}}).find_all()
-        #
-        print(UserDocument.info)
-        # self.write({"dd":66})
 
     def _load_user_from_post(self, auth_type, user_id):
         """
@@ -174,7 +183,6 @@ class IntroduceHandler(BaseHandler):
 
         return document_user
 
-    @tornado.web.asynchronous
     @gen.coroutine
     def post(self):
         """
@@ -204,18 +212,10 @@ class IntroduceHandler(BaseHandler):
         self.write(self.result.get_message())
 
 
-class LogoutHandler(BaseHandler):
+class LogoutHandler(MainHandler):
     """
     Класс для выхода из системы - очистка кук
     """
 
     def get(self):
         self.clear_cookie("chimera_user")
-
-
-class AuthHandler(BaseHandler):
-    """
-    Класс прямой авторизации - использовать в предполагаемом сценарии серверной авторизации
-    В данном варианте не используется
-    """
-    pass
