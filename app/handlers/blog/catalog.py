@@ -2,23 +2,23 @@ __author__ = 'rey'
 
 import re
 
-import tornado.web
-from tornado import gen
+from tornado.gen import coroutine
 
 import system.handlers
 from documents.catalog import CatalogDocument
-from documents.post import PostDocument, PostMetaDocument, PostTagsDocument
+from documents.post import PostDocument, PostMetaDocument
 from system.utils.exceptions import ChimeraHTTPError
 from system.components.pagination import Pagination
 
 
 class CatalogHandler(system.handlers.MainHandler):
     special_aliases = [
-        'latest'
+        'latest',
+        'my',
+        'favorite'
     ]
 
-    @tornado.web.asynchronous
-    @gen.coroutine
+    @coroutine
     def get(self, alias, currentPage):
         """
         Запрос на получение информации по содержимому определенного каталога.
@@ -94,8 +94,7 @@ class CatalogHandler(system.handlers.MainHandler):
 
         self.write(self.result.get_message())
 
-    @tornado.web.asynchronous
-    @gen.coroutine
+    @coroutine
     def post(self):
         """
         Создание нового каталога и занесение в базу актуальной по нему информации

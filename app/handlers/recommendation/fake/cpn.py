@@ -1,6 +1,5 @@
 __author__ = 'rey'
 
-from tornado.web import asynchronous
 from tornado.gen import coroutine
 
 from system.handlers import BaseHandler
@@ -15,7 +14,6 @@ from system.components.recommendations.statistic import Recommendations, Similar
 
 class FakeCPNHandler(BaseHandler):
 
-    @asynchronous
     @coroutine
     def put(self):
         """
@@ -77,7 +75,6 @@ class FakeCPNHandler(BaseHandler):
             yield UserItemExtractor().objects.filter({"_id": ObjectId(document_user._id)}).update({UserItemExtractor.cluster.name: document_user.cluster})
         print("Завершено")
 
-    @asynchronous
     @coroutine
     def get(self):
         """
@@ -105,7 +102,6 @@ class FakeCPNHandler(BaseHandler):
 
         self.write(self.result.get_message())
 
-    @asynchronous
     @coroutine
     def post(self):
         """

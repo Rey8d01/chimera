@@ -1,6 +1,5 @@
 __author__ = 'rey'
 
-from tornado.web import asynchronous
 from tornado.gen import coroutine
 
 from system.handlers import BaseHandler, MainHandler
@@ -11,7 +10,6 @@ import random
 
 class FakeStatisticHandler(BaseHandler):
 
-    @asynchronous
     @coroutine
     def get(self):
         """
@@ -29,7 +27,6 @@ class FakeStatisticHandler(BaseHandler):
         self.result.update_content({"fakeUserList": fake_user_list})
         self.write(self.result.get_message())
 
-    @asynchronous
     @coroutine
     def post(self):
         """

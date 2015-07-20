@@ -1,17 +1,15 @@
 __author__ = 'rey'
 
-import tornado.web
-from tornado import gen
+from tornado.gen import coroutine
 
 import system.handlers
-from documents.post import PostDocument
+from documents.post import PostDocument, PostMetaDocument
 from system.utils.exceptions import ChimeraHTTPError
 
 
-class PostHandler(system.handlers.MainHandler):
+class PostHandler(system.handlers.BaseHandler):
 
-    @tornado.web.asynchronous
-    @gen.coroutine
+    @coroutine
     def get(self, alias):
         """
 
@@ -19,9 +17,9 @@ class PostHandler(system.handlers.MainHandler):
         :return:
         """
 
-        collection_post = yield PostDocument()\
-            .objects\
-            .filter({PostDocument.alias.name: alias})\
+        collection_post = yield PostDocument() \
+            .objects \
+            .filter({PostDocument.alias.name: alias}) \
             .find_all()
 
         if not collection_post:
@@ -31,10 +29,28 @@ class PostHandler(system.handlers.MainHandler):
         self.result.update_content(document_post.to_son())
         self.write(self.result.get_message())
 
-    @tornado.web.asynchronous
-    @gen.coroutine
+    @coroutine
     def post(self):
-        pass
-        # post = PostDocument().load_post(self)
-        # result = yield post.save()
-        # self.write(result)
+        # data = self.escape.json_decode(self.request.body)
+        data = self.request.arguments
+
+        document_post = PostDocument()
+
+        document_post.title = data[PostDocument.title.name]
+        document_post.alias = data[PostDocument.alias.name]
+        document_post.text = data[PostDocument.text.name]
+        document_post.aliasCatalog = data[PostDocument.aliasCatalog.name]
+
+        document_post_meta = PostMetaDocument()
+        document_post.meta = document_post_meta
+
+        # Теги разделяем запятыми и тримируем
+        import re
+        tags = re.split(',', data[PostDocument.tags.name])
+        map(str.strip, tags)
+        document_post.tags = tags
+
+        yield document_post.save()
+
+        self.result.update_content(document_post.to_son())
+        self.write(self.result.get_message())

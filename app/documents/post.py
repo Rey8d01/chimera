@@ -30,7 +30,7 @@ class PostDocument(BaseDocument):
     :type alias: Псевдоним поста для использования его в url для последующей идентификации
     :type aliasCatalog: Псеводним каталога к которому относится пост и который будет показываться в рамках этой категории
     :type title: Человеческий заголовок для поста
-    :type tags: Список название тегов и псевдонимов к ним для последующего теггирования и выбора постов по одинаковым тегам
+    :type tags: Список названий тегов для последующего теггирования и выбора постов по одинаковым тегам
     :type meta: Сервсисная информация о посте - дате создания, авторе, и т.д.
     :type text: Текст поста
     """
@@ -40,6 +40,6 @@ class PostDocument(BaseDocument):
     alias = StringField()
     aliasCatalog = StringField()
     title = StringField()
-    tags = ListField(EmbeddedDocumentField(PostTagsDocument))
+    tags = ListField(EmbeddedDocumentField(StringField))
     meta = EmbeddedDocumentField(PostMetaDocument)
     text = StringField()

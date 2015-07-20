@@ -4,15 +4,13 @@ from system.handlers import BaseHandler, MainHandler
 from documents.fake import UserDocument
 from system.components.recommendations.statistic import Recommendations
 
-import tornado.web
 import random
-from tornado import gen
+from tornado.gen import coroutine
 
 
 class FakeHandler(BaseHandler):
 
-    @tornado.web.asynchronous
-    @gen.coroutine
+    @coroutine
     def get(self):
         """
         Запрос данных по пользователям (случайные 10)
@@ -29,10 +27,10 @@ class FakeHandler(BaseHandler):
         self.result.update_content({"fakeUserList": fake_user_list})
         self.write(self.result.get_message())
 
-    @tornado.web.asynchronous
-    @gen.coroutine
+    @coroutine
     def put(self):
-        from system.components.recommendations.cpn import Kohonen, KohonenClusterExtractor, ItemExtractor, top250
+        from system.components.recommendations.cpn import Kohonen, ItemExtractor, top250
+        from documents.cpn import KohonenClusterExtractor
 
         class UserItemExtractor(UserDocument, ItemExtractor):
             """
@@ -71,8 +69,7 @@ class FakeHandler(BaseHandler):
         net.save()
 
 
-    @tornado.web.asynchronous
-    @gen.coroutine
+    @coroutine
     def post(self):
         """
         Расчет статистики

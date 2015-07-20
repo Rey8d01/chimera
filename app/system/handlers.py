@@ -8,7 +8,7 @@
 __author__ = 'rey'
 
 import tornado.web
-from tornado import gen
+from tornado.gen import coroutine
 import tornado.escape
 import tornado.auth
 
@@ -87,7 +87,7 @@ class BaseHandler(tornado.web.RequestHandler):
         else:
             return None
 
-    @gen.coroutine
+    @coroutine
     def get_data_current_user(self):
         """
         Вернуть данные из базы по текущему пользователю
@@ -122,7 +122,7 @@ class PrivateIntroduceHandler(BaseHandler):
     Вход по парольной фразе для привелегированного пользователя
     """
 
-    @gen.coroutine
+    @coroutine
     def post(self):
         """
         Авторизация по парольной фразе
@@ -138,7 +138,6 @@ class PrivateIntroduceHandler(BaseHandler):
             result["auth"] = True
             self.set_secure_cookie("chimera_user", chimera_user, domain=".chimera.rey")
             self.set_secure_cookie("chimera_user", chimera_user, domain=".chimera.rey")
-            print(24)
 
         self.result.update_content(result)
         self.write(self.result.get_message())
@@ -183,7 +182,7 @@ class IntroduceHandler(BaseHandler):
 
         return document_user
 
-    @gen.coroutine
+    @coroutine
     def post(self):
         """
         Авторизация

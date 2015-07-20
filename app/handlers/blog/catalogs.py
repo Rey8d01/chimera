@@ -1,7 +1,6 @@
 __author__ = 'rey'
 
-import tornado.web
-from tornado import gen
+from tornado.gen import coroutine
 
 import system.handlers
 from documents.catalog import CatalogDocument
@@ -11,8 +10,7 @@ from system.utils.exceptions import ChimeraHTTPError
 
 class CatalogsHandler(system.handlers.MainHandler):
 
-    @tornado.web.asynchronous
-    @gen.coroutine
+    @coroutine
     def get(self):
         """
         Список категорий
@@ -32,8 +30,7 @@ class CatalogsHandler(system.handlers.MainHandler):
         self.result.update_content({"catalogs": list_catalogs})
         self.write(self.result.get_message())
 
-    @tornado.web.asynchronous
-    @gen.coroutine
+    @coroutine
     def post(self):
         """
         Редактирование критериев отображения списка каталогов

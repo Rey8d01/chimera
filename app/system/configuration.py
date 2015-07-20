@@ -10,7 +10,6 @@ import handlers.blog.post
 
 import handlers.recommendation.harvest
 import handlers.recommendation.process
-import handlers.recommendation.result
 import handlers.recommendation.fake.cpn
 import handlers.recommendation.fake.statistic
 
@@ -27,11 +26,11 @@ handlers = [
     (r"/_/catalog/([\w-]+)/([\d+]+)", handlers.blog.catalog.CatalogHandler),
     (r"/_/catalogs", handlers.blog.catalogs.CatalogsHandler),
     (r"/_/post/([\w-]+)", handlers.blog.post.PostHandler),
+    (r"/_/post", handlers.blog.post.PostHandler),
 
     # Recommendation
     (r"/_/recommendation/harvest", handlers.recommendation.harvest.HarvestHandler),
     (r"/_/recommendation/process/([\w-]+)", handlers.recommendation.process.ProcessHandler),
-    (r"/_/recommendation/result/([\w-]+)", handlers.recommendation.result.ResultHandler),
 
     (r"/_/recommendation/fake/statistic", handlers.recommendation.fake.statistic.FakeStatisticHandler),
     (r"/_/recommendation/fake/cpn", handlers.recommendation.fake.cpn.FakeCPNHandler),
