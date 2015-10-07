@@ -1,5 +1,3 @@
-__author__ = 'rey'
-
 from tornado.gen import coroutine
 
 from system.handlers import BaseHandler

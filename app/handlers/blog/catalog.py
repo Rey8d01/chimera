@@ -1,5 +1,3 @@
-__author__ = 'rey'
-
 import re
 
 from tornado.gen import coroutine

@@ -1,8 +1,6 @@
 # Базовая модель через которую будет происходить обращение к базе данных
 from symbol import yield_arg
 
-__author__ = 'rey'
-
 import bson
 import motor
 

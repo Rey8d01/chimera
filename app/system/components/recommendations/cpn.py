@@ -1,5 +1,3 @@
-__author__ = 'rey'
-
 from system.components.recommendations.statistic import Similarity
 from abc import abstractmethod
 import time

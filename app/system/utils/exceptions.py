@@ -1,5 +1,3 @@
-__author__ = 'rey'
-
 from tornado.web import HTTPError
 
 

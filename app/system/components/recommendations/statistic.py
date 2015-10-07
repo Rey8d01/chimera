@@ -1,5 +1,3 @@
-__author__ = 'rey'
-
 # Используем JSON для преобразования объекта словаря в текст и обратно
 import json
 from math import sqrt, fabs, floor

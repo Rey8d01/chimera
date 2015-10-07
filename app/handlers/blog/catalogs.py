@@ -1,7 +1,4 @@
-__author__ = 'rey'
-
 from tornado.gen import coroutine
-
 import system.handlers
 from documents.catalog import CatalogDocument
 from documents.post import PostDocument
@@ -9,7 +6,6 @@ from system.utils.exceptions import ChimeraHTTPError
 
 
 class CatalogsHandler(system.handlers.BaseHandler):
-
     @coroutine
     def get(self):
         """

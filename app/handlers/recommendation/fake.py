@@ -1,5 +1,3 @@
-__author__ = 'rey'
-
 from system.handlers import BaseHandler, MainHandler
 from documents.fake import UserDocument
 from system.components.recommendations.statistic import Recommendations

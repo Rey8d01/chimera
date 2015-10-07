@@ -1,6 +1,3 @@
-__author__ = 'rey'
-
-
 class Pagination():
     current_page = 0
     count_all_items = 0

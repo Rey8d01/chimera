@@ -1,5 +1,3 @@
-__author__ = 'rey'
-
 from system.handlers import BaseHandler
 # from models.collection import CollectionModel
 

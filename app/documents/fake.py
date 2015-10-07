@@ -1,5 +1,3 @@
-__author__ = 'rey'
-
 from motorengine import Document, StringField, EmbeddedDocumentField, BaseField
 from system.components.recommendations.cpn import ItemExtractor, ClusterExtractor
 

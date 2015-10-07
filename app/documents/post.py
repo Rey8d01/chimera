@@ -1,5 +1,3 @@
-__author__ = 'rey'
-
 from system.document import BaseDocument
 from motorengine import EmbeddedDocumentField, StringField, ListField, DateTimeField
 

@@ -5,8 +5,6 @@
 # PUT — обновление ресурса
 # DELETE — удаление ресурса
 
-__author__ = 'rey'
-
 import tornado.web
 from tornado.gen import coroutine
 import tornado.escape

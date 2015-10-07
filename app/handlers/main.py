@@ -1,5 +1,3 @@
-__author__ = 'rey'
-
 import json
 
 from system.handlers import BaseHandler

@@ -1,5 +1,3 @@
-__author__ = 'rey'
-
 import system.handlers
 
 import handlers.main

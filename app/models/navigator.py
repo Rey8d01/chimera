@@ -1,5 +1,3 @@
-__author__ = 'rey'
-
 from system.model import BaseModel
 
 

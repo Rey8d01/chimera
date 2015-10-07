@@ -1,5 +1,3 @@
-__author__ = 'rey'
-
 from motorengine import Document, EmbeddedDocumentField, StringField, ListField, JsonField, DateTimeField, BaseField
 
 
