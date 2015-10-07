@@ -24,7 +24,7 @@
             <h3>{{post.title}}</h3>
             <div ng-bind-html="post.text"></div>
             <p class="lead">
-                <a class="btn btn-default" ui-sref="main.post({aliasPost: post.alias})">{{main.readMore}}</a>
+                <a class="btn btn-default" ui-sref="main.blog.post({aliasPost: post.alias})">{{main.readMore}}</a>
             </p>
             <p class="pull-right"><span class="label label-default">keyword</span> <span class="label label-default">tag</span> <span class="label label-default">post</span>
             </p>
@@ -43,5 +43,5 @@
 </div>
 
 <!-- pagination -->
-<div paging page="paging.currentPage" page-size="paging.pageSize" total="paging.total" ui-sref="main.catalog({aliasCatalog: catalog.alias, page: paging.currentPage})"></div>
+<div paging page="paging.currentPage" page-size="paging.pageSize" total="paging.total" ui-sref="main.blog.catalog({aliasCatalog: catalog.alias, page: paging.currentPage})"></div>
 <!-- end pagination -->

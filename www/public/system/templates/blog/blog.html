@@ -1,0 +1,30 @@
+<div class="row">
+    <!-- content -->
+    <div class="col-md-9">
+        <div class="panel">
+            <div class="panel-body">
+                <div ui-view="content"></div>
+            </div>
+        </div>
+    </div>
+    <!-- end content -->
+
+    <!-- block sidebar -->
+    <div class="col-md-3">
+        <div>
+            <h5>Полезные ссылки</h5>
+
+            <a class="btn btn-default" ui-sref="main.blog.addNewPost"><i class="fa fa-plus"></i> Новый пост</a>
+        </div>
+        <!-- catalogs navbar -->
+        <div ui-view="catalogs"></div>
+        <!-- end catalogs navbar -->
+
+        <!-- list tags -->
+        <div ui-view="tags"></div>
+        <!-- end list tags -->
+
+        <div ui-view="links"></div>
+    </div>
+    <!-- end block sidebar -->
+</div>

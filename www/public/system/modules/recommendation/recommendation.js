@@ -66,7 +66,7 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
 
                 });
             }
-        }
+        };
 
         // Начальные данные критики
         recommendationService.get({}, function (response) {
@@ -82,7 +82,7 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
                             rate: criticList[response.imdbID]
                         };
                     });
-                };
+                }
             }
         });
 

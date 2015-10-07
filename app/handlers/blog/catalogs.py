@@ -8,7 +8,7 @@ from documents.post import PostDocument
 from system.utils.exceptions import ChimeraHTTPError
 
 
-class CatalogsHandler(system.handlers.MainHandler):
+class CatalogsHandler(system.handlers.BaseHandler):
 
     @coroutine
     def get(self):

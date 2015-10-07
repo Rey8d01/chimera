@@ -3,9 +3,6 @@ chimera.system.auth = angular.module('auth', ['ngCookies']);
 // Внедрение компонента авторизации в систему
 chimera.system.main.controller("AuthController", ["$scope", "$q", "authService",
     function($scope, $q, authService) {
-
-        console.log('AuthController');
-
         authService.initialize();
 
         $scope.main = {
@@ -28,7 +25,7 @@ chimera.system.main.controller("AuthController", ["$scope", "$q", "authService",
                     $(".sign-out-button").fadeIn();
                 }
             });
-        }
+        };
 
         $scope.pass = {
             word: ''
@@ -38,13 +35,13 @@ chimera.system.main.controller("AuthController", ["$scope", "$q", "authService",
                 $(".sign-in-button").fadeOut();
                 $(".sign-out-button").fadeIn();
             });
-        }
+        };
 
         $scope.signOut = function() {
             authService.disconnect();
             $(".sign-in-button").fadeIn();
             $(".sign-out-button").fadeOut();
-        }
+        };
 
         if (authService.isReady()) {
             $(".sign-in-button").hide();
@@ -96,7 +93,7 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookies",
                     user_info: full ? data : null
                 }, function(response) {
                     if ($location.path() == "/login") {
-                        $location.path("/main/home").replace();
+                        $location.path("/blog").replace();
                     }
                 });
             });
