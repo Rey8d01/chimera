@@ -1,14 +1,16 @@
-# Основной обработчик запросов торнадо tornado.web.RequestHandler от которого наследуем все остальные обработчики
-# через базовый BaseHandler в котором воплотим основные используемые функции
-# GET — получение ресурса
-# POST — создание ресурса
-# PUT — обновление ресурса
-# DELETE — удаление ресурса
+"""
+Основной обработчик запросов торнадо tornado.web.RequestHandler от которого наследуем все остальные обработчики
+через базовый BaseHandler в котором воплощены основные используемые функции.
+
+GET — получение ресурса
+POST — создание ресурса
+PUT — обновление ресурса
+DELETE — удаление ресурса
+"""
 
 import tornado.web
 from tornado.gen import coroutine
 import tornado.escape
-import tornado.auth
 
 from system.utils.result_message import ResultMessage
 
@@ -51,9 +53,6 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         error_message = ''
         if 'exc_info' in kwargs:
-            # kwargs['exc_info'][0]
-            # kwargs['exc_info'][1]
-            # kwargs['exc_info'][2]
             object_error = kwargs['exc_info'][1]
 
             if hasattr(object_error, 'error_message'):
@@ -108,7 +107,7 @@ class MainHandler(BaseHandler):
 
     def prepare(self):
         """
-        Перекрытие срабатывает перед вызовом всяческих гетов и постов
+        Перекрытие срабатывает перед вызовом обработчиков и в случае отсутствия данных по пользователю возбуждает исключение.
         :return:
         """
         if self.current_user is None:
@@ -143,15 +142,8 @@ class PrivateIntroduceHandler(BaseHandler):
 
 class IntroduceHandler(BaseHandler):
     """
-    Класс через который будет проводится представление пользователя системе, прошедшего клиентскую авторизацию
+    Класс через который будет проводится представление пользователя системе, прошедшего авторизацию
     """
-
-    def get(self):
-        """
-        test
-        """
-        print('get')
-        print(self.cookies)
 
     def _load_user_from_post(self, auth_type, user_id):
         """
