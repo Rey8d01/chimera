@@ -3,10 +3,11 @@
 Содержит настройки подключения к внешним ресурсам, роутинг и настройки работы системы.
 """
 
+from tornado.options import define
+
 import system.handlers
 
-import handlers.main
-import handlers.navigator
+import handlers.test
 import handlers.blog.catalogs
 import handlers.blog.catalog
 import handlers.blog.post
@@ -22,8 +23,7 @@ handlers = [
     (r"/_/private", system.handlers.PrivateIntroduceHandler),
     (r"/_/logout", system.handlers.LogoutHandler),
 
-    (r"/_/index", handlers.main.MainerHandler),
-    # (r"/_/navigator", handlers.navigator.NavigatorHandler),
+    (r"/_/test", handlers.test.TestHandler),
 
     # Blog
     (r"/_/catalog/([\w-]+)/([\d+]+)", handlers.blog.catalog.CatalogHandler),
@@ -44,8 +44,8 @@ DB_PORT = 27111
 DB_NAME = "chimera"
 
 # import motor
-import motorengine
-motorengine.connect(db=DB_NAME, host=DB_HOST, port=DB_PORT)
+# import motorengine
+# motorengine.connect(db=DB_NAME, host=DB_HOST, port=DB_PORT)
 
 settings = {
     "cookie_secret": "__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
@@ -54,4 +54,8 @@ settings = {
     # "db": motor.MotorClient(host=DB_HOST, port=DB_PORT)[DB_NAME]
     # "db": motorengine.connect(db=DB_NAME, host=DB_HOST, port=DB_PORT)
 }
+
+SYSTEM_PORT = 8888
+
+define("port", default=SYSTEM_PORT, help="run on the given port", type=int)
 

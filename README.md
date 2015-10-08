@@ -9,6 +9,7 @@ Dependency
 * tornado 
 * motor
 * motorengine
+* bcrypt
 
 Structure
 ---------
