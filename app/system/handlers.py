@@ -24,12 +24,10 @@ class BaseHandler(tornado.web.RequestHandler):
 
     воплотить базовые функции для всех потомков
     """
-    web = None
     escape = None
     result = None
 
     def initialize(self):
-        self.web = tornado.web
         self.escape = tornado.escape
         self.result = ResultMessage()
         # sleep(1)
