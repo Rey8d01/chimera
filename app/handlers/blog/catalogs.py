@@ -1,8 +1,8 @@
 from tornado.gen import coroutine
+
 import system.handlers
-from documents.catalog import CatalogDocument
-from documents.post import PostDocument
-from system.utils.exceptions import ChimeraHTTPError
+from documents.blog.catalog import CatalogDocument
+from documents.blog.post import PostDocument
 
 
 class CatalogsHandler(system.handlers.BaseHandler):

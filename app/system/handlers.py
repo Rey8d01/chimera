@@ -28,9 +28,13 @@ class BaseHandler(tornado.web.RequestHandler):
     result = None
 
     def initialize(self):
+        """
+        Инициализация базового обработчика запросов.
+
+        :return:
+        """
         self.escape = tornado.escape
         self.result = ResultMessage()
-        # sleep(1)
 
     def on_finish(self):
         """

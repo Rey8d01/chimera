@@ -20,11 +20,22 @@ class TestHandler(BaseHandler):
     @coroutine
     def post(self):
         print("post")
+
+        db = self.settings["db"]
+        collection = db.handlerTest
+        result = yield collection.insert({"i": 1})
+        print(result)
+
         self.write(json.dumps({"hello": "world"}))
 
     @coroutine
     def put(self):
         print("put")
+
+        import documents.blog.post
+
+        post = documents.blog.post.PostDocument()
+
         self.write(json.dumps({"hello": "world"}))
 
     @coroutine

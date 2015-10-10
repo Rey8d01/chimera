@@ -1,13 +1,16 @@
-# Базовая модель через которую будет происходить обращение к базе данных
-from symbol import yield_arg
+"""
+Набор классов реализующих базовые методы для работы с MongoDB. Через них будет происходить обращение к базе данных и тут будут
+реализованы методы исправляющие некоторые косяки при работе с MotorEngine и другими библиотеками для доступа к БД.
+"""
 
-
-from motorengine import Document, DateTimeField
-
+from motorengine import Document
 from motorengine.queryset import QuerySet
 
 
 class BaseDocument(Document):
+    """
+    Базовый документ. От него необходимо наследовать все документы с котороыми будет происходить работа.
+    """
 
     def __init__(self, **kw):
         """
@@ -16,7 +19,10 @@ class BaseDocument(Document):
         """
         Document.__init__(self, **kw)
 
-    def to_son(self):
+    def to_son(self) -> dict:
+        """
+        Подготовка документа для перевода его в JSON.
+        """
         data = dict()
 
         for name, field in list(self._fields.items()):

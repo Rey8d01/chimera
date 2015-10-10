@@ -1,7 +1,7 @@
 from tornado.gen import coroutine
 
 import system.handlers
-from documents.post import PostDocument, PostMetaDocument
+from documents.blog.post import PostDocument, PostMetaDocument
 from system.utils.exceptions import ChimeraHTTPError
 
 
