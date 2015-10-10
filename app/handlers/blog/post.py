@@ -1,11 +1,11 @@
 from tornado.gen import coroutine
 
-import system.handlers
+import system.handler
 from documents.blog.post import PostDocument, PostMetaDocument
 from system.utils.exceptions import ChimeraHTTPError
 
 
-class PostHandler(system.handlers.BaseHandler):
+class PostHandler(system.handler.BaseHandler):
 
     @coroutine
     def get(self, alias):

@@ -1,4 +1,4 @@
-from system.handlers import BaseHandler, MainHandler
+from system.handler import BaseHandler, MainHandler
 from documents.fake import UserDocument
 from system.components.recommendations.statistic import Recommendations
 

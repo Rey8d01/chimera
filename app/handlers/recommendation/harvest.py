@@ -1,4 +1,4 @@
-from system.handlers import BaseHandler
+from system.handler import BaseHandler
 from documents.critic import CriticDocument
 
 import tornado.web

@@ -8,7 +8,7 @@ from tornado.options import define
 # import motor
 import motorengine
 
-import system.handlers
+import system.handler
 
 import handlers.test
 import handlers.blog.catalogs
@@ -28,9 +28,9 @@ define("port", default=SYSTEM_PORT, help="run on the given port", type=int)
 handlers = [
     # Index
     # (r"/_/auth", system.handlers.AuthHandler),
-    (r"/_/introduce", system.handlers.IntroduceHandler),
-    (r"/_/private", system.handlers.PrivateIntroduceHandler),
-    (r"/_/logout", system.handlers.LogoutHandler),
+    (r"/_/introduce", system.handler.IntroduceHandler),
+    (r"/_/private", system.handler.PrivateIntroduceHandler),
+    (r"/_/logout", system.handler.LogoutHandler),
 
     (r"/_/test", handlers.test.TestHandler),
 

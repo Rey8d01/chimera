@@ -1,11 +1,11 @@
 from tornado.gen import coroutine
 
-import system.handlers
+import system.handler
 from documents.blog.catalog import CatalogDocument
 from documents.blog.post import PostDocument
 
 
-class CatalogsHandler(system.handlers.BaseHandler):
+class CatalogsHandler(system.handler.BaseHandler):
     @coroutine
     def get(self):
         """

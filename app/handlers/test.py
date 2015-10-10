@@ -3,7 +3,7 @@
 """
 
 import json
-from system.handlers import BaseHandler
+from system.handler import BaseHandler
 from tornado.gen import coroutine
 
 

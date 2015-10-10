@@ -1,6 +1,6 @@
 from tornado.gen import coroutine
 
-from system.handlers import BaseHandler
+from system.handler import BaseHandler
 from documents.fake import UserItemExtractor, UserDocument
 from documents.cpn import KohonenClusterExtractor, GrossbergOutStarExtractor
 from system.components.recommendations.cpn import Kohonen, GrossbergOutStar, CPN, top250

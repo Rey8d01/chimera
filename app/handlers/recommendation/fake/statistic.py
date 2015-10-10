@@ -1,6 +1,6 @@
 from tornado.gen import coroutine
 
-from system.handlers import BaseHandler, MainHandler
+from system.handler import BaseHandler, MainHandler
 from documents.fake import UserDocument
 
 import random

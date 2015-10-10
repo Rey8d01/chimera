@@ -2,14 +2,14 @@ import re
 
 from tornado.gen import coroutine
 
-import system.handlers
+import system.handler
 from documents.blog.catalog import CatalogDocument
 from documents.blog.post import PostDocument, PostMetaDocument
 from system.utils.exceptions import ChimeraHTTPError
 from system.components.pagination import Pagination
 
 
-class CatalogHandler(system.handlers.MainHandler):
+class CatalogHandler(system.handler.MainHandler):
     special_aliases = [
         'latest',
         'my',
