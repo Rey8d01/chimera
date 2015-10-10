@@ -37,7 +37,7 @@ class PostHandler(system.handler.BaseHandler):
         document_post.title = data[PostDocument.title.name]
         document_post.alias = data[PostDocument.alias.name]
         document_post.text = data[PostDocument.text.name]
-        document_post.aliasCatalog = data[PostDocument.aliasCatalog.name]
+        document_post.catalogAlias = data[PostDocument.catalogAlias.name]
 
         document_post_meta = PostMetaDocument()
         document_post.meta = document_post_meta

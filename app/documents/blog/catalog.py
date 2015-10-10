@@ -1,10 +1,12 @@
 """
 Набор документов для формирования категории.
 """
-from motorengine import Document, StringField
+
+from system.document import BaseDocument
+from motorengine import StringField
 
 
-class CatalogDocument(Document):
+class CatalogDocument(BaseDocument):
     """
     Каталог - папка для хранения информации. Каталоги имеют иерархичную структуру.
 
@@ -15,6 +17,6 @@ class CatalogDocument(Document):
 
     __collection__ = "catalog"
 
-    title = StringField()
-    alias = StringField()
+    title = StringField(required=True)
+    alias = StringField(required=True)
     parentAlias = StringField()

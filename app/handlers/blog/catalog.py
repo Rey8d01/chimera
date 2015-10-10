@@ -65,12 +65,12 @@ class CatalogHandler(system.handler.MainHandler):
 
             self.result.update_content(document_catalog.to_son())
 
-            count_post = yield PostDocument().objects.filter({PostDocument.aliasCatalog.name: alias}).count()
+            count_post = yield PostDocument().objects.filter({PostDocument.catalogAlias.name: alias}).count()
             pagination = Pagination(count_post, currentPage, 2)
 
             collection_post = yield PostDocument() \
                 .objects \
-                .filter({PostDocument.aliasCatalog.name: alias}) \
+                .filter({PostDocument.catalogAlias.name: alias}) \
                 .sort(PostDocument.meta.name + "." + PostMetaDocument.dateCreate.name, direction=-1) \
                 .limit(pagination.count_items_on_page) \
                 .skip(pagination.skip_items) \

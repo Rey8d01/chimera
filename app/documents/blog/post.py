@@ -13,8 +13,8 @@ class PostTagsDocument(BaseDocument):
     :type title: str Заголовок тега;
     :type alias: str Псевдоним тега;
     """
-    title = StringField()
-    alias = StringField()
+    title = StringField(required=True)
+    alias = StringField(required=True)
 
 
 class PostMetaDocument(BaseDocument):
@@ -36,7 +36,7 @@ class PostDocument(BaseDocument):
     Пост - текстовая запись. Относиться к каталогу, имеет сервисную информацию о себе, позволяет теггирование.
 
     :type alias: str Псевдоним поста для использования его в url для последующей идентификации;
-    :type aliasCatalog: str Псеводним каталога к которому относится пост и который будет показываться в рамках этой категории;
+    :type catalogAlias: str Псеводним каталога к которому относится пост и который будет показываться в рамках этой категории;
     :type title: str Человеческий заголовок для поста;
     :type tags: list Список названий тегов для последующего теггирования и выбора постов по одинаковым тегам;
     :type meta: PostMetaDocument Сервсисная информация о посте - дате создания, авторе, и т.д.;
@@ -45,8 +45,8 @@ class PostDocument(BaseDocument):
 
     __collection__ = "post"
 
-    alias = StringField()
-    aliasCatalog = StringField()
+    alias = StringField(required=True)
+    catalogAlias = StringField(required=True)
     title = StringField()
     tags = ListField(EmbeddedDocumentField(StringField))
     meta = EmbeddedDocumentField(PostMetaDocument)
