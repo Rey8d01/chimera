@@ -14,7 +14,7 @@ import tornado.escape
 
 from system.utils.result_message import ResultMessage
 
-from system.utils.exceptions import ChimeraHTTPError
+import system.utils.exceptions
 from documents.user import UserDocument, UserOAuthDocument, UserMetaDocument
 
 
@@ -30,41 +30,46 @@ class BaseHandler(tornado.web.RequestHandler):
     def initialize(self):
         """
         Инициализация базового обработчика запросов.
-
-        :return:
         """
         self.escape = tornado.escape
         self.result = ResultMessage()
 
     def on_finish(self):
         """
-        loging
-        Срабатывает автоматически для гетов
-        Не может редактировать содержимое выводимого результата (не может ничего отправлять пользователю в принципе)
-        :return:
+        Завершение обработки запроса. Не может редактировать содержимое выводимого результата
+        (не может ничего отправлять пользователю в принципе).
         """
         pass
 
-    def write_error(self, status_code=404, **kwargs):
+    def write_error(self, status_code, **kwargs):
         """
-        Перехват ошибок возникающих через исключения
+        Перехват ошибок и других событий возникающих через исключения.
 
         :param status_code:
         :param kwargs:
         :return:
         """
-        error_message = ''
-        if 'exc_info' in kwargs:
-            object_error = kwargs['exc_info'][1]
+        exc_info = kwargs['exc_info']
+        type_exception = exc_info[0]
+        exception = exc_info[1]
+        traceback = exc_info[0]
 
-            if hasattr(object_error, 'error_message'):
-                error_message = object_error.error_message
-            else:
-                error_message = object_error
-        print(error_message)
+        # Попытка привести исключение к строковому виду
+        if isinstance(exception, system.utils.exceptions.Result):
+            # Успешная отработка запроса
+            self.set_status(200)
+            result = str(exception)
+        elif isinstance(exception, system.utils.exceptions.ChimeraException):
+            # Относительно успешная отработка запроса - исключение которое не было правильно обработано
+            result = str(exception)
+        else:
+            # Системное исключение которое было возбуждено феймворком - попытка отработать его корректно для клиента
+            result_message = system.utils.exceptions.ResultMessage(error=str(exception))
+            result = str(result_message)
 
-        result = self.escape.json_encode({'error': error_message})
+        # Вывод результата обработки исключения
         self.write(result)
+        self.finish()
 
     def set_default_headers(self):
         """
@@ -113,7 +118,7 @@ class MainHandler(BaseHandler):
         :return:
         """
         if self.current_user is None:
-            raise ChimeraHTTPError(401, error_message=u"Неизвестный пользователь")
+            raise system.utils.exceptions.ChimeraHTTPError(401, error_message=u"Неизвестный пользователь")
 
 
 class PrivateIntroduceHandler(BaseHandler):

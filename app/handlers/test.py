@@ -3,6 +3,7 @@
 """
 
 import json
+import system.utils.exceptions
 from system.handler import BaseHandler
 from tornado.gen import coroutine
 
@@ -34,10 +35,6 @@ class TestHandler(BaseHandler):
         """
 
         print("post")
-
-        data = self.request.arguments
-        print(data)
-
         self.write(json.dumps({"hello": "world"}))
 
     @coroutine
@@ -47,18 +44,6 @@ class TestHandler(BaseHandler):
         """
 
         print("put")
-
-        data = self.request.arguments
-        print(data)
-
-        # import documents.blog.catalog
-        #
-        # document_catalog = documents.blog.catalog.CatalogDocument()
-        # document_catalog.alias = "pseudo"
-        # document_catalog.title = "Псевдо"
-        # result = yield document_catalog.save()
-        # print(result)
-
         self.write(json.dumps({"hello": "world"}))
 
     @coroutine
@@ -95,4 +80,7 @@ class TestHandler(BaseHandler):
         """
 
         print("patch")
+
+        raise system.utils.exceptions.Result(content={"title": "MEGA"}, error='something')
         self.write(json.dumps({"hello": "world"}))
+

@@ -1,3 +1,6 @@
+"""
+Обработчик категории
+"""
 import re
 
 from tornado.gen import coroutine
@@ -95,11 +98,13 @@ class CatalogHandler(system.handler.MainHandler):
     @coroutine
     def post(self):
         """
-        Создание нового каталога и занесение в базу актуальной по нему информации
-
-        :return:
+        Создание нового каталога и занесение в базу актуальной по нему информации.
         """
-        pass
-        # collection = CatalogDocument().load_post(self)
-        # result = yield collection.save()
-        # self.write(result)
+        request_data = self.request.arguments
+
+        document_catalog = CatalogDocument()
+        document_catalog.fill_document_from_dict(request_data)
+
+        result = yield document_catalog.save()
+
+
