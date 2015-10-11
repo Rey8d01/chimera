@@ -1,11 +1,12 @@
-from tornado.gen import coroutine
 
 import system.handler
+import system.utils.exceptions
+from tornado.gen import coroutine
 from documents.blog.catalog import CatalogDocument
 from documents.blog.post import PostDocument
 
 
-class CatalogsHandler(system.handler.BaseHandler):
+class CatalogsHandler(system.handler.MainHandler):
     @coroutine
     def get(self):
         """
@@ -23,8 +24,7 @@ class CatalogsHandler(system.handler.BaseHandler):
             result["countPosts"] = count_posts
             list_catalogs.append(result)
 
-        self.result.update_content({"catalogs": list_catalogs})
-        self.write(self.result.get_message())
+        raise system.utils.exceptions.Result(content={"catalogs": list_catalogs})
 
     @coroutine
     def post(self):

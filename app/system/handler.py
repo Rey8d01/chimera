@@ -115,10 +115,9 @@ class MainHandler(BaseHandler):
     def prepare(self):
         """
         Перекрытие срабатывает перед вызовом обработчиков и в случае отсутствия данных по пользователю возбуждает исключение.
-        :return:
         """
         if self.current_user is None:
-            raise system.utils.exceptions.ChimeraHTTPError(401, error_message=u"Неизвестный пользователь")
+            raise system.utils.exceptions.ErrorResult(error="Неизвестный пользователь")
 
 
 class PrivateIntroduceHandler(BaseHandler):
@@ -143,8 +142,7 @@ class PrivateIntroduceHandler(BaseHandler):
             self.set_secure_cookie("chimera_user", chimera_user, domain=".chimera.rey")
             self.set_secure_cookie("chimera_user", chimera_user, domain=".chimera.rey")
 
-        self.result.update_content(result)
-        self.write(self.result.get_message())
+        raise system.utils.exceptions.Result(content=result)
 
 
 class IntroduceHandler(BaseHandler):
@@ -202,10 +200,7 @@ class IntroduceHandler(BaseHandler):
         chimera_user = self.escape.json_encode({"type": auth_type, "id": user_id})
         self.set_secure_cookie("chimera_user", chimera_user, domain=".chimera.rey")
 
-        self.result.update_content({
-            "auth": True
-        })
-        self.write(self.result.get_message())
+        raise system.utils.exceptions.Result(content={"auth": True})
 
 
 class LogoutHandler(MainHandler):

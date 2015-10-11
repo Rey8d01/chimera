@@ -1,12 +1,14 @@
-from tornado.gen import coroutine
+"""
+Обработчики записей в блоге
+"""
 
 import system.handler
+import system.utils.exceptions
+from tornado.gen import coroutine
 from documents.blog.post import PostDocument, PostMetaDocument
-from system.utils.exceptions import ChimeraHTTPError
 
 
-class PostHandler(system.handler.BaseHandler):
-
+class PostHandler(system.handler.MainHandler):
     @coroutine
     def get(self, alias):
         """
@@ -21,11 +23,10 @@ class PostHandler(system.handler.BaseHandler):
             .find_all()
 
         if not collection_post:
-            raise ChimeraHTTPError(404, error_message=u"Пост не найден")
+            raise system.utils.exceptions.NotFound(error="Пост не найден")
         document_post = collection_post[0]
 
-        self.result.update_content(document_post.to_son())
-        self.write(self.result.get_message())
+        raise system.utils.exceptions.Result(content=document_post.to_son())
 
     @coroutine
     def post(self):
@@ -50,5 +51,4 @@ class PostHandler(system.handler.BaseHandler):
 
         yield document_post.save()
 
-        self.result.update_content(document_post.to_son())
-        self.write(self.result.get_message())
+        raise system.utils.exceptions.Result(content=document_post.to_son())

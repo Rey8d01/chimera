@@ -1,14 +1,13 @@
 """
 Обработчик категории
 """
+
 import re
-
-from tornado.gen import coroutine
-
 import system.handler
+import system.utils.exceptions
+from tornado.gen import coroutine
 from documents.blog.catalog import CatalogDocument
 from documents.blog.post import PostDocument, PostMetaDocument
-from system.utils.exceptions import ChimeraHTTPError
 from system.components.pagination import Pagination
 
 
@@ -20,13 +19,18 @@ class CatalogHandler(system.handler.MainHandler):
     ]
 
     @coroutine
-    def get(self, alias, currentPage):
+    def get(self, alias: str, currentPage: int):
         """
         Запрос на получение информации по содержимому определенного каталога.
 
         :param alias:
+        :type alias: str
+        :param currentPage:
+        :type currentPage: str
         :return:
         """
+
+        result = {}
         if alias in self.special_aliases:
             # Для особых псевдонимов генерируем свой набор данных
             count_post = yield PostDocument().objects.count()
@@ -49,8 +53,8 @@ class CatalogHandler(system.handler.MainHandler):
 
                 list_items_post.append(document_post.to_son())
 
-            self.result.update_content({
-                "title": u"Последние новости",
+            result.update({
+                "title": "Последние новости",
                 "alias": "latest",
                 "posts": list_items_post,
                 "pageData": {
@@ -63,10 +67,10 @@ class CatalogHandler(system.handler.MainHandler):
             collection_catalog = yield CatalogDocument().objects.filter({"alias": alias}).find_all()
 
             if not collection_catalog:
-                raise ChimeraHTTPError(404, error_message=u"Коллекция не найдена")
+                raise system.utils.exceptions.NotFound(error="Коллекция не найдена")
             document_catalog = collection_catalog[0]
 
-            self.result.update_content(document_catalog.to_son())
+            result.update(document_catalog.to_son())
 
             count_post = yield PostDocument().objects.filter({PostDocument.catalogAlias.name: alias}).count()
             pagination = Pagination(count_post, currentPage, 2)
@@ -91,9 +95,9 @@ class CatalogHandler(system.handler.MainHandler):
 
                     list_items_post.append(document_post.to_son())
 
-            self.result.update_content({"posts": list_items_post})
+            result.update({"posts": list_items_post})
 
-        self.write(self.result.get_message())
+        raise system.utils.exceptions.Result(content=result)
 
     @coroutine
     def post(self):
@@ -107,4 +111,5 @@ class CatalogHandler(system.handler.MainHandler):
 
         result = yield document_catalog.save()
 
+        raise system.utils.exceptions.Result(content=result)
 
