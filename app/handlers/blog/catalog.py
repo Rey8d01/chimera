@@ -1,9 +1,12 @@
 """
-Обработчик категории
+Обработчики каталогов. Осуществляют вывод информации по категориям и связанную с ними информацию (записи постов),
+а так же организует создание и редактирование информации по сущетсвующим каталогам.
+Каталоги идентифицируются по их псевдонимам, по ним очуществляется просмотр и редактирование.
 """
 
 import re
 import system.handler
+import system.utils
 import system.utils.exceptions
 from tornado.gen import coroutine
 from documents.blog.catalog import CatalogDocument
@@ -11,7 +14,35 @@ from documents.blog.post import PostDocument, PostMetaDocument
 from system.components.pagination import Pagination
 
 
-class CatalogHandler(system.handler.MainHandler):
+class CatalogEditHandler(system.handler.BaseHandler):
+    """
+    Обработчик запросов для создания/редактирования информации по каталогам.
+    Создание нового каталога возможно при отсутствии заданного псевдонима в базе данных.
+    """
+
+    @coroutine
+    def post(self):
+        """
+        Создание нового каталога и занесение в базу актуальной по нему информации.
+        """
+
+        request_data = self.request.arguments
+
+        document_catalog = CatalogDocument()
+        document_catalog.fill_document_from_dict(request_data)
+
+        result = yield document_catalog.save()
+
+        raise system.utils.exceptions.Result(content=result)
+
+
+class CatalogItemHandler(system.handler.BaseHandler):
+    """
+    Обработчик запросов для указанного каталога.
+
+    :type special_aliases: list Список зарезервированных имен псевдонимов, которые нельзя использовать.
+    """
+
     special_aliases = [
         'latest',
         'my',
@@ -19,22 +50,21 @@ class CatalogHandler(system.handler.MainHandler):
     ]
 
     @coroutine
-    def get(self, alias: str, currentPage: int):
+    def get(self, alias: str, current_page: int):
         """
         Запрос на получение информации по содержимому определенного каталога.
 
-        :param alias:
+        :param alias: Имя псевдонима каталога;
         :type alias: str
-        :param currentPage:
-        :type currentPage: str
-        :return:
+        :param current_page: Номер страницы в списке постов;
+        :type current_page: int
         """
 
         result = {}
         if alias in self.special_aliases:
             # Для особых псевдонимов генерируем свой набор данных
             count_post = yield PostDocument().objects.count()
-            pagination = Pagination(count_post, currentPage, 2)
+            pagination = Pagination(count_post, current_page, 2)
 
             collection_post = yield PostDocument() \
                 .objects \
@@ -58,7 +88,7 @@ class CatalogHandler(system.handler.MainHandler):
                 "alias": "latest",
                 "posts": list_items_post,
                 "pageData": {
-                    "currentPage": pagination.current_page,
+                    "current_page": pagination.current_page,
                     "pageSize": pagination.count_items_on_page,
                     "total": pagination.count_all_items,
                 }
@@ -73,7 +103,7 @@ class CatalogHandler(system.handler.MainHandler):
             result.update(document_catalog.to_son())
 
             count_post = yield PostDocument().objects.filter({PostDocument.catalogAlias.name: alias}).count()
-            pagination = Pagination(count_post, currentPage, 2)
+            pagination = Pagination(count_post, current_page, 2)
 
             collection_post = yield PostDocument() \
                 .objects \
@@ -99,17 +129,25 @@ class CatalogHandler(system.handler.MainHandler):
 
         raise system.utils.exceptions.Result(content=result)
 
+
+class CatalogListHandler(system.handler.BaseHandler):
+    """
+    Обработчик запросов для работы со списком каталогов.
+    """
+
     @coroutine
-    def post(self):
+    def get(self):
         """
-        Создание нового каталога и занесение в базу актуальной по нему информации.
+        Вернет список каталогов.
         """
-        request_data = self.request.arguments
 
-        document_catalog = CatalogDocument()
-        document_catalog.fill_document_from_dict(request_data)
+        collection_catalog = yield CatalogDocument().objects.find_all()
 
-        result = yield document_catalog.save()
+        list_catalogs = []
+        for document_catalog in collection_catalog:
+            count_posts = yield PostDocument().objects.filter({PostDocument.catalogAlias.name: document_catalog.alias}).count()
+            result = document_catalog.to_son()
+            result["countPosts"] = count_posts
+            list_catalogs.append(result)
 
-        raise system.utils.exceptions.Result(content=result)
-
+        raise system.utils.exceptions.Result(content={"catalogs": list_catalogs})

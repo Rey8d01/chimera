@@ -11,7 +11,6 @@ import motorengine
 import system.handler
 
 import handlers.test
-import handlers.blog.catalogs
 import handlers.blog.catalog
 import handlers.blog.post
 
@@ -35,8 +34,8 @@ handlers = [
     (r"/_/test", handlers.test.TestHandler),
 
     # Blog
-    (r"/_/catalog/([\w-]+)/([\d+]+)", handlers.blog.catalog.CatalogHandler),
-    (r"/_/catalogs", handlers.blog.catalogs.CatalogsHandler),
+    (r"/_/catalog/([\w-]+)/([\d+]+)", handlers.blog.catalog.CatalogItemHandler),
+    (r"/_/catalogs", handlers.blog.catalog.CatalogListHandler),
     (r"/_/post/([\w-]+)", handlers.blog.post.PostHandler),
     (r"/_/post", handlers.blog.post.PostHandler),
 

@@ -8,6 +8,7 @@ from motorengine.queryset import QuerySet
 from motorengine import BaseField, StringField, IntField, FloatField, JsonField, DateTimeField
 list_simple_types = [StringField, IntField, FloatField, JsonField, DateTimeField]
 
+
 class BaseDocument(Document):
     """
     Базовый документ. От него необходимо наследовать все документы с котороыми будет происходить работа.
