@@ -25,15 +25,42 @@ class CatalogEditHandler(system.handler.BaseHandler):
         """
         Создание нового каталога и занесение в базу актуальной по нему информации.
         """
+        alias = self.get_argument(CatalogDocument.alias.name)
 
-        request_data = self.request.arguments
+        count_catalogs = yield CatalogDocument() \
+            .objects \
+            .filter({CatalogDocument.alias.name: alias}) \
+            .count()
+        if count_catalogs > 0:
+            raise system.utils.exceptions.ErrorResult(error="Коллекция с таким псевдонимом уже существует")
 
         document_catalog = CatalogDocument()
-        document_catalog.fill_document_from_dict(request_data)
+        document_catalog.fill_document_from_dict(self.request.arguments)
 
-        result = yield document_catalog.save()
+        yield document_catalog.save()
 
-        raise system.utils.exceptions.Result(content=result)
+        raise system.utils.exceptions.Result(content=document_catalog.to_son())
+
+    @coroutine
+    def put(self):
+        """
+        Изменение существующего каталога
+        """
+        alias = self.get_argument(CatalogDocument.alias.name)
+
+        collection_catalog = yield CatalogDocument() \
+            .objects \
+            .filter({CatalogDocument.alias.name: alias}) \
+            .limit(1) \
+            .find_all()
+        if not collection_catalog:
+            raise system.utils.exceptions.NotFound(error="Коллекция не найдена")
+
+        document_catalog = collection_catalog[-1]
+        document_catalog.fill_document_from_dict(self.request.arguments)
+        yield document_catalog.save()
+
+        raise system.utils.exceptions.Result(content=document_catalog.to_son())
 
 
 class CatalogItemHandler(system.handler.BaseHandler):
@@ -59,8 +86,8 @@ class CatalogItemHandler(system.handler.BaseHandler):
         :param current_page: Номер страницы в списке постов;
         :type current_page: int
         """
-
         result = {}
+
         if alias in self.special_aliases:
             # Для особых псевдонимов генерируем свой набор данных
             count_post = yield PostDocument().objects.count()
@@ -140,8 +167,9 @@ class CatalogListHandler(system.handler.BaseHandler):
         """
         Вернет список каталогов.
         """
-
-        collection_catalog = yield CatalogDocument().objects.find_all()
+        collection_catalog = yield CatalogDocument() \
+            .objects \
+            .find_all()
 
         list_catalogs = []
         for document_catalog in collection_catalog:
