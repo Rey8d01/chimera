@@ -36,7 +36,8 @@ handlers = [
     # Blog
     (r"/_/catalog", handlers.blog.catalog.CatalogEditHandler),
     (r"/_/catalog/([\w-]+)/([\d+]+)", handlers.blog.catalog.CatalogItemHandler),
-    (r"/_/catalogs", handlers.blog.catalog.CatalogListHandler),
+    (r"/_/catalogs", handlers.blog.catalog.CatalogListMainHandler),
+    (r"/_/catalogs/([\w-]+)", handlers.blog.catalog.CatalogListChildrenHandler),
 
     (r"/_/post/([\w-]+)", handlers.blog.post.PostHandler),
     (r"/_/post", handlers.blog.post.PostHandler),

@@ -1,6 +1,4 @@
-"""
-Обработчики записей в блоге
-"""
+"""Обработчики записей в блоге."""
 
 import system.handler
 import system.utils.exceptions
