@@ -23,7 +23,6 @@ class PostMetaDocument(BaseDocument):
     :type dateUpdate: str Дата создания;
     :type author: str Автор поста;
     """
-
     dateCreate = DateTimeField(auto_now_on_insert=True)
     dateUpdate = DateTimeField(auto_now_on_update=True)
     author = StringField()
@@ -44,9 +43,9 @@ class PostDocument(BaseDocument):
 
     __collection__ = "post"
 
-    alias = StringField(required=True)
+    alias = StringField(required=True, unique=True)
     catalogAlias = StringField(required=True)
     title = StringField()
-    tags = ListField(EmbeddedDocumentField(StringField))
-    meta = EmbeddedDocumentField(PostMetaDocument)
+    tags = ListField(EmbeddedDocumentField(embedded_document_type=PostTagsDocument))
+    meta = EmbeddedDocumentField(embedded_document_type=PostMetaDocument, default=PostMetaDocument())
     text = StringField()

@@ -26,16 +26,6 @@ class CatalogEditHandler(system.handler.BaseHandler):
     @coroutine
     def post(self):
         """Создание нового каталога и занесение в базу актуальной по нему информации."""
-        alias = self.get_argument(CatalogDocument.alias.name)
-
-        # Проверка наличия каталога с указанным псевдонимом.
-        count_catalogs = yield CatalogDocument() \
-            .objects \
-            .filter({CatalogDocument.alias.name: alias}) \
-            .count()
-        if count_catalogs > 0:
-            raise system.utils.exceptions.ErrorResult(error="Коллекция с таким псевдонимом уже существует")
-
         document_catalog = CatalogDocument()
         document_catalog.fill_document_from_dict(self.request.arguments)
 
@@ -173,7 +163,7 @@ class CatalogListMainHandler(system.handler.BaseHandler):
         """Вернет список корневых каталогов."""
         collection_catalog = yield CatalogDocument() \
             .objects \
-            .filter({CatalogDocument.parentAlias.name: "None"}) \
+            .filter({CatalogDocument.parentAlias.name: CatalogDocument.DEFAULT_PARENT_ALIAS}) \
             .find_all()
 
         list_catalogs = []

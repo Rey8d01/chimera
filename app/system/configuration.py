@@ -39,8 +39,8 @@ handlers = [
     (r"/_/catalogs", handlers.blog.catalog.CatalogListMainHandler),
     (r"/_/catalogs/([\w-]+)", handlers.blog.catalog.CatalogListChildrenHandler),
 
+    (r"/_/post", handlers.blog.post.PostEditHandler),
     (r"/_/post/([\w-]+)", handlers.blog.post.PostHandler),
-    (r"/_/post", handlers.blog.post.PostHandler),
 
     # Recommendation
     (r"/_/recommendation/harvest", handlers.recommendation.harvest.HarvestHandler),
