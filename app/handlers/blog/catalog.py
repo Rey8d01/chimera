@@ -6,13 +6,15 @@
 
 """
 import re
+
+from tornado.gen import coroutine
+
 import system.handler
 import system.utils
 import system.utils.exceptions
-from tornado.gen import coroutine
 from documents.blog.catalog import CatalogDocument
 from documents.blog.post import PostDocument, PostMetaDocument
-from system.components.pagination import Pagination
+from system.utils.pagination import Pagination
 
 
 class CatalogEditHandler(system.handler.BaseHandler):

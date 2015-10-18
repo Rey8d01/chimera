@@ -6,10 +6,11 @@ Chimera - learning process: AngularJS &amp; Python Tornado &amp; MongoDB
 Dependency
 ----------
 
-* tornado 
-* motor
-* motorengine
-* bcrypt
+* tornado - web server + framework;
+* motor - MongoDB driver;
+* motorengine - MongoDB ORM;
+* bcrypt - hashing passwords;
+* transliterate - for transliterate input text to eng slugs;
 
 Structure
 ---------

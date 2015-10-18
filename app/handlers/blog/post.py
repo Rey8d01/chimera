@@ -7,7 +7,8 @@
 import system.handler
 import system.utils.exceptions
 from tornado.gen import coroutine
-from documents.blog.post import PostDocument
+from documents.blog.post import PostDocument, PostTagsDocument
+from transliterate import slugify
 
 
 class PostEditHandler(system.handler.BaseHandler):
@@ -25,12 +26,10 @@ class PostEditHandler(system.handler.BaseHandler):
         document_post.fill_document_from_dict(self.request.arguments)
         # todo заменить на реального автора.
         document_post.meta.author = 'test'
-
-        # # Теги разделяем запятыми и тримируем
-        # import re
-        # tags = re.split(',', data[PostDocument.tags.name])
-        # map(str.strip, tags)
-        # document_post.tags = tags
+        # Пасринг тегов - предполагается что они идут пачкой под одной переменной.
+        tags = self.get_arguments(PostDocument.tags.name)
+        if len(tags):
+            document_post.tags = [PostTagsDocument(title=tag, alias=slugify(tag)) for tag in tags]
 
         yield document_post.save()
 
