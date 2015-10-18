@@ -3,7 +3,7 @@ import random
 from tornado.gen import coroutine
 
 from system.handler import BaseHandler
-from documents.fake import UserDocument
+from documents.recommendation.fake import UserDocument
 from system.components.recommendations.statistic import Recommendations
 
 
