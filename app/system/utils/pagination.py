@@ -26,7 +26,7 @@ class Pagination:
         :type count_items_on_page: int
         """
         self.count_all_items = count_all_items
-        self.current_page = current_page
+        self.current_page = current_page if current_page > 0 else 1
 
         if count_items_on_page is not None:
             self.count_items_on_page = count_items_on_page

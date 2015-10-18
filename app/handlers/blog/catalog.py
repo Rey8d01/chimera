@@ -6,12 +6,9 @@
 
 """
 import re
-
-from tornado.gen import coroutine
-
 import system.handler
-import system.utils
 import system.utils.exceptions
+from tornado.gen import coroutine
 from documents.blog.catalog import CatalogDocument
 from documents.blog.post import PostDocument, PostMetaDocument
 from system.utils.pagination import Pagination
@@ -79,6 +76,7 @@ class CatalogItemHandler(system.handler.BaseHandler):
         :param current_page: Номер страницы в списке постов;
         :type current_page: int
         """
+        current_page = int(current_page)
         result = {}
 
         if alias in self.special_aliases:

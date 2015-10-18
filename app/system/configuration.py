@@ -1,6 +1,7 @@
-"""
-Файл конфигурации системы.
+"""Файл конфигурации системы.
+
 Содержит настройки подключения к внешним ресурсам, роутинг и настройки работы системы.
+
 """
 
 from tornado.options import define
@@ -13,6 +14,7 @@ import system.handler
 import handlers.test
 import handlers.blog.catalog
 import handlers.blog.post
+import handlers.blog.tag
 
 import handlers.recommendation.harvest
 import handlers.recommendation.process
@@ -38,6 +40,9 @@ handlers = [
     (r"/_/catalog/([\w-]+)/([\d+]+)", handlers.blog.catalog.CatalogItemHandler),
     (r"/_/catalogs", handlers.blog.catalog.CatalogListMainHandler),
     (r"/_/catalogs/([\w-]+)", handlers.blog.catalog.CatalogListChildrenHandler),
+
+    (r"/_/tag/([\w\-]+)/([\d+]+)", handlers.blog.tag.TagItemHandler),
+    (r"/_/tags", handlers.blog.tag.TagListHandler),
 
     (r"/_/post", handlers.blog.post.PostEditHandler),
     (r"/_/post/([\w-]+)", handlers.blog.post.PostHandler),
