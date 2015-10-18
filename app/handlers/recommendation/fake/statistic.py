@@ -1,9 +1,9 @@
+import random
+
 from tornado.gen import coroutine
 
-from system.handler import BaseHandler, MainHandler
-from documents.fake import UserDocument
-
-import random
+from system.handler import BaseHandler
+from documents.recommendation.fake import UserDocument
 
 
 class FakeStatisticHandler(BaseHandler):

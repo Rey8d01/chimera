@@ -70,7 +70,6 @@ class PostHandler(system.handler.BaseHandler):
 
         :param alias: Имя псевдонима поста;
         :type alias: str
-        :return:
         """
         collection_post = yield PostDocument() \
             .objects \

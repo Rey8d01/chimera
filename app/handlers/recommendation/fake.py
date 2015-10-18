@@ -1,9 +1,10 @@
-from system.handler import BaseHandler, MainHandler
+import random
+
+from tornado.gen import coroutine
+
+from system.handler import BaseHandler
 from documents.fake import UserDocument
 from system.components.recommendations.statistic import Recommendations
-
-import random
-from tornado.gen import coroutine
 
 
 class FakeHandler(BaseHandler):
@@ -28,7 +29,7 @@ class FakeHandler(BaseHandler):
     @coroutine
     def put(self):
         from system.components.recommendations.cpn import Kohonen, ItemExtractor, top250
-        from documents.cpn import KohonenClusterExtractor
+        from documents.recommendation.cpn import KohonenClusterExtractor
 
         class UserItemExtractor(UserDocument, ItemExtractor):
             """

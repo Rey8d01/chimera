@@ -1,12 +1,12 @@
+import random
+
 from tornado.gen import coroutine
+from bson.objectid import ObjectId
 
 from system.handler import BaseHandler
 from documents.fake import UserItemExtractor, UserDocument
-from documents.cpn import KohonenClusterExtractor, GrossbergOutStarExtractor
+from documents.recommendation.cpn import KohonenClusterExtractor, GrossbergOutStarExtractor
 from system.components.recommendations.cpn import Kohonen, GrossbergOutStar, CPN, top250
-
-from bson.objectid import ObjectId
-import random
 from system.components.recommendations.statistic import Recommendations, Similarity
 
 

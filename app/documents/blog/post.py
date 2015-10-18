@@ -40,7 +40,6 @@ class PostDocument(BaseDocument):
     :type meta: PostMetaDocument Сервсисная информация о посте - дате создания, авторе, и т.д.;
     :type text: str Текст поста;
     """
-
     __collection__ = "post"
 
     alias = StringField(required=True, unique=True)

@@ -1,8 +1,8 @@
-from system.handler import BaseHandler
-from documents.critic import CriticDocument
-
 import tornado.web
 from tornado import gen
+
+from system.handler import BaseHandler
+from documents.recommendation.critic import CriticDocument
 
 
 class HarvestHandler(BaseHandler):

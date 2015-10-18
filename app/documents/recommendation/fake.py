@@ -1,3 +1,5 @@
+"""Документы для работы с тестовым набором данных."""
+
 from motorengine import Document, StringField, EmbeddedDocumentField, BaseField
 from system.components.recommendations.cpn import ItemExtractor, ClusterExtractor
 
