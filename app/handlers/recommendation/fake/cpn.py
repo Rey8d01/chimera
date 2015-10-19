@@ -1,8 +1,8 @@
+"""Укомлпектованный класс для теста различных конфигураций сети встречного распространения."""
 import random
-
+import system.utils.exceptions
 from tornado.gen import coroutine
 from bson.objectid import ObjectId
-
 from system.handler import BaseHandler
 from documents.recommendation.fake import UserItemExtractor, UserDocument
 from documents.recommendation.cpn import KohonenClusterExtractor, GrossbergOutStarExtractor
@@ -14,11 +14,7 @@ class FakeCPNHandler(BaseHandler):
 
     @coroutine
     def put(self):
-        """
-        Спец метод по запуску перестройке всей сети
-
-        :return:
-        """
+        """Спец метод по запуску перестройке всей сети."""
         # Готовая звезда
         collection_out_star = yield GrossbergOutStarExtractor().objects.find_all()
         if len(collection_out_star) > 0:
@@ -61,9 +57,9 @@ class FakeCPNHandler(BaseHandler):
         net_cpn.run(source=collection_user)
 
         print("Сохранение результатов")
-        # Очистка всей коллекции с кластерами
+        # Очистка всей коллекции с кластерами.
         yield KohonenClusterExtractor().objects.delete()
-        # И сохранение тех документов которые образовались в процессе кластеризации
+        # Сохранение тех документов которые образовались в процессе кластеризации.
         print("Сохранение кластеров")
         yield KohonenClusterExtractor().objects.bulk_insert(net_kohonen.clusters)
         print("Сохранение звезды")
@@ -75,38 +71,32 @@ class FakeCPNHandler(BaseHandler):
 
     @coroutine
     def get(self):
-        """
-        :return:
-        """
+        """Запрос пользовательской информации которая связана с данными рекомендаций."""
         user = self.get_argument("user", None)
 
         if user:
-            """ Запрос информации по конкретному пользователю """
+            # Запрос информации по конкретному пользователю.
             collection_user = yield UserDocument().objects.filter({"_id": ObjectId(user)}).find_all()
-            document_user = collection_user[0]
+            document_user = collection_user[-1]
             """ :type: UserItemExtractor """
-            self.result.update_content({"": document_user.get_item_name()})
+            result = {"": document_user.get_item_name()}
         else:
-            """ Запрос данных по пользователям (случайные 10) """
+            # Запрос данных по пользователям (случайные 10).
             collection_critic = yield UserDocument().objects.find_all()
 
-            # Перемешивание втупую и срез 10 пользователей
+            # Перемешивание втупую и срез 10 пользователей.
             random.shuffle(collection_critic)
             fake_user_list = {}
             for document_critic in collection_critic[:10]:
                 fake_user_list[str(document_critic._id)] = document_critic.info.name
 
-            self.result.update_content({"fakeUserList": fake_user_list})
+            result = {"fakeUserList": fake_user_list}
 
-        self.write(self.result.get_message())
+        raise system.utils.exceptions.Result(content=result)
 
     @coroutine
     def post(self):
-        """
-        Выработка персональных рекомендаций
-
-        :return:
-        """
+        """Выработка персональных рекомендаций."""
         user = self.get_argument("user")
         # Запрошенный пользователь
         collection_user = yield UserItemExtractor().objects.filter({"_id": ObjectId(user)}).find_all()
@@ -175,12 +165,12 @@ class FakeCPNHandler(BaseHandler):
         result_aggregation = {info_cluster_user["_id"]: info_cluster_user["percentage"] for info_cluster_user in aggregation_cluster_user}
 
         # Вывод результатов
-        self.result.update_content({
+        result = {
             "cluster": cluster_id_for_user,
             "otherUser": document_other_user.get_item_name(),  # Более быстрая рекомендация с усредненными значениями
             "neuroRecommendations": neuro_recommendations,  # Более быстрая рекомендация с усредненными значениями
             "statRecommendations": stat_recommendations,  # Более точная в оценке рекомендация
             "outStarRecommendations": sort_out_star_vector_filtered,
             "infoClusters": result_aggregation,
-        })
-        self.write(self.result.get_message())
+        }
+        raise system.utils.exceptions.Result(content=result)

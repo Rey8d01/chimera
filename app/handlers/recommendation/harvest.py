@@ -1,51 +1,46 @@
-import tornado.web
-from tornado import gen
+"""Обработка запросов для сохранения информации, которая в дальнейшем будет использоваться для анализа.
 
+На данном этапе преполагается сохранение этой информации в рамках документа пользователя и только в рамках одного списка объектов оценок.
+
+"""
+import system.utils.exceptions
+from tornado.gen import coroutine
 from system.handler import BaseHandler
 from documents.recommendation.critic import CriticDocument
 
 
 class HarvestHandler(BaseHandler):
+    """Сборщик информации для анализа.
 
-    @tornado.web.asynchronous
-    @gen.coroutine
+    GET - список оценок уже проставленных пользователем.
+    POST - изменение оценок пользователя.
+
+    """
+
+    @coroutine
     def get(self):
-        """
-        Вернет список данных критики по пользователяю
-
-        :return:
-        """
+        """Вернет список данных критики по пользователяю."""
+        # Тут проще воспользоваться функцией которая получает данные пользователей для системы.
         document_user = yield self.get_data_current_user()
+        # У документа пользователя должно быть соответствующее свойство которое отвечает за сохранность информации с оценками
         critic = document_user.critic if hasattr(document_user, "critic") else {}
-        self.result.update_content({"critic": critic})
-        self.write(self.result.get_message())
+        raise system.utils.exceptions.Result(content={"critic": critic})
 
-    @tornado.web.asynchronous
-    @gen.coroutine
+    @coroutine
     def post(self):
-        """
-        Сохранение данных критики
-
-        :return:
-        """
-        # Начальный парсинг приходящих с ангулара через пост данных -
-        # потому что это не параметры формы а request payload
+        """Сохранение данных критики."""
         document_user = yield self.get_data_current_user()
+        # Начальный парсинг приходящих данных с ангулара через пост - потому что это не параметры формы а request payload.
         data_critic = self.escape.json_decode(self.request.body)
         imdb = data_critic[CriticDocument.imdb.name]
         rate = data_critic[CriticDocument.rate.name]
 
         if len(document_user.critic) == 0:
-            # Создание новой записи в случае если вообще никаких данных небыло до этого (вдруг там не dict)
+            # Создание новой записи в случае если вообще никаких данных небыло до этого (вдруг там не dict).
             document_user.critic = {imdb: int(rate)}
         else:
-            # Измнение (создание) критики по имдб
+            # Измнение (создание) критики по имдб.
             document_user.critic[imdb] = int(rate)
 
         yield document_user.save()
-
-        self.result.update_content({
-            CriticDocument.imdb.name: imdb,
-            CriticDocument.rate.name: rate
-        })
-        self.write(self.result.get_message())
+        raise system.utils.exceptions.Result(content={CriticDocument.imdb.name: imdb, CriticDocument.rate.name: rate})

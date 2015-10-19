@@ -1,14 +1,10 @@
 from system.handler import BaseHandler
-# from models.collection import CollectionModel
-
-import tornado.web
-from tornado import gen
+from tornado.gen import coroutine
 
 
 class ProcessHandler(BaseHandler):
 
-    @tornado.web.asynchronous
-    @gen.coroutine
+    @coroutine
     def get(self, alias):
         """
 
@@ -17,8 +13,7 @@ class ProcessHandler(BaseHandler):
         """
         self.write("1")
 
-    @tornado.web.asynchronous
-    @gen.coroutine
+    @coroutine
     def post(self):
         """
 

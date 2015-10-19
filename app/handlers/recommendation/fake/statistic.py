@@ -1,7 +1,6 @@
 import random
-
+import system.utils.exceptions
 from tornado.gen import coroutine
-
 from system.handler import BaseHandler
 from documents.recommendation.fake import UserDocument
 
@@ -10,10 +9,7 @@ class FakeStatisticHandler(BaseHandler):
 
     @coroutine
     def get(self):
-        """
-        Запрос данных по пользователям (случайные 10)
-        :return:
-        """
+        """Запрос данных по пользователям (случайные 10)."""
         collection_critic = yield UserDocument().objects.find_all()
 
         # Перемешивание втупую и срез 10 пользователей
@@ -22,24 +18,21 @@ class FakeStatisticHandler(BaseHandler):
         for document_critic in collection_critic[:10]:
             fake_user_list[str(document_critic._id)] = document_critic.info.name
 
-        self.result.update_content({"fakeUserList": fake_user_list})
-        self.write(self.result.get_message())
+        raise system.utils.exceptions.Result(content={"fakeUserList": fake_user_list})
 
     @coroutine
     def post(self):
-        """
-        Расчет статистики
+        """Расчет статистики.
 
-        В качестве параметров передавать список необходимых данных: двоих пользователей или фильм
-        Возвращать данные расщитанные данные
-        :return:
+        В качестве параметров передавать список необходимых данных: двоих пользователей или фильм.
+        Возвращать данные рассчитанные данные.
+
         """
         from system.components.recommendations.statistic import Recommendations
         # 5501eec480a9e10c639d60e0 5501eec480a9e10c639d60e4
         user1 = self.get_argument("user1", "")
         user2 = self.get_argument("user2", "")
         movie = self.get_argument("movie", "")
-
 
         # todo
         user1 = "5501eec480a9e10c639d60e0"
@@ -58,9 +51,10 @@ class FakeStatisticHandler(BaseHandler):
         # Recommendations
         instance_recommendations = Recommendations(list_critic)
 
+        result = {}
         if movie != "":
             # Для проверки объектов
-            self.result.update_content({
+            result = {
                 # Фильмы похожие на
                 "matches": instance_recommendations.top_matches(movie, 3, instance_recommendations.TYPE_TRANSFORMS,
                                                                 instance_recommendations.pearson),
@@ -70,10 +64,10 @@ class FakeStatisticHandler(BaseHandler):
                 #"similarItems": instance_recommendations.similar_items,
                 # Выработка рекомендации по образцам
                 "pearson": instance_recommendations.get_recommendations_items(user1),
-            })
+            }
         elif (user1 != "") and (user2 != ""):
             # Для сравнения пользователей
-            self.result.update_content({
+            result = {
                 # Евклидово расстояние
                 "euclid": instance_recommendations.euclid(instance_recommendations.source[user1],
                                                           instance_recommendations.source[user2]),
@@ -91,12 +85,9 @@ class FakeStatisticHandler(BaseHandler):
                                                                 instance_recommendations.pearson),
                 # Выработка рекомендации
                 "recommendations": instance_recommendations.get_recommendations(user1),
-            })
-        else:
-            # self.result.update_content({})
-            pass
+            }
 
-        self.write(self.result.get_message())
+        raise system.utils.exceptions.Result(content=result)
 
         # print(
         #     'Люди:', user1, 'и', user2, '\n',
