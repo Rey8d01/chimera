@@ -5,30 +5,26 @@ from math import sqrt, fabs, floor
 
 
 class Similarity:
-    """
-    Методы для расчета коэффициентов сходства и другие утилитарные методы
-    """
+    """Методы для расчета коэффициентов сходства и другие утилитарные методы."""
 
     @staticmethod
-    def normalize_vector(source_vector):
-        """
-        Нормализация вектора
+    def normalize_vector(source_vector: dict) -> dict:
+        """Нормализация вектора.
 
         :param source_vector:
-        :type source_vector:
+        :type source_vector: dict
         :return: dict
         """
         vector = source_vector.copy()
 
-        sum_sqrt = pow(sum([pow(i, 2) for i in list(vector.values())]), 1/2)
+        sum_sqrt = pow(sum([pow(i, 2) for i in list(vector.values())]), 1 / 2)
         for (id, weight) in vector.items():
-            vector[id] = weight/sum_sqrt
+            vector[id] = weight / sum_sqrt
         return vector
 
     @staticmethod
-    def recovery_vector(normalize_vector, source_vector):
-        """
-        Восстановлние нормализованного вектора по данным исходного вектора
+    def recovery_vector(normalize_vector: dict, source_vector: dict) -> dict:
+        """Восстановлние нормализованного вектора по данным исходного вектора.
 
         :param normalize_vector:
         :type normalize_vector: dict
@@ -39,80 +35,83 @@ class Similarity:
         normalize_vector = normalize_vector.copy()
         vector = source_vector.copy()
 
-        sum_sqrt = pow(sum([pow(i, 2) for i in list(vector.values())]), 1/2)
-        return {id: weight*sum_sqrt for (id, weight) in normalize_vector.items()}
+        sum_sqrt = pow(sum([pow(i, 2) for i in list(vector.values())]), 1 / 2)
+        return {id: weight * sum_sqrt for (id, weight) in normalize_vector.items()}
 
     @staticmethod
-    def normalize_weight(weight, vector):
-        """
-        Нормализация значения в векторе
+    def normalize_weight(weight: float, vector: dict):
+        """Нормализация значения в векторе.
 
         :param weight:
+        :type weight: float
         :param vector:
+        :type vector: dict
         :return:
+        :rtype:
         """
-        return weight/pow(sum([pow(i, 2) for i in vector]), 1/2)
+        return weight / pow(sum([pow(i, 2) for i in vector]), 1 / 2)
 
     @staticmethod
-    def euclid(vector1, vector2):
-        """
-        Оценка подобия на основе Евклидова расстояния
-        [0;+1]
+    def euclid(vector1: dict, vector2: dict) -> float:
+        """Оценка подобия на основе Евклидова расстояния.
 
+        :param vector1:
         :type vector1: dict
+        :param vector2:
         :type vector2: dict
-        :return:
+        :return: [0;+1]
+        :rtype: float
         """
-        # Получить список предметов, оцененных обоими
+        # Получить список предметов, оцененных обоими.
         si = {}
         for item in vector1:
             if item in vector2:
                 si[item] = 1
 
-        # Если нет ни одной общей оценки вернуть 0
-        # если нет ни одного предмета который оценили бы оба
+        # Если нет ни одной общей оценки вернуть 0 если нет ни одного предмета который оценили бы оба.
         if len(si) == 0: return 0
 
-        # Сложить квадраты разностей
+        # Сложить квадраты разностей.
         sum_of_squares = sum([pow(vector1[item] - vector2[item], 2) for item in vector1 if item in vector2])
 
         return round(1 / (1 + sum_of_squares), 3)
 
     @staticmethod
-    def pearson(vector1, vector2):
-        """
-        Коэффициент корреляции Пирсона
-        [-1;+1]
+    def pearson(vector1: dict, vector2: dict) -> float:
+        """Коэффициент корреляции Пирсона.
 
+        :param vector1:
         :type vector1: dict
+        :param vector2:
         :type vector2: dict
-        :return: double
+        :return: [-1;+1]
+        :rtype: float
         """
-        # Получить список предметов оцененных обоими
+        # Получить список предметов оцененных обоими.
         si = {}
         for item in vector1:
             if item in vector2:
                 si[item] = 1
 
-        # Найти число элементов
+        # Найти число элементов.
         n = len(si)
 
-        # Если нет ни одной общей оценки, вернуть 0
+        # Если нет ни одной общей оценки, вернуть 0.
         if n == 0:
             return 0
 
-        # Вычислить сумму всех предпочтений
+        # Вычислить сумму всех предпочтений.
         sum1 = sum([vector1[it] for it in si])
         sum2 = sum([vector2[it] for it in si])
 
-        # Вычислить сумму квадратов
+        # Вычислить сумму квадратов.
         sum1sq = sum([pow(vector1[it], 2) for it in si])
         sum2sq = sum([pow(vector2[it], 2) for it in si])
 
-        # Вычислить сумму произведений
+        # Вычислить сумму произведений.
         psum = sum([vector1[it] * vector2[it] for it in si])
 
-        # Вычислить коэффициент Пирсона
+        # Вычислить коэффициент Пирсона.
         num = psum - (sum1 * sum2 / n)
         den = sqrt((sum1sq - pow(sum1, 2) / n) * (sum2sq - pow(sum2, 2) / n))
         if den == 0:
@@ -121,17 +120,17 @@ class Similarity:
         return round(num / den, 3)
 
     @staticmethod
-    def jaccard(vector1, vector2):
-        """
-        Коэффициент Жаккара (Танимото)
-        Используется для оценки схожести двух образцов
-        [0;+1]
+    def jaccard(vector1: dict, vector2: dict) -> float:
+        """Коэффициент Жаккара (Танимото). Используется для оценки схожести двух образцов.
 
+        :param vector1:
         :type vector1: dict
+        :param vector2:
         :type vector2: dict
-        :return:
+        :return: [0;+1]
+        :rtype: float
         """
-        # Получить количество предметов оцененных обоими
+        # Получить количество предметов оцененных обоими.
         si = 0
         for item in vector1:
             if item in vector2:
@@ -140,29 +139,30 @@ class Similarity:
         return round(si / (len(vector1) + len(vector2) - si), 3)
 
     @staticmethod
-    def tanimoto(vector1, vector2):
+    def tanimoto(vector1: dict, vector2: dict) -> float:
         return Similarity.jaccard(vector1, vector2)
 
     @staticmethod
-    def manhattan(vector1, vector2):
-        """
-        Расстояние городских кварталов (манхэттенское расстояние)
-        [0;+1]
+    def manhattan(vector1: dict, vector2: dict) -> float:
+        """Расстояние городских кварталов (манхэттенское расстояние).
 
+        :param vector1:
         :type vector1: dict
+        :param vector2:
         :type vector2: dict
-        :return:
+        :return: [0;+1]
+        :rtype: float
         """
-        # Получить список предметов, оцененных обоими
+        # Получить список предметов, оцененных обоими.
         si = {}
         for item in vector1:
             if item in vector2:
                 si[item] = 1
 
-        # Если нет ни одной общей оценки вернуть 0
+        # Если нет ни одной общей оценки вернуть 0.
         if len(si) == 0: return 0
 
-        # Сложить модули разностей
+        # Сложить модули разностей.
         sum_of_abs = sum([fabs(vector1[item] - vector2[item])
                           for item in vector1 if item in vector2])
 
@@ -266,16 +266,20 @@ class Statistic(Similarity):
             result[item] = scores
         return result
 
-    def top_matches(self, person, n=5, source=TYPE_SOURCE, similarity=None):
-        """
-        Возвращает список наилучших соответствий для человека из словаря source
-        - наиболее похожего человека мнением которого будем в последствии оперировать для выработки рекомендации
-        Количество результатов в списке и функция подобия - необязательные параметры
+    def top_matches(self, person: str, n: int = 5, source: str = TYPE_SOURCE, similarity: callable = None):
+        """Возвращает список наилучших соответствий для человека из словаря source.
+
+        Наиболее похожего человека мнением которого будем в последствии оперировать для выработки рекомендации.
+        Количество результатов в списке и функция подобия - необязательные параметры.
 
         :param person:
+        :type person: str
         :param n:
+        :type n: int
         :param source:
+        :type source: str
         :param similarity:
+        :type similarity: callable
         :return:
         """
 
@@ -293,19 +297,20 @@ class Statistic(Similarity):
 
 
 class Recommendations(Statistic):
+    def get_recommendations(self, person: str, n: int = 5, source: str = Statistic.TYPE_SOURCE, similarity: callable = None):
+        """Получить рекомендации для заданного человека, пользуясь взвешенным средним оценок, данных всеми остальными пользователями.
 
-    def get_recommendations(self, person, n=5, source=Statistic.TYPE_SOURCE, similarity=None):
-        """
-        Получить рекомендации для заданного человека, пользуясь взвешенным средним оценок,
-        данных всеми остальными пользователями
-
-        :param source:
         :param person:
+        :param person: str
         :param n:
+        :param n: int
+        :param source:
+        :param source: str
         :param similarity:
+        :param similarity: callable
         :return:
+        :rtype:
         """
-
         source = source if isinstance(source, dict) else getattr(self, source, self.source)
         similarity = self.pearson if similarity is None else similarity
 
@@ -313,17 +318,17 @@ class Recommendations(Statistic):
         sim_sums = {}
 
         for other in source:
-            # Сравнивать пользователя с собой же не нужно
+            # Сравнивать пользователя с собой же не нужно.
             if other == person:
                 continue
             sim = similarity(source[person], source[other])
 
-            # Игнорировать нулевые и отрицательные оценки
+            # Игнорировать нулевые и отрицательные оценки.
             if sim <= 0:
                 continue
 
             for item in source[other]:
-                # Оценивать только то что нет среди оценок пользователя person
+                # Оценивать только то что нет среди оценок пользователя person.
                 if item not in source[person] or source[person][item] == 0:
                     # Коэффициент подибия * Оценка
                     totals.setdefault(item, 0)
@@ -332,24 +337,22 @@ class Recommendations(Statistic):
                     sim_sums.setdefault(item, 0)
                     sim_sums[item] += sim
 
-        # Создать нормализованный список
+        # Создать нормализованный список.
         rankings = {item: round(total / sim_sums[item], 3) for item, total in totals.items()}
-        # Вернуть отсортированный список
+        # Вернуть отсортированный список.
         return sorted(rankings.items(), key=lambda x: x[1], reverse=True)[:n]
 
     def get_recommendations_transforms(self, person, n=5, similarity=None):
         return self.get_recommendations(person, n, Statistic.TYPE_TRANSFORMS, similarity)
 
-    # def get_recommendations_items(self, source, item_match, user):
     def get_recommendations_items(self, user):
-        """
-        Выдача рекомендаций на основе сравнения образцов
+        """Выдача рекомендаций на основе сравнения образцов.
 
         Для выработки рекомендации по образцам набор данных можно строить заранее и использовать его при необходимости,
         в отличие от способа фильтрации по пользователям, который нужно пересчитывать постоянно при рекомендации.
         В больших массивах данных вкусы людей будут перекрываться очень слабо,
         поэтому предпочтительно сравнивать схожесть образцов
-        (которая существенно меняется реже при больших объемах) и выдавать рекомендацию основываясь на ней
+        (которая существенно меняется реже при больших объемах) и выдавать рекомендацию основываясь на ней.
 
         :param user:
         :return:
