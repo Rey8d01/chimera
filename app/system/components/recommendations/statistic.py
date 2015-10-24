@@ -39,19 +39,6 @@ class Similarity:
         return {id: weight * sum_sqrt for (id, weight) in normalize_vector.items()}
 
     @staticmethod
-    def normalize_weight(weight: float, vector: dict):
-        """Нормализация значения в векторе.
-
-        :param weight:
-        :type weight: float
-        :param vector:
-        :type vector: dict
-        :return:
-        :rtype:
-        """
-        return weight / pow(sum([pow(i, 2) for i in vector]), 1 / 2)
-
-    @staticmethod
     def euclid(vector1: dict, vector2: dict) -> float:
         """Оценка подобия на основе Евклидова расстояния.
 

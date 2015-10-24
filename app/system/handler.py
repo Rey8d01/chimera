@@ -72,17 +72,17 @@ class BaseHandler(tornado.web.RequestHandler):
             return None
 
     @coroutine
-    def get_data_current_user(self):
+    def get_data_current_user(self) -> UserDocument:
         """Вернет данные из базы по текущему пользователю."""
         user_data = self.get_current_user()
 
         document_user = UserDocument()
         users = yield document_user.objects.filter({UserDocument.oauth.name: {"$elemMatch": {
-            UserOAuthDocument.type.name: user_data["type"],
-            UserOAuthDocument.id.name: user_data["id"]
+            UserOAuthDocument.type.name: user_data[UserOAuthDocument.type.name],
+            UserOAuthDocument.id.name: user_data[UserOAuthDocument.id.name]
         }}}).find_all()
 
-        return users[0]
+        return users[-1]
 
 
 class MainHandler(BaseHandler):

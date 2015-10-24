@@ -48,7 +48,7 @@ class ItemExtractor:
 
 
 class ClusterExtractor:
-    """Класс-интерфейс для реализации методов пригодных для работы с каждым нейроном сети Кохонена."""
+    """Интерфейсный класс для реализации методов пригодных для работы с каждым нейроном сети Кохонена."""
 
     @abstractmethod
     def get_cluster_id(self) -> str:
@@ -224,8 +224,7 @@ class Kohonen(Similarity):
         return cluster_item
 
     def learning(self, source: list = None, start_alpha_learning: float = 0.8, clustering: bool = True,
-                 callback_after_learn_item: callable = None,
-                 callback_after_learning: callable = None):
+                 callback_after_learn_item: callable = None, callback_after_learning: callable = None):
         """Процесс обучения сети по массе образцов.
 
         :param source: Массив данных образцов для обучения;
