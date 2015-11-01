@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # -=! Главная стартовая площадка !=-
-
 # Основные модули
 import tornado.web  # веб фреймворк, на котором построен FriendFeed. web содержит большинство важных функций Tornado
 # import tornado.escape     # методы кодирования/декодирования XHTML, JSON и URL
@@ -19,13 +18,10 @@ import tornado.httpserver  # очень простой HTTP сервер, на �
 import tornado.ioloop  # основная петля ввода/вывода
 # import tornado.websocket  #
 import tornado.log            #
-
 from tornado.options import options
-
 import system.configuration
 
-
-def main():
+if __name__ == "__main__":
     """
     Передача настроек, создание приложения и его запуск.
 
@@ -37,7 +33,3 @@ def main():
     http_server.listen(options.port)
 
     tornado.ioloop.IOLoop.instance().start()
-
-
-if __name__ == "__main__":
-    main()

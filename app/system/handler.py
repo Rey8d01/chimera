@@ -138,6 +138,7 @@ class IntroduceHandler(BaseHandler):
         document_user_oauth.avatar = self.get_argument("user_info[avatar]", "")
         document_user_oauth.email = self.get_argument("user_info[email]", "")
         document_user_oauth.raw = user_info_raw
+        document_user_oauth.main = True
 
         return document_user
 

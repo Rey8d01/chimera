@@ -1,7 +1,8 @@
 """Набор классов для организации доступа к хранилищу информации нейронной сети."""
 from system.document import BaseDocument
 from motorengine import StringField, BaseField
-from system.components.recommendations.cpn import ClusterExtractor, OutStarExtractor
+from system.components.recommendations.cpn import ItemExtractor, ClusterExtractor, OutStarExtractor
+from documents.user import UserDocument
 
 
 class ClusterDocument(BaseDocument):
@@ -21,16 +22,16 @@ class KohonenClusterExtractor(ClusterDocument, ClusterExtractor):
     __collection__ = ClusterDocument.__collection__
 
     def get_cluster_id(self):
-        return self.name
+        return super().name
 
     def set_cluster_id(self, cluster_id):
-        self.name = cluster_id
+        super().name = cluster_id
 
     def get_cluster_vector(self):
-        return self.vector
+        return super().vector
 
     def set_cluster_vector(self, cluster_vector):
-        self.vector = cluster_vector
+        super().vector = cluster_vector
 
 
 class OutStarDocument(BaseDocument):
@@ -50,7 +51,24 @@ class GrossbergOutStarExtractor(OutStarDocument, OutStarExtractor):
     __collection__ = OutStarDocument.__collection__
 
     def get_out_star_vector(self):
-        return self.vector
+        return super().vector
 
     def get_beta_learning(self):
-        return self.learning
+        return super().learning
+
+
+class UserItemExtractor(UserDocument, ItemExtractor):
+    """Внутренний класс для определения ключевых позиций у пользователя необходимых для кластеризации."""
+    __collection__ = UserDocument.__collection__
+
+    def get_item_id(self):
+        return str(super()._id)
+
+    def get_item_name(self):
+        return super().get_main_oauth_document().name
+
+    def get_item_vector(self):
+        return super().critic.copy()
+
+    def associate_cluster(self, cluster_name):
+        super().cluster = str(cluster_name)

@@ -4,7 +4,7 @@ import system.utils.exceptions
 from tornado.gen import coroutine
 from bson.objectid import ObjectId
 from system.handler import BaseHandler
-from documents.recommendation.fake import UserItemExtractor, UserDocument
+from documents.recommendation.fake import FakeUserItemExtractor, FakeUserDocument
 from documents.recommendation.cpn import KohonenClusterExtractor, GrossbergOutStarExtractor
 from system.components.recommendations.cpn import Kohonen, GrossbergOutStar, CPN, top250
 from system.components.recommendations.statistic import Recommendations, Similarity
@@ -36,7 +36,7 @@ class FakeCPNHandler(BaseHandler):
         )
 
         # Образцы
-        collection_user = yield UserItemExtractor().objects.limit(1000).find_all()
+        collection_user = yield FakeUserItemExtractor().objects.limit(1000).find_all()
         random.shuffle(collection_user)
         print("Kohonen learning 50")
         net_kohonen.learning(source=collection_user[:50])
@@ -66,7 +66,7 @@ class FakeCPNHandler(BaseHandler):
         yield out_star.save()
         print("Сохранение пользователей")  # (у них изменилась принадлежность к кластеру)
         for document_user in collection_user:
-            yield UserItemExtractor().objects.filter({"_id": ObjectId(document_user._id)}).update({UserItemExtractor.cluster.name: document_user.cluster})
+            yield FakeUserItemExtractor().objects.filter({"_id": ObjectId(document_user._id)}).update({FakeUserItemExtractor.cluster.name: document_user.cluster})
         print("Завершено")
 
     @coroutine
@@ -76,13 +76,13 @@ class FakeCPNHandler(BaseHandler):
 
         if user:
             # Запрос информации по конкретному пользователю.
-            collection_user = yield UserDocument().objects.filter({"_id": ObjectId(user)}).find_all()
+            collection_user = yield FakeUserDocument().objects.filter({"_id": ObjectId(user)}).find_all()
             document_user = collection_user[-1]
             """ :type: UserItemExtractor """
             result = {"": document_user.get_item_name()}
         else:
             # Запрос данных по пользователям (случайные 10).
-            collection_critic = yield UserDocument().objects.find_all()
+            collection_critic = yield FakeUserDocument().objects.find_all()
 
             # Перемешивание втупую и срез 10 пользователей.
             random.shuffle(collection_critic)
@@ -99,7 +99,7 @@ class FakeCPNHandler(BaseHandler):
         """Выработка персональных рекомендаций."""
         user = self.get_argument("user")
         # Запрошенный пользователь
-        collection_user = yield UserItemExtractor().objects.filter({"_id": ObjectId(user)}).find_all()
+        collection_user = yield FakeUserItemExtractor().objects.filter({"_id": ObjectId(user)}).find_all()
         document_user = collection_user[0]
         """ :type: UserItemExtractor """
 
@@ -118,7 +118,7 @@ class FakeCPNHandler(BaseHandler):
         cluster_id_for_user = cluster_for_user.get_cluster_id()
 
         # Выборка среди тех людей которые входят в тот же кластер
-        collection_user_in_cluster = yield UserItemExtractor().objects.filter({UserItemExtractor.cluster.name:
+        collection_user_in_cluster = yield FakeUserItemExtractor().objects.filter({FakeUserItemExtractor.cluster.name:
                                                                               cluster_id_for_user}).find_all()
 
         # Случайным образом выбираем одно из пользователей кластера (можно предложить на выбор друзей пользователя)
@@ -156,12 +156,12 @@ class FakeCPNHandler(BaseHandler):
         stat_recommendations = dict(user_stat.get_recommendations(document_user.get_item_id(), 250))
 
         # Сбор общей информации по кластерам
-        count_users = yield UserDocument().objects.count()
+        count_users = yield FakeUserDocument().objects.count()
         pipeline = [
             {"$group": {"_id": "$cluster", "count": {"$sum": 1}}},
             {"$project": {"percentage": {"$multiply": ["$count", 100 / count_users]}}}
         ]
-        aggregation_cluster_user = yield UserDocument().objects.aggregate.raw(pipeline).fetch()
+        aggregation_cluster_user = yield FakeUserDocument().objects.aggregate.raw(pipeline).fetch()
         result_aggregation = {info_cluster_user["_id"]: info_cluster_user["percentage"] for info_cluster_user in aggregation_cluster_user}
 
         # Вывод результатов
