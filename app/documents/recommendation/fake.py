@@ -17,7 +17,8 @@ class FakeUserDocument(Document):
     critic = BaseField()
     cluster = StringField()
 
+    def get_user_name(self) -> str:
+        return self.info.name
 
-class FakeUserItemExtractor(FakeUserDocument, UserItemExtractor):
-    def get_item_name(self):
-        return super().info.name
+
+class FakeUserItemExtractor(FakeUserDocument, UserItemExtractor): pass

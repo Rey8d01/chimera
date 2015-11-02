@@ -63,3 +63,7 @@ class UserDocument(Document):
             if document_oauth.main:
                 return document_oauth
         return UserOAuthDocument()
+
+    def get_user_name(self) -> str:
+        """Реализует вывод имени пользователя, в зависимости от актуальной схемы."""
+        return self.get_main_oauth_document().name

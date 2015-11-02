@@ -65,7 +65,7 @@ class UserItemExtractor(UserDocument, ItemExtractor):
         return str(super()._id)
 
     def get_item_name(self):
-        return super().get_main_oauth_document().name
+        return super().get_user_name()
 
     def get_item_vector(self):
         return super().critic.copy()
