@@ -2,6 +2,12 @@
 
 StatisticForUserHandler реализует подсчет статистики для пользователя.
 StatisticForMovieHandler реализует подсчет статистики по данным оценкам к фильму.
+UserCPNHandler работа сети встречного распространения на основе пользовательских данных и по пресональным данным одного пользователя.
+UtilsCPNHandler утилитарный класс для обслуживания сети.
+
+user1 = "5501eec480a9e10c639d60e0"
+user2 = "5501eec480a9e10c639d60e4"
+movie = "tt0407887"
 
 """
 import random
@@ -13,14 +19,6 @@ from documents.recommendation.fake import FakeUserItemExtractor as UserItemExtra
 from system.components.recommendations.cpn import Kohonen, GrossbergOutStar, CPN, top250
 from system.components.recommendations.statistic import Recommendations, Similarity
 from bson.objectid import ObjectId
-
-"""
-# todo
-user1 = "5501eec480a9e10c639d60e0"
-user2 = "5501eec480a9e10c639d60e4"
-movie = "tt0407887"
-# todo
-"""
 
 
 class StatisticForUserHandler(BaseHandler):
@@ -123,8 +121,14 @@ class UserCPNHandler(BaseHandler):
             - данные звезды Гроссберга;
             - данные карт Кохонена;
         2. Запуск сети для одного пользователя.
+        После того как сеть отработала и вернула результат (наиболее подходящую группу единомышлеников), им можно вертеть
+        как угодно.
         3. Исходя из работы сети, получим наиболее похожего пользователя.
-        4. Извлечение результатов работы сети и их парсинг
+        На совместных взгялдах похожего пользователя с запрошенным пользователем выявим список непросмотренных фильмов,
+         для того чтобы по ограниченной выборке фильмов определить их предполагаемые оценки и отранжировать рекоммендации.
+        4. Извлечение результатов работы сети и их парсинг.
+        5. Для совокупности примешаем данные результатов статистики.
+        6. Запрос агрегации по кластерам и вывод результатов.
 
         """
         user = self.get_argument("user")
@@ -153,7 +157,7 @@ class UserCPNHandler(BaseHandler):
         cluster_id_for_user = cluster_for_user.get_cluster_id()
 
         # Этап 3.
-        # Выборка среди тех людей которые входят в тот же кластер.
+        # Выборка одного человека среди тех людей, которые входят в тот же кластер.
         collection_user_in_cluster = await UserItemExtractor().objects.filter({UserItemExtractor.cluster.name:
                                                                                    cluster_id_for_user}).find_all()
         # Случайным образом выбираем одного из пользователей кластера (можно предложить на выбор друзей пользователя).
@@ -164,34 +168,36 @@ class UserCPNHandler(BaseHandler):
         # Отфильтруем в списке фильмов те, что не были просмотрены ни одним из двух людей.
         top250_filtered = set(top250).difference(document_other_user.get_item_vector().keys(), document_user.get_item_vector().keys())
         if len(top250_filtered) == 0:
-            # Если суммарно оба человека смотрели увже все фильмы - предложим из тех что не смотрел только один из них.
+            # Если суммарно оба человека смотрели увже все фильмы - предложим из тех что не смотрел только пользователь.
             top250_filtered = set(top250).difference(document_user.get_item_vector().keys())
+        # В дальнейшем этот отфильтрованный список фильмов будем использовать для фильтрации результатов работы сети,
+        # поскольку все оценки подряд нам получать не интересно.
 
-        # todo ref
-        # Фильтрация вектора звезды.
+        # Этап 4.
+        # Фильтрация вектора звезды и сортировка по убыванию.
         out_star_vector_filtered = {imdb: weight for (imdb, weight) in out_star.get_out_star_vector().items() if imdb in top250_filtered}
-        # Сортировка по убыванию в отфильтрованном векторе звезды.
         sort_out_star_vector_filtered = dict(sorted(out_star_vector_filtered.items(), key=lambda x: x[1], reverse=True))
-        # Тоже самое но с вектором кластера
+        # Аналогично поступаем с вектором кластера.
         cluster_vector_filtered = {imdb: weight for (imdb, weight) in cluster_for_user.get_cluster_vector().items() if
                                    imdb in top250_filtered}
         sort_cluster_vector_filtered = dict(sorted(cluster_vector_filtered.items(), key=lambda x: x[1], reverse=True))
-        # Для персональных рекомендаций из НС будем использовать восстановленный вектор оценок кластера
-        # Для общего привлечения внимания к отдельным фильмам будем использовать данные звезды
+        # Для персональных рекомендаций из НС будем использовать восстановленный вектор оценок кластера.
+        # Для общего привлечения внимания к отдельным фильмам будем использовать данные звезды.
         neuro_recommendations = Similarity.recovery_vector(sort_cluster_vector_filtered, document_user.get_item_vector())
 
-        # Для статистического анализа подготовим данные
+        # Этап 5.
+        # Для статистического анализа подготовим данные.
         data_cluster_user = {document_cluster_user.get_item_id(): document_cluster_user.get_item_vector() for document_cluster_user in
                              collection_user_in_cluster}
-        # К данным для статистики добаляется новый пользователь кластера (или его данные актуализируются)
+        # К данным для статистики добаляется новый пользователь кластера (или его данные актуализируются).
         data_cluster_user[document_user.get_item_id()] = document_user.get_item_vector()
-        # После локализации выборки пользователей можно использовать статистические методы для выработки рекомендаций
-        # Формируется класс стистики
+        # После локализации выборки пользователей можно использовать статистические методы для выработки рекомендаций.
         user_stat = Recommendations(data_cluster_user)
-        # Выработка рекомендаций через статистику
+        # Выработка рекомендаций через статистику.
         stat_recommendations = dict(user_stat.get_recommendations(document_user.get_item_id(), 250))
 
-        # Сбор общей информации по кластерам
+        # Этап 6.
+        # Сбор общей информации по кластерам.
         count_users = await UserDocument().objects.count()
         pipeline = [
             {"$group": {"_id": "$cluster", "count": {"$sum": 1}}},
@@ -200,19 +206,18 @@ class UserCPNHandler(BaseHandler):
         aggregation_cluster_user = await UserDocument().objects.aggregate.raw(pipeline).fetch()
         result_aggregation = {info_cluster_user["_id"]: info_cluster_user["percentage"] for info_cluster_user in aggregation_cluster_user}
 
-        # Вывод результатов
         result = {
             "cluster": cluster_id_for_user,
-            "otherUser": document_other_user.get_item_name(),  # Более быстрая рекомендация с усредненными значениями
-            "neuroRecommendations": neuro_recommendations,  # Более быстрая рекомендация с усредненными значениями
-            "statRecommendations": stat_recommendations,  # Более точная в оценке рекомендация
+            "otherUser": document_other_user.get_item_name(),
+            "neuroRecommendations": neuro_recommendations,
+            "statRecommendations": stat_recommendations,
             "outStarRecommendations": sort_out_star_vector_filtered,
             "infoClusters": result_aggregation,
         }
         raise system.utils.exceptions.Result(content=result)
 
 
-class ResetCPNHandler(BaseHandler):
+class UtilsCPNHandler(BaseHandler):
     """Специальный класс для выполнения административных действий с сетью встречного распространения."""
 
     async def post(self):

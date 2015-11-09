@@ -49,7 +49,10 @@ handlers = [
 
     # Recommendation
     (r"/_/recommendation/harvest", handlers.recommendation.harvest.HarvestHandler),
-    # (r"/_/recommendation/process/([\w-]+)", handlers.recommendation.process.ProcessHandler),
+    (r"/_/recommendation/stat-users/", handlers.recommendation.process.StatisticForUserHandler),
+    (r"/_/recommendation/stat-movies/", handlers.recommendation.process.StatisticForMovieHandler),
+    (r"/_/recommendation/cpn-user/", handlers.recommendation.process.UserCPNHandler),
+    (r"/_/recommendation/cpn-utils/", handlers.recommendation.process.UtilsCPNHandler),
 
     (r"/_/recommendation/fake/statistic", handlers.recommendation.fake.statistic.FakeStatisticHandler),
     (r"/_/recommendation/fake/cpn", handlers.recommendation.fake.cpn.FakeCPNHandler),
