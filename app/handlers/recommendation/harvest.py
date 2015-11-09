@@ -6,7 +6,6 @@
 
 """
 import system.utils.exceptions
-from tornado.gen import coroutine
 from system.handler import BaseHandler
 
 
@@ -18,19 +17,17 @@ class HarvestHandler(BaseHandler):
 
     """
 
-    @coroutine
-    def get(self):
+    async def get(self):
         """Вернет список данных критики по пользователяю."""
         # Тут проще воспользоваться функцией которая получает данные пользователей для системы.
-        document_user = yield self.get_data_current_user()
+        document_user = await self.get_data_current_user()
         """ :type: documents.user.UserDocument """
         # У документа пользователя должно быть соответствующее свойство которое отвечает за сохранность информации с оценками.
         raise system.utils.exceptions.Result(content={document_user.critic.name: document_user.critic})
 
-    @coroutine
-    def post(self):
+    async def post(self):
         """Сохранение данных критики."""
-        document_user = yield self.get_data_current_user()
+        document_user = await self.get_data_current_user()
         """ :type: documents.user.UserDocument """
         # Начальный парсинг приходящих данных с ангулара через пост - потому что это не параметры формы а request payload.
         data_critic = self.escape.json_decode(self.request.body)
@@ -44,5 +41,5 @@ class HarvestHandler(BaseHandler):
             # Измнение (создание) критики по имдб.
             document_user.critic[imdb] = int(rate)
 
-        yield document_user.save()
+        await document_user.save()
         raise system.utils.exceptions.Result(content={"imdb": imdb, "rate": rate})

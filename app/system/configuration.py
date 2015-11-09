@@ -49,7 +49,7 @@ handlers = [
 
     # Recommendation
     (r"/_/recommendation/harvest", handlers.recommendation.harvest.HarvestHandler),
-    (r"/_/recommendation/process/([\w-]+)", handlers.recommendation.process.ProcessHandler),
+    # (r"/_/recommendation/process/([\w-]+)", handlers.recommendation.process.ProcessHandler),
 
     (r"/_/recommendation/fake/statistic", handlers.recommendation.fake.statistic.FakeStatisticHandler),
     (r"/_/recommendation/fake/cpn", handlers.recommendation.fake.cpn.FakeCPNHandler),

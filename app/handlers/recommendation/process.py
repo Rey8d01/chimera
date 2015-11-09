@@ -6,7 +6,6 @@ StatisticForMovieHandler реализует подсчет статистики 
 """
 import random
 import system.utils.exceptions
-from tornado.gen import coroutine
 from system.handler import BaseHandler
 # from documents.user import UserDocument
 from documents.recommendation.cpn import KohonenClusterExtractor, GrossbergOutStarExtractor  # , UserItemExtractor
@@ -27,18 +26,16 @@ movie = "tt0407887"
 class StatisticForUserHandler(BaseHandler):
     """Класс для работы статистических методов над пользовательскими данными и персональным результатом для них."""
 
-    @coroutine
-    def get(self):
+    async def get(self):
         """Запрос данных по пользователям (случайные 10)."""
-        collection_user = yield UserDocument().objects.find_all()
+        collection_user = await UserDocument().objects.find_all()
         # Перемешивание втупую и срез 10 пользователей.
         random.shuffle(collection_user)
         user_list = {str(document_user._id): document_user.get_user_name() for document_user in collection_user[:10]}
 
         raise system.utils.exceptions.Result(content={"userList": user_list})
 
-    @coroutine
-    def post(self):
+    async def post(self):
         """Расчет статистики.
 
         В качестве параметров передавать список необходимых данных: двоих пользователей.
@@ -54,7 +51,7 @@ class StatisticForUserHandler(BaseHandler):
         user1 = self.get_argument("user1")
         user2 = self.get_argument("user2")
 
-        collection_user = yield UserDocument().objects.limit(100).find_all()
+        collection_user = await UserDocument().objects.limit(100).find_all()
         # Формирование массива данных для анализа - массив данных имеет вид [ид_пользователя => [ид_объекта => оценка,],... ]
         list_critic = {str(document_user._id): document_user.critic for document_user in collection_user}
 
@@ -73,8 +70,7 @@ class StatisticForUserHandler(BaseHandler):
 class StatisticForMovieHandler(BaseHandler):
     """Класс для работы статистических методов над пользовательскими данными и результатом для тех образцов, которые они оценили."""
 
-    @coroutine
-    def post(self):
+    async def post(self):
         """Расчет статистики.
 
         В качестве параметров передавать список необходимых данных: пользователя и фильм.
@@ -87,7 +83,7 @@ class StatisticForMovieHandler(BaseHandler):
         user = self.get_argument("user")
         movie = self.get_argument("movie")
 
-        collection_user = yield UserDocument().objects.limit(100).find_all()
+        collection_user = await UserDocument().objects.limit(100).find_all()
         # Формирование массива данных для анализа - массив данных имеет вид [ид_пользователя => [ид_объекта => оценка,],... ]
         list_critic = {str(document_critic._id): document_critic.critic for document_critic in collection_user}
 
@@ -108,19 +104,17 @@ class StatisticForMovieHandler(BaseHandler):
 class UserCPNHandler(BaseHandler):
     """Класс отработки запросов для сети встречного распространения."""
 
-    @coroutine
-    def get(self):
+    async def get(self):
         """Запрос персональной пользовательской информации которая связана с данными рекомендаций."""
         user = self.get_argument("user")
 
-        collection_user = yield UserDocument().objects.filter({"_id": ObjectId(user)}).find_all()
+        collection_user = await UserDocument().objects.filter({"_id": ObjectId(user)}).find_all()
         if not collection_user:
             raise system.utils.exceptions.NotFound(error="Пользователь не найден")
         document_user = collection_user[-1]
         raise system.utils.exceptions.Result(content={"": document_user.get_user_name()})
 
-    @coroutine
-    def post(self):
+    async def post(self):
         """Выработка персональных рекомендаций.
 
         Происходит в несколько этапов:
@@ -136,17 +130,17 @@ class UserCPNHandler(BaseHandler):
         user = self.get_argument("user")
 
         # Этап 1.
-        collection_user = yield UserItemExtractor().objects.filter({"_id": ObjectId(user)}).find_all()
+        collection_user = await UserItemExtractor().objects.filter({"_id": ObjectId(user)}).find_all()
         if not collection_user:
             raise system.utils.exceptions.NotFound(error="Пользователь не найден")
         document_user = collection_user[-1]
         """ :type: UserItemExtractor """
 
-        collection_out_star = yield GrossbergOutStarExtractor().objects.find_all()
+        collection_out_star = await GrossbergOutStarExtractor().objects.find_all()
         out_star = collection_out_star[-1]
         """ :type: GrossbergOutStarExtractor """
 
-        collection_cluster = yield KohonenClusterExtractor().objects.find_all()
+        collection_cluster = await KohonenClusterExtractor().objects.find_all()
         """ :type: list[KohonenClusterExtractor] """
 
         # Этап 2.
@@ -160,7 +154,7 @@ class UserCPNHandler(BaseHandler):
 
         # Этап 3.
         # Выборка среди тех людей которые входят в тот же кластер.
-        collection_user_in_cluster = yield UserItemExtractor().objects.filter({UserItemExtractor.cluster.name:
+        collection_user_in_cluster = await UserItemExtractor().objects.filter({UserItemExtractor.cluster.name:
                                                                                    cluster_id_for_user}).find_all()
         # Случайным образом выбираем одного из пользователей кластера (можно предложить на выбор друзей пользователя).
         random.shuffle(collection_user_in_cluster)
@@ -198,12 +192,12 @@ class UserCPNHandler(BaseHandler):
         stat_recommendations = dict(user_stat.get_recommendations(document_user.get_item_id(), 250))
 
         # Сбор общей информации по кластерам
-        count_users = yield UserDocument().objects.count()
+        count_users = await UserDocument().objects.count()
         pipeline = [
             {"$group": {"_id": "$cluster", "count": {"$sum": 1}}},
             {"$project": {"percentage": {"$multiply": ["$count", 100 / count_users]}}}
         ]
-        aggregation_cluster_user = yield UserDocument().objects.aggregate.raw(pipeline).fetch()
+        aggregation_cluster_user = await UserDocument().objects.aggregate.raw(pipeline).fetch()
         result_aggregation = {info_cluster_user["_id"]: info_cluster_user["percentage"] for info_cluster_user in aggregation_cluster_user}
 
         # Вывод результатов
@@ -221,11 +215,10 @@ class UserCPNHandler(BaseHandler):
 class ResetCPNHandler(BaseHandler):
     """Специальный класс для выполнения административных действий с сетью встречного распространения."""
 
-    @coroutine
-    def post(self):
+    async def post(self):
         """Запуск перестройки всей сети."""
         # Готовая звезда
-        collection_out_star = yield GrossbergOutStarExtractor().objects.find_all()
+        collection_out_star = await GrossbergOutStarExtractor().objects.find_all()
         if len(collection_out_star) > 0:
             out_star = collection_out_star[0]
         else:
@@ -234,7 +227,7 @@ class ResetCPNHandler(BaseHandler):
             out_star.learning = {}
 
         # Готовые кластеры
-        collection_cluster = yield KohonenClusterExtractor().objects.find_all()
+        collection_cluster = await KohonenClusterExtractor().objects.find_all()
 
         print("Kohonen")
         net_kohonen = Kohonen(
@@ -245,7 +238,7 @@ class ResetCPNHandler(BaseHandler):
         )
 
         # Образцы
-        collection_user = yield UserItemExtractor().objects.limit(1000).find_all()
+        collection_user = await UserItemExtractor().objects.limit(1000).find_all()
         random.shuffle(collection_user)
         print("Kohonen learning 50")
         net_kohonen.learning(source=collection_user[:50])
@@ -267,14 +260,14 @@ class ResetCPNHandler(BaseHandler):
 
         print("Сохранение результатов")
         # Очистка всей коллекции с кластерами.
-        yield KohonenClusterExtractor().objects.delete()
+        await KohonenClusterExtractor().objects.delete()
         # Сохранение тех документов которые образовались в процессе кластеризации.
         print("Сохранение кластеров")
-        yield KohonenClusterExtractor().objects.bulk_insert(net_kohonen.clusters)
+        await KohonenClusterExtractor().objects.bulk_insert(net_kohonen.clusters)
         print("Сохранение звезды")
-        yield out_star.save()
+        await out_star.save()
         print("Сохранение пользователей")  # (у них изменилась принадлежность к кластеру)
         for document_user in collection_user:
-            yield UserItemExtractor().objects.filter({"_id": ObjectId(document_user._id)}).update(
+            await UserItemExtractor().objects.filter({"_id": ObjectId(document_user._id)}).update(
                 {UserItemExtractor.cluster.name: document_user.cluster})
         print("Завершено")

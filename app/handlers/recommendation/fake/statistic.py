@@ -1,16 +1,14 @@
 import random
 import system.utils.exceptions
-from tornado.gen import coroutine
 from system.handler import BaseHandler
 from documents.recommendation.fake import FakeUserDocument
 
 
 class FakeStatisticHandler(BaseHandler):
 
-    @coroutine
-    def get(self):
+    async def get(self):
         """Запрос данных по пользователям (случайные 10)."""
-        collection_critic = yield FakeUserDocument().objects.find_all()
+        collection_critic = await FakeUserDocument().objects.find_all()
 
         # Перемешивание втупую и срез 10 пользователей
         random.shuffle(collection_critic)
@@ -20,8 +18,7 @@ class FakeStatisticHandler(BaseHandler):
 
         raise system.utils.exceptions.Result(content={"fakeUserList": fake_user_list})
 
-    @coroutine
-    def post(self):
+    async def post(self):
         """Расчет статистики.
 
         В качестве параметров передавать список необходимых данных: двоих пользователей или фильм.
@@ -39,7 +36,7 @@ class FakeStatisticHandler(BaseHandler):
         user2 = "5501eec480a9e10c639d60e4"
         movie = "tt0407887"
         # todo
-        collection_critic = yield FakeUserDocument().objects.limit(100).find_all()
+        collection_critic = await FakeUserDocument().objects.limit(100).find_all()
 
         # Формирование массива данных для анализа
         list_critic = {}

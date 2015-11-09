@@ -6,7 +6,6 @@
 import re
 import system.handler
 import system.utils.exceptions
-from tornado.gen import coroutine
 from documents.blog.post import PostDocument, PostMetaDocument, PostTagsDocument
 from system.utils.pagination import Pagination
 
@@ -18,8 +17,7 @@ class TagItemHandler(system.handler.BaseHandler):
 
     """
 
-    @coroutine
-    def get(self, alias: str, current_page: int):
+    async def get(self, alias: str, current_page: int):
         """Запрос на получение информации по содержимому определенного тега.
 
         :param alias: Имя псевдонима тега;
@@ -30,13 +28,13 @@ class TagItemHandler(system.handler.BaseHandler):
         current_page = int(current_page)
         result = {}
 
-        count_post = yield PostDocument()\
+        count_post = await PostDocument()\
             .objects\
             .filter({PostDocument.tags.name: {"$elemMatch": {PostTagsDocument.alias.name: alias}}}) \
             .count()
         pagination = Pagination(count_post, current_page, 2)
 
-        collection_post = yield PostDocument() \
+        collection_post = await PostDocument() \
             .objects \
             .filter({PostDocument.tags.name: {"$elemMatch": {PostTagsDocument.alias.name: alias}}}) \
             .sort(PostDocument.meta.name + "." + PostMetaDocument.dateCreate.name, direction=-1) \
@@ -68,11 +66,10 @@ class TagListHandler(system.handler.BaseHandler):
 
     """
 
-    @coroutine
-    def get(self):
+    async def get(self):
         """Вернет список всех тегов."""
 
-        collection_aggregate_tags = yield PostDocument() \
+        collection_aggregate_tags = await PostDocument() \
             .objects \
             .aggregate \
             .unwind(PostDocument.tags) \

@@ -6,7 +6,6 @@
 """
 import system.handler
 import system.utils.exceptions
-from tornado.gen import coroutine
 from documents.blog.post import PostDocument, PostTagsDocument
 from transliterate import slugify
 
@@ -19,8 +18,7 @@ class PostEditHandler(system.handler.BaseHandler):
 
     """
 
-    @coroutine
-    def post(self):
+    async def post(self):
         """Создание нового поста и занесение в базу актуальной по нему информации."""
         document_post = PostDocument()
         document_post.fill_document_from_dict(self.request.arguments)
@@ -31,17 +29,16 @@ class PostEditHandler(system.handler.BaseHandler):
         if len(tags):
             document_post.tags = [PostTagsDocument(title=tag, alias=slugify(tag)) for tag in tags]
 
-        yield document_post.save()
+        await document_post.save()
 
         raise system.utils.exceptions.Result(content=document_post.to_son())
 
-    @coroutine
-    def put(self):
+    async def put(self):
         """Изменение существующего поста."""
         alias = self.get_argument(PostDocument.alias.name)
 
         # Выбор поста с указанным псевдонимом (иначе исключение).
-        collection_post = yield PostDocument() \
+        collection_post = await PostDocument() \
             .objects \
             .filter({PostDocument.alias.name: alias}) \
             .limit(1) \
@@ -51,7 +48,7 @@ class PostEditHandler(system.handler.BaseHandler):
 
         document_post = collection_post[-1]
         document_post.fill_document_from_dict(self.request.arguments)
-        yield document_post.save()
+        await document_post.save()
 
         raise system.utils.exceptions.Result(content=document_post.to_son())
 
@@ -63,14 +60,13 @@ class PostHandler(system.handler.BaseHandler):
 
     """
 
-    @coroutine
-    def get(self, alias):
+    async def get(self, alias):
         """Запрос на получение информации определенного поста.
 
         :param alias: Имя псевдонима поста;
         :type alias: str
         """
-        collection_post = yield PostDocument() \
+        collection_post = await PostDocument() \
             .objects \
             .filter({PostDocument.alias.name: alias}) \
             .find_all()

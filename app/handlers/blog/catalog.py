@@ -8,7 +8,6 @@
 import re
 import system.handler
 import system.utils.exceptions
-from tornado.gen import coroutine
 from documents.blog.catalog import CatalogDocument
 from documents.blog.post import PostDocument, PostMetaDocument
 from system.utils.pagination import Pagination
@@ -22,23 +21,21 @@ class CatalogEditHandler(system.handler.BaseHandler):
 
     """
 
-    @coroutine
-    def post(self):
+    async def post(self):
         """Создание нового каталога и занесение в базу актуальной по нему информации."""
         document_catalog = CatalogDocument()
         document_catalog.fill_document_from_dict(self.request.arguments)
 
-        yield document_catalog.save()
+        await document_catalog.save()
 
         raise system.utils.exceptions.Result(content=document_catalog.to_son())
 
-    @coroutine
-    def put(self):
+    async def put(self):
         """Изменение существующего каталога."""
         alias = self.get_argument(CatalogDocument.alias.name)
 
         # Выбор каталога с указанным псевдонимом (иначе исключение).
-        collection_catalog = yield CatalogDocument() \
+        collection_catalog = await CatalogDocument() \
             .objects \
             .filter({CatalogDocument.alias.name: alias}) \
             .limit(1) \
@@ -48,7 +45,7 @@ class CatalogEditHandler(system.handler.BaseHandler):
 
         document_catalog = collection_catalog[-1]
         document_catalog.fill_document_from_dict(self.request.arguments)
-        yield document_catalog.save()
+        await document_catalog.save()
 
         raise system.utils.exceptions.Result(content=document_catalog.to_son())
 
@@ -67,8 +64,7 @@ class CatalogItemHandler(system.handler.BaseHandler):
         'favorite'
     ]
 
-    @coroutine
-    def get(self, alias: str, current_page: int):
+    async def get(self, alias: str, current_page: int):
         """Запрос на получение информации по содержимому определенного каталога.
 
         :param alias: Имя псевдонима каталога;
@@ -81,10 +77,10 @@ class CatalogItemHandler(system.handler.BaseHandler):
 
         if alias in self.special_aliases:
             # Для особых псевдонимов генерируем свой набор данных.
-            count_post = yield PostDocument().objects.count()
+            count_post = await PostDocument().objects.count()
             pagination = Pagination(count_post, current_page, 2)
 
-            collection_post = yield PostDocument() \
+            collection_post = await PostDocument() \
                 .objects \
                 .sort(PostDocument.meta.name + "." + PostMetaDocument.dateCreate.name, direction=1) \
                 .limit(pagination.count_items_on_page) \
@@ -112,7 +108,7 @@ class CatalogItemHandler(system.handler.BaseHandler):
                 }
             })
         else:
-            collection_catalog = yield CatalogDocument() \
+            collection_catalog = await CatalogDocument() \
                 .objects \
                 .filter({CatalogDocument.alias.name: alias}) \
                 .find_all()
@@ -123,10 +119,10 @@ class CatalogItemHandler(system.handler.BaseHandler):
 
             result.update(document_catalog.to_son())
 
-            count_post = yield PostDocument().objects.filter({PostDocument.catalogAlias.name: alias}).count()
+            count_post = await PostDocument().objects.filter({PostDocument.catalogAlias.name: alias}).count()
             pagination = Pagination(count_post, current_page, 2)
 
-            collection_post = yield PostDocument() \
+            collection_post = await PostDocument() \
                 .objects \
                 .filter({PostDocument.catalogAlias.name: alias}) \
                 .sort(PostDocument.meta.name + "." + PostMetaDocument.dateCreate.name, direction=-1) \
@@ -158,10 +154,9 @@ class CatalogListMainHandler(system.handler.BaseHandler):
 
     """
 
-    @coroutine
-    def get(self):
+    async def get(self):
         """Вернет список корневых каталогов."""
-        collection_catalog = yield CatalogDocument() \
+        collection_catalog = await CatalogDocument() \
             .objects \
             .filter({CatalogDocument.parentAlias.name: CatalogDocument.DEFAULT_PARENT_ALIAS}) \
             .find_all()
@@ -169,7 +164,7 @@ class CatalogListMainHandler(system.handler.BaseHandler):
         list_catalogs = []
         for document_catalog in collection_catalog:
             # К каждому каталогу примешиваем количество сообщений в каталоге.
-            count_posts = yield PostDocument().objects.filter({PostDocument.catalogAlias.name: document_catalog.alias}).count()
+            count_posts = await PostDocument().objects.filter({PostDocument.catalogAlias.name: document_catalog.alias}).count()
             result = document_catalog.to_son()
             result["countPosts"] = count_posts
             list_catalogs.append(result)
@@ -184,14 +179,13 @@ class CatalogListChildrenHandler(system.handler.BaseHandler):
 
     """
 
-    @coroutine
-    def get(self, alias: str):
+    async def get(self, alias: str):
         """Вернет список дочерних каталогов.
 
         :param alias: Имя псевдонима родительского каталога;
         :type alias: str
         """
-        collection_catalog = yield CatalogDocument() \
+        collection_catalog = await CatalogDocument() \
             .objects \
             .filter({CatalogDocument.parentAlias.name: alias}) \
             .find_all()
@@ -199,7 +193,7 @@ class CatalogListChildrenHandler(system.handler.BaseHandler):
         list_catalogs = []
         for document_catalog in collection_catalog:
             # К каждому каталогу примешиваем количество сообщений в каталоге.
-            count_posts = yield PostDocument().objects.filter({PostDocument.catalogAlias.name: document_catalog.alias}).count()
+            count_posts = await PostDocument().objects.filter({PostDocument.catalogAlias.name: document_catalog.alias}).count()
             result = document_catalog.to_son()
             result["countPosts"] = count_posts
             list_catalogs.append(result)

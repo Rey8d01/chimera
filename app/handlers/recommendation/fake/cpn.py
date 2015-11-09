@@ -1,7 +1,6 @@
 """Укомлпектованный класс для теста различных конфигураций сети встречного распространения."""
 import random
 import system.utils.exceptions
-from tornado.gen import coroutine
 from bson.objectid import ObjectId
 from system.handler import BaseHandler
 from documents.recommendation.fake import FakeUserItemExtractor, FakeUserDocument
@@ -12,11 +11,10 @@ from system.components.recommendations.statistic import Recommendations, Similar
 
 class FakeCPNHandler(BaseHandler):
 
-    @coroutine
-    def put(self):
+    async def put(self):
         """Спец метод по запуску перестройке всей сети."""
         # Готовая звезда
-        collection_out_star = yield GrossbergOutStarExtractor().objects.find_all()
+        collection_out_star = await GrossbergOutStarExtractor().objects.find_all()
         if len(collection_out_star) > 0:
             out_star = collection_out_star[0]
         else:
@@ -25,7 +23,7 @@ class FakeCPNHandler(BaseHandler):
             out_star.learning = {}
 
         # Готовые кластеры
-        collection_cluster = yield KohonenClusterExtractor().objects.find_all()
+        collection_cluster = await KohonenClusterExtractor().objects.find_all()
 
         print("Kohonen")
         net_kohonen = Kohonen(
@@ -36,7 +34,7 @@ class FakeCPNHandler(BaseHandler):
         )
 
         # Образцы
-        collection_user = yield FakeUserItemExtractor().objects.limit(1000).find_all()
+        collection_user = await FakeUserItemExtractor().objects.limit(1000).find_all()
         random.shuffle(collection_user)
         print("Kohonen learning 50")
         net_kohonen.learning(source=collection_user[:50])
@@ -58,31 +56,30 @@ class FakeCPNHandler(BaseHandler):
 
         print("Сохранение результатов")
         # Очистка всей коллекции с кластерами.
-        yield KohonenClusterExtractor().objects.delete()
+        await KohonenClusterExtractor().objects.delete()
         # Сохранение тех документов которые образовались в процессе кластеризации.
         print("Сохранение кластеров")
-        yield KohonenClusterExtractor().objects.bulk_insert(net_kohonen.clusters)
+        await KohonenClusterExtractor().objects.bulk_insert(net_kohonen.clusters)
         print("Сохранение звезды")
-        yield out_star.save()
+        await out_star.save()
         print("Сохранение пользователей")  # (у них изменилась принадлежность к кластеру)
         for document_user in collection_user:
-            yield FakeUserItemExtractor().objects.filter({"_id": ObjectId(document_user._id)}).update({FakeUserItemExtractor.cluster.name: document_user.cluster})
+            await FakeUserItemExtractor().objects.filter({"_id": ObjectId(document_user._id)}).update({FakeUserItemExtractor.cluster.name: document_user.cluster})
         print("Завершено")
 
-    @coroutine
-    def get(self):
+    async def get(self):
         """Запрос пользовательской информации которая связана с данными рекомендаций."""
         user = self.get_argument("user", None)
 
         if user:
             # Запрос информации по конкретному пользователю.
-            collection_user = yield FakeUserDocument().objects.filter({"_id": ObjectId(user)}).find_all()
+            collection_user = await FakeUserDocument().objects.filter({"_id": ObjectId(user)}).find_all()
             document_user = collection_user[-1]
             """ :type: UserItemExtractor """
             result = {"": document_user.get_item_name()}
         else:
             # Запрос данных по пользователям (случайные 10).
-            collection_critic = yield FakeUserDocument().objects.find_all()
+            collection_critic = await FakeUserDocument().objects.find_all()
 
             # Перемешивание втупую и срез 10 пользователей.
             random.shuffle(collection_critic)
@@ -94,21 +91,20 @@ class FakeCPNHandler(BaseHandler):
 
         raise system.utils.exceptions.Result(content=result)
 
-    @coroutine
-    def post(self):
+    async def post(self):
         """Выработка персональных рекомендаций."""
         user = self.get_argument("user")
         # Запрошенный пользователь
-        collection_user = yield FakeUserItemExtractor().objects.filter({"_id": ObjectId(user)}).find_all()
+        collection_user = await FakeUserItemExtractor().objects.filter({"_id": ObjectId(user)}).find_all()
         document_user = collection_user[0]
         """ :type: UserItemExtractor """
 
         # Готовая звезда
-        collection_out_star = yield GrossbergOutStarExtractor().objects.find_all()
+        collection_out_star = await GrossbergOutStarExtractor().objects.find_all()
         out_star = collection_out_star[0]
         """ :type: GrossbergOutStarExtractor """
         # Готовые кластеры
-        collection_cluster = yield KohonenClusterExtractor().objects.find_all()
+        collection_cluster = await KohonenClusterExtractor().objects.find_all()
 
         # Запуск сети для одного пользователя
         net_kohonen = Kohonen(list_cluster=collection_cluster, cluster_class=KohonenClusterExtractor)
@@ -118,7 +114,7 @@ class FakeCPNHandler(BaseHandler):
         cluster_id_for_user = cluster_for_user.get_cluster_id()
 
         # Выборка среди тех людей которые входят в тот же кластер
-        collection_user_in_cluster = yield FakeUserItemExtractor().objects.filter({FakeUserItemExtractor.cluster.name:
+        collection_user_in_cluster = await FakeUserItemExtractor().objects.filter({FakeUserItemExtractor.cluster.name:
                                                                               cluster_id_for_user}).find_all()
 
         # Случайным образом выбираем одно из пользователей кластера (можно предложить на выбор друзей пользователя)
@@ -156,12 +152,12 @@ class FakeCPNHandler(BaseHandler):
         stat_recommendations = dict(user_stat.get_recommendations(document_user.get_item_id(), 250))
 
         # Сбор общей информации по кластерам
-        count_users = yield FakeUserDocument().objects.count()
+        count_users = await FakeUserDocument().objects.count()
         pipeline = [
             {"$group": {"_id": "$cluster", "count": {"$sum": 1}}},
             {"$project": {"percentage": {"$multiply": ["$count", 100 / count_users]}}}
         ]
-        aggregation_cluster_user = yield FakeUserDocument().objects.aggregate.raw(pipeline).fetch()
+        aggregation_cluster_user = await FakeUserDocument().objects.aggregate.raw(pipeline).fetch()
         result_aggregation = {info_cluster_user["_id"]: info_cluster_user["percentage"] for info_cluster_user in aggregation_cluster_user}
 
         # Вывод результатов
