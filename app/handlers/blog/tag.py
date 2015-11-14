@@ -21,9 +21,7 @@ class TagItemHandler(system.handler.BaseHandler):
         """Запрос на получение информации по содержимому определенного тега.
 
         :param alias: Имя псевдонима тега;
-        :type alias: str
         :param current_page: Номер страницы в списке постов;
-        :type current_page: int
         """
         current_page = int(current_page)
         result = {}

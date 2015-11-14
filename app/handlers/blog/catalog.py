@@ -68,9 +68,7 @@ class CatalogItemHandler(system.handler.BaseHandler):
         """Запрос на получение информации по содержимому определенного каталога.
 
         :param alias: Имя псевдонима каталога;
-        :type alias: str
         :param current_page: Номер страницы в списке постов;
-        :type current_page: int
         """
         current_page = int(current_page)
         result = {}
@@ -183,7 +181,6 @@ class CatalogListChildrenHandler(system.handler.BaseHandler):
         """Вернет список дочерних каталогов.
 
         :param alias: Имя псевдонима родительского каталога;
-        :type alias: str
         """
         collection_catalog = await CatalogDocument() \
             .objects \

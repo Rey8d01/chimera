@@ -60,11 +60,10 @@ class PostHandler(system.handler.BaseHandler):
 
     """
 
-    async def get(self, alias):
+    async def get(self, alias: str):
         """Запрос на получение информации определенного поста.
 
         :param alias: Имя псевдонима поста;
-        :type alias: str
         """
         collection_post = await PostDocument() \
             .objects \
