@@ -14,12 +14,12 @@ Python 3.5
 * bcrypt - hashing passwords;
 * transliterate 1.7 - for transliterate input text to eng slugs;
 
+Example configs see in file install.md
+
 Structure
 ---------
 
 ```
-│ ─ └ ├
-
 app - python app (backend)
 │
 ├─ documents - MongoDB document-model
@@ -28,5 +28,5 @@ app - python app (backend)
 │   ├─ components System modules
 │   ├─ services Middle layer logic
 │   ├─ utils Helpers
-
+└
 ```
