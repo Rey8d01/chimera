@@ -1,0 +1,26 @@
+.blog {}
+
+.catalog {}
+
+.post {}
+
+.new-post {}
+.new-post__title {
+    margin: 0 0 10px 0;
+    padding: 5px;
+    border: 1px solid #cacaca;
+}
+.new-post__text {
+    margin: 0 0 10px 0;
+    padding: 5px;
+    border: 1px solid #cacaca;
+}
+.new-post__tags {}
+.new-post__alias {
+    margin: 0 0 10px 0;
+    padding: 5px;
+    border: 1px solid #cacaca;
+}
+.new-post__catalog-alias {
+    margin: 0 0 10px 0;
+}

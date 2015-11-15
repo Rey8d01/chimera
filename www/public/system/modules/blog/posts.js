@@ -13,57 +13,41 @@ chimera.system.post.controller("PostController", ["$scope", "$state", "postServi
     }
 ]);
 
-chimera.system.post.controller("AddNewPostController", ["$scope", "$state", "postService", "catalogsService",
+chimera.system.post.controller("NewPostController", ["$scope", "$state", "postService", "catalogsService",
     function ($scope, $state, postService, catalogsService) {
+        var $typeahead = $('.new-post__catalog-alias.typeahead');
 
-        var $input = $('.typeahead');
-
-        // Инициализация автокомплита для категорий
-        $input.typeahead({
+        // Инициализация автокомплита для категорий.
+        $typeahead.typeahead({
             source: function (s, cb) {
+                $('.new-post__catalog-alias.typeahead').parent().removeClass("has-error");
 
-                catalogsService.get({}, function(response) {
-                    $scope.catalogs = response.content.catalogs;
-
-                    console.log($scope.catalogs);
-                });
-
-
-                //var matches = [];
-                //$('.typeahead').parent().removeClass("has-error");
-                //
                 //omdbapiService.search({s:s}, function (response) {
-                //    if(response.Error) {
-                //        $('.typeahead').parent().addClass("has-error");
-                //    } else {
-                //        for(var item in response.Search) {
-                //            matches.push({
-                //                imdb: response.Search[item].imdbID,
-                //                year: response.Search[item].Year,
-                //                title: response.Search[item].Title,
-                //                name: response.Search[item].Title
-                //            });
-                //        }
-                //    }
-                //
-                //    cb(matches);
-                //});
-
+                catalogsService.get({}, function (response) {
+                    var matches = [],
+                        catalog = null;
+                    for (var item in response.content.catalogs) {
+                        catalog = response.content.catalogs[item];
+                        catalog.name = catalog.title;
+                        matches.push(catalog);
+                    }
+                    cb(matches);
+                });
             },
-            afterSelect: function (item) {
-                $scope.selectItem.imdb = item.imdb;
-                $scope.selectItem.year = item.year;
-                $scope.selectItem.title = item.title;
-            },
+            //afterSelect: function (item) {
+            //    $scope.selectItem.imdb = item.imdb;
+            //    $scope.selectItem.year = item.year;
+            //    $scope.selectItem.title = item.title;
+            //},
             autoSelect: true
         });
 
-        $scope.addNewPost = function () {
+        $scope.newPost = function () {
             var title = $(".blog-post-title").html(),
                 text = $(".blog-post-text").html(),
                 tags = $(".blog-post-tags").text(),
                 alias = $(".blog-post-alias").text(),
-                aliasCatalog = $(".blog-post-aliasCatalog").text();
+                catalogAlias = $(".blog-post-catalogAlias").text();
 
             postService.save({
                 "title": title,

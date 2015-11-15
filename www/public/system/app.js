@@ -7,8 +7,6 @@
  * $scope.
  *        main - модель с основным для системы содержимым
  *        user - модель с пользовательскими данными
- * 
- * 
  */
 
 /**
@@ -41,11 +39,18 @@ chimera.system.main = angular.module("main", [
     "recommendationFake"
 ]);
 
+/**
+ * Перехват входящих/исходящих запросов.
+ */
 chimera.system.main.factory("sessionRecover", ["$q", "$location", function($q, $location) {
-    // Перехват запросов
     console.debug("sessionRecover");
     return {
-        // Роутинг запросов по статике и к системе
+        /**
+         * Роутинг запросов по статике и к системе.
+         *
+         * @param config
+         * @returns {*}
+         */
         request: function(config) {
             console.debug("request", config);
             if (/.*\.(js|css|ico|htm|html|json)/.test(config.url)) {
@@ -57,7 +62,12 @@ chimera.system.main.factory("sessionRecover", ["$q", "$location", function($q, $
             }
             return config;
         },
-        // Разбор ответов для определения соответствующей реакции на случай возникновения ошибок.
+        /**
+         * Разбор ответов для определения соответствующей реакции на случай возникновения ошибок.
+         *
+         * @param response
+         * @returns {*}
+         */
         response: function(response) {
             console.debug("response", response);
             var data = response.data;
@@ -95,31 +105,32 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
     function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
         // Перехват всех http запросов для определения ошибок и реакции на них.
         $httpProvider.interceptors.push("sessionRecover");
-        // Отправка запросов в едином виде
-//        $httpProvider.defaults.headers.post = {"Content-Type": "application/x-www-form-urlencoded"};
+        // Отправка POST запросов в едином виде.
+        //$httpProvider.defaults.headers.post = {"Content-Type": "application/x-www-form-urlencoded"};
         $httpProvider.defaults.headers.post = {"Content-Type": "multipart/form-data"};
-
-        // без # в урле
+        // html5Mode - без # в урле
         $locationProvider.html5Mode({
             enabled: true,
             requireBase: false
         });
 
-        // Роутинг
+        // Дефолтный роутинг
         // Главная блога
         $urlRouterProvider.when("/blog", "/blog/home");
         //// Посты
         //$urlRouterProvider.when("/post/:aliasPost", "/blog/post/:aliasPost");
         //// Каталоги
-        //$urlRouterProvider.when("/catalog/:aliasCatalog", "/blog/catalog/:aliasCatalog");
-        //$urlRouterProvider.when("/catalog/:aliasCatalog/:page", "/blog/catalog/:aliasCatalog/:page");
+        //$urlRouterProvider.when("/catalog/:catalogAlias", "/blog/catalog/:catalogAlias");
+        //$urlRouterProvider.when("/catalog/:catalogAlias/:page", "/blog/catalog/:catalogAlias/:page");
 
-        // Любые неопределенные url перенаправлять на страницу авторизации
-        // (в рамках которой, при успешной авторизации будет редирект на блог)
+        // Любые неопределенные url перенаправлять на страницу авторизации (при успешной авторизации произойдет редирект на блог).
         $urlRouterProvider.otherwise("/login");
-        // Теперь определим состояния
+
+        // Определение состояний для всего приложения.
         $stateProvider
-            // Форма входа
+            /**
+             * Форма входа.
+             */
             .state("login", {
                 url: "/login",
                 views: {
@@ -131,16 +142,15 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
             })
             /**
              * Главное абстрактное состояние для системы. Включает в себя компоненты авторизованного пользователя,
-             * главное меню и основную контентную область
+             * главное меню и основную контентную область.
              */
             .state("main", {
                 abstract: true,
                 url: "",
-
                 views: {
                     "": {
                         templateUrl: "/system/templates/main.html",
-                        controller: "CatalogLatestController"
+                        //controller: "CatalogLatestController"
                     }
                 }
             })
@@ -155,7 +165,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 views: {
                     "container@main": {
                         templateUrl: "/system/templates/blog/blog.html",
-                        controller: "CatalogLatestController"
+                        //controller: "CatalogLatestController"
                     },
                     "catalogs@main.blog": {
                         templateUrl: "/system/templates/blog/catalogs.html",
@@ -165,7 +175,9 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                     "links@main.blog": {templateUrl: "/system/templates/blog/links.html"}
                 }
             })
-            // Главная блога
+            /**
+             * Главная блога.
+             */
             .state("main.blog.home", {
                 url: "/home",
                 views: {
@@ -175,11 +187,13 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                     }
                 }
             })
-            // Посты в каталоге
+            /**
+             * Посты в каталоге
+             */
             .state("main.blog.catalog", {
-                url: "/catalog/:aliasCatalog/:page",
+                url: "/catalog/:catalogAlias/:page",
                 params: {
-                    "aliasCatalog": "latest",
+                    "catalogAlias": "latest",
                     "page": "1"
                 },
                 views: {
@@ -189,7 +203,9 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                     }
                 }
             })
-            // Просмотр поста
+            /**
+             * Просмотр поста.
+             */
             .state("main.blog.post", {
                 url: "/post/:aliasPost",
                 views: {
@@ -199,21 +215,21 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                     }
                 }
             })
-            // Просмотр поста
-            .state("main.blog.addNewPost", {
-                url: "/addNewPost",
+            /**
+             * Просмотр поста.
+             */
+            .state("main.blog.newPost", {
+                url: "/post",
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/blog/addNewPost.html",
-                        controller: "AddNewPostController"
+                        templateUrl: "/system/templates/blog/newPost.html",
+                        controller: "NewPostController"
                     }
                 }
             })
             /**
-             * Главная рекомендаций
-             *
+             * Главная рекомендаций.
              */
-            // recommendation movies
             .state("main.recommendation", {
                 url: "/recommendation",
                 views: {
@@ -232,10 +248,8 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                     }
                 }
             })
-
             // MultiCriteria - processor
         ;
 
     }
 ]);
-

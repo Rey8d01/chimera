@@ -1,12 +1,12 @@
 /**
- * Основной контент это список из постов относящихся к каталогу
+ * Основной контент это список из постов относящихся к каталогу.
  */
 
 chimera.system.catalog = angular.module("catalog", ["ngResource", "ngSanitize"]);
 
 chimera.system.catalog.controller("CatalogPostsController", ["$scope", "$state", "catalogService",
     function ($scope, $state, catalogService) {
-        catalogService.get({aliasCatalog: $state.params.aliasCatalog, page: $state.params.page}, function(response) {
+        catalogService.get({catalogAlias: $state.params.catalogAlias, page: $state.params.page}, function(response) {
             $scope.catalog = response.content;
             $scope.paging = response.content.pageData;
             $scope.catalog.progress = false;
@@ -17,8 +17,8 @@ chimera.system.catalog.controller("CatalogPostsController", ["$scope", "$state",
 chimera.system.main.controller("CatalogLatestController", ["$scope", "$state", "catalogService",
     function ($scope, $state, catalogService) {
 
-        if(!$state.params.aliasCatalog) {
-            $state.params.aliasCatalog = "latest";
+        if(!$state.params.catalogAlias) {
+            $state.params.catalogAlias = "latest";
         }            
 
         catalogService.get({}, function(response) {
@@ -33,6 +33,6 @@ chimera.system.main.controller("CatalogLatestController", ["$scope", "$state", "
 
 chimera.system.catalog.factory("catalogService", ["$resource",
     function ($resource) {
-        return $resource("/catalog/:aliasCatalog/:page", {aliasCatalog: "latest", page: "1"});
+        return $resource("/catalog/:catalogAlias/:page", {catalogAlias: "latest", page: "1"});
     }
 ]);
