@@ -51,7 +51,7 @@ class BaseHandler(tornado.web.RequestHandler):
             result = str(exception)
         else:
             # Системное исключение которое было возбуждено феймворком - попытка отработать его корректно для клиента.
-            result_message = system.utils.exceptions.ResultMessage(error=str(exception))
+            result_message = system.utils.exceptions.ResultMessage(error_message=str(exception), error_code=1)
             result = str(result_message)
 
         # Вывод результата обработки исключения.
@@ -84,6 +84,20 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return users[-1]
 
+    def get_bytes_body_argument(self, name, default=None):
+        """
+        :param name:
+        :param default:
+        :return:
+        """
+        try:
+            body_arguments = tornado.escape.to_unicode(self.request.body)
+            source = tornado.escape.json_decode(body_arguments)
+        except TypeError:
+            source = {}
+
+        return source.get(name, default)
+
 
 class MainHandler(BaseHandler):
     """Главный обработчик наследники которого требуют авторизацию со стороны пользователя для своих действий."""
@@ -91,7 +105,7 @@ class MainHandler(BaseHandler):
     def prepare(self):
         """Перекрытие срабатывает перед вызовом обработчиков и в случае отсутствия данных по пользователю возбуждает исключение."""
         if self.current_user is None:
-            raise system.utils.exceptions.ErrorResult(error="Неизвестный пользователь")
+            raise system.utils.exceptions.UserNotAuth()
 
 
 class PrivateIntroduceHandler(BaseHandler):
@@ -103,7 +117,7 @@ class PrivateIntroduceHandler(BaseHandler):
         import bcrypt
 
         hash = '$2a$15$jsDxfdO6tL1gVLoUVZh4AuyBRg92e.sjYY/kA2xKSGM.0MBU7smSq'  # passphrase
-        passphrase = self.get_argument("passphrase")
+        passphrase = self.get_bytes_body_argument("passphrase")
 
         result = {"auth": False}
         if bcrypt.hashpw(passphrase, hash) == hash:
@@ -133,10 +147,10 @@ class IntroduceHandler(BaseHandler):
         document_user_oauth.type = auth_type
         document_user_oauth.id = user_id
 
-        document_user_oauth.name = self.get_argument("user_info[name]", "")
-        document_user_oauth.alias = self.get_argument("user_info[alias]", "")
-        document_user_oauth.avatar = self.get_argument("user_info[avatar]", "")
-        document_user_oauth.email = self.get_argument("user_info[email]", "")
+        document_user_oauth.name = self.get_bytes_body_argument("user_info[name]", "")
+        document_user_oauth.alias = self.get_bytes_body_argument("user_info[alias]", "")
+        document_user_oauth.avatar = self.get_bytes_body_argument("user_info[avatar]", "")
+        document_user_oauth.email = self.get_bytes_body_argument("user_info[email]", "")
         document_user_oauth.raw = user_info_raw
         document_user_oauth.main = True
 
@@ -146,8 +160,8 @@ class IntroduceHandler(BaseHandler):
     def post(self):
         """Авторизация."""
         # Основные данные это тип соцсети и ид в ней
-        auth_type = self.get_argument("auth_type")
-        user_id = self.get_argument("user_id")
+        auth_type = self.get_bytes_body_argument("auth_type")
+        user_id = self.get_bytes_body_argument("user_id")
 
         # Документ пользователя при поиске опирается на ид и тип соцсети
         document_user = UserDocument()

@@ -16,8 +16,8 @@
  */
 var chimera = {
     config: {
-        baseUrl: "http://www.chimera.rey/_",
-        // baseUrl: "http://api.chimera.rey",
+        baseUrl: "http://api.chimera.rey/_", // baseApiUrl
+        baseWWWUrl: "http://www.chimera.rey",
         // baseUrl: "/system/responses/",
         auth: ["manual", "twitter", "github"],
         test: ""
@@ -42,9 +42,44 @@ chimera.system.main = angular.module("main", [
 ]);
 
 chimera.system.main.factory("sessionRecover", ["$q", "$location", function($q, $location) {
-    // Обработка ошибок
+    // Перехват запросов
+    console.debug("sessionRecover");
     return {
+        // Роутинг запросов по статике и к системе
+        request: function(config) {
+            console.debug("request", config);
+            if (/.*\.(js|css|ico|htm|html|json)/.test(config.url)) {
+                // Запросы по статик файлам переадресуются на основной домен.
+                config.url = chimera.config.baseWWWUrl + config.url;
+            } else {
+                // Запросы не относящиея к статик файлам идут к основной системе.
+                config.url = chimera.config.baseUrl + config.url;
+            }
+            return config;
+        },
+        // Разбор ответов для определения соответствующей реакции на случай возникновения ошибок.
+        response: function(response) {
+            console.debug("response", response);
+            var data = response.data;
+
+            if (data && data.error) {
+                switch(data.error){
+                    case 11:                
+                        $location.path("/login").replace();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            
+            return response;
+        },
+        //requestError: function(rejection) {
+        //    console.debug("requestError", rejection);
+        //    return $q.reject(rejection);
+        //},
         responseError: function(rejection) {
+            console.debug("responseError", rejection);
             // Для неавторизованного пользователя
             if (rejection.status == 401) {
                 $location.path("/login");
@@ -58,10 +93,11 @@ chimera.system.main.factory("sessionRecover", ["$q", "$location", function($q, $
 
 chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationProvider", "$httpProvider",
     function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
-        // Восстановление работы при сбоях в запросах
+        // Перехват всех http запросов для определения ошибок и реакции на них.
         $httpProvider.interceptors.push("sessionRecover");
         // Отправка запросов в едином виде
-        $httpProvider.defaults.headers.post = {"Content-Type": "application/x-www-form-urlencoded"};
+//        $httpProvider.defaults.headers.post = {"Content-Type": "application/x-www-form-urlencoded"};
+        $httpProvider.defaults.headers.post = {"Content-Type": "multipart/form-data"};
 
         // без # в урле
         $locationProvider.html5Mode({

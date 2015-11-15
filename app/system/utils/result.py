@@ -14,21 +14,24 @@ class ResultMessage:
     """Результат выполнения запроса в виде готовой структуры.
 
     :type _message: dict Формируемый ответ, структура которого определена в инициализаторе;
+    :type _error_code: int Код ошибки для унификации;
     """
 
     _message = None
 
-    def __init__(self, error: str = None, content: dict = None):
+    def __init__(self, content: dict = None, error_message: str = None, error_code: int = None):
         """При инициализации происходит описание формата ответа и занесение его в свойство класса.
 
-        :param error:
-        :type error: str
         :param content:
-        :type content: dict
+        :param error_message:
+        :param error_code:
         """
 
         self._message = {
-            "error": error,
+            "error": {
+                "message": error_message,
+                "code": error_code
+            },
             "content": content if content is not None else {},
             "maintenance": {
                 "redirect": None,

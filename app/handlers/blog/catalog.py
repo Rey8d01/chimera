@@ -41,7 +41,7 @@ class CatalogEditHandler(system.handler.BaseHandler):
             .limit(1) \
             .find_all()
         if not collection_catalog:
-            raise system.utils.exceptions.NotFound(error="Коллекция не найдена")
+            raise system.utils.exceptions.NotFound(error_message="Коллекция не найдена")
 
         document_catalog = collection_catalog[-1]
         document_catalog.fill_document_from_dict(self.request.arguments)
@@ -112,7 +112,7 @@ class CatalogItemHandler(system.handler.BaseHandler):
                 .find_all()
 
             if not collection_catalog:
-                raise system.utils.exceptions.NotFound(error="Коллекция не найдена")
+                raise system.utils.exceptions.NotFound(error_message="Коллекция не найдена")
             document_catalog = collection_catalog[0]
 
             result.update(document_catalog.to_son())

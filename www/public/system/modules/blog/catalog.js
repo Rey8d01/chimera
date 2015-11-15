@@ -33,6 +33,6 @@ chimera.system.main.controller("CatalogLatestController", ["$scope", "$state", "
 
 chimera.system.catalog.factory("catalogService", ["$resource",
     function ($resource) {
-        return $resource(chimera.config.baseUrl + "/catalog/:aliasCatalog/:page", {aliasCatalog: "latest", page: "1"});
+        return $resource("/catalog/:aliasCatalog/:page", {aliasCatalog: "latest", page: "1"});
     }
 ]);

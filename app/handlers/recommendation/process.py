@@ -108,7 +108,7 @@ class UserCPNHandler(BaseHandler):
 
         collection_user = await UserDocument().objects.filter({"_id": ObjectId(user)}).find_all()
         if not collection_user:
-            raise system.utils.exceptions.NotFound(error="Пользователь не найден")
+            raise system.utils.exceptions.NotFound(error_message="Пользователь не найден")
         document_user = collection_user[-1]
         raise system.utils.exceptions.Result(content={"": document_user.get_user_name()})
 
@@ -136,7 +136,7 @@ class UserCPNHandler(BaseHandler):
         # Этап 1.
         collection_user = await UserItemExtractor().objects.filter({"_id": ObjectId(user)}).find_all()
         if not collection_user:
-            raise system.utils.exceptions.NotFound(error="Пользователь не найден")
+            raise system.utils.exceptions.NotFound(error_message="Пользователь не найден")
         document_user = collection_user[-1]
         """ :type: UserItemExtractor """
 

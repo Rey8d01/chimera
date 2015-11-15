@@ -14,6 +14,6 @@ chimera.system.catalogs.controller("CatalogsMenuController", ["$scope", "$state"
 
 chimera.system.catalogs.factory("catalogsService", ["$resource",
     function ($resource) {
-        return $resource(chimera.config.baseUrl + "/catalogs");
+        return $resource("/catalogs");
     }
 ]);

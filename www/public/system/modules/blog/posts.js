@@ -76,6 +76,6 @@ chimera.system.post.controller("AddNewPostController", ["$scope", "$state", "pos
 
 chimera.system.post.factory("postService", ["$resource",
     function ($resource) {
-        return $resource(chimera.config.baseUrl + "/post/:aliasPost");
+        return $resource("/post/:aliasPost");
     }
 ]);

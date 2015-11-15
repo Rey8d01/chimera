@@ -79,7 +79,7 @@ chimera.system.recommendationFake.controller("RecommendationFakeController", ["$
 
 chimera.system.recommendationFake.factory("recommendationFakeService", ["$resource",
     function ($resource) {
-        return $resource(chimera.config.baseUrl + "/recommendation/fake/cpn", {}, {
+        return $resource("/recommendation/fake/cpn", {}, {
             "getRecommendation" : {method: "POST"}
         });
     }

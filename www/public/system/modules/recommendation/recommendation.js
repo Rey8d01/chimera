@@ -95,13 +95,13 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
 
 chimera.system.recommendation.factory("recommendationService", ["$resource",
     function ($resource) {
-        return $resource(chimera.config.baseUrl + "/recommendation/harvest");
+        return $resource("/recommendation/harvest");
     }
 ]);
 
 chimera.system.recommendation.factory("recommendationFakeService", ["$resource",
     function ($resource) {
-        return $resource(chimera.config.baseUrl + "/recommendation/fake");
+        return $resource("/recommendation/fake");
     }
 ]);
 

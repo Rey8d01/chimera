@@ -52,8 +52,10 @@ chimera.system.main.controller("AuthController", ["$scope", "$q", "authService",
 ]);
 
 
-chimera.system.auth.factory("authService", ["$q", "$location", "$cookies",
-    function($q, $location, $cookies) {
+chimera.system.auth.factory("authService", ["$q", "$location", "$cookies", "$http",
+    function($q, $location, $cookies, $http) {
+
+        console.log("authService", $http);
 
         // Объект авторизации через который происходят все соединения с сервером авторизации
         var authorization = false;
@@ -87,11 +89,13 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookies",
                     disconnect();
                 }
 
-                $.post(chimera.config.baseUrl + "/introduce", {
+                // Запрос на авторизацию
+                $http.post("/introduce", {
                     auth_type: authorizationType,
                     user_id: data.id,
                     user_info: full ? data : null
-                }, function(response) {
+                }).success(function(data, status, headers, config) {
+                    // В случае успешной авторизации и если она происходила на странице входа - редирект на блог
                     if ($location.path() == "/login") {
                         $location.path("/blog").replace();
                     }
@@ -99,14 +103,13 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookies",
             });
         };
 
+        // Выход из системы, очистка кук
         var disconnect = function() {
             console.log('disconnect', authorization);
-            // Выход из системы, очистка кук
             OAuth.clearCache(authorizationType);
             authorization = authorizationType = false;
 
-            $.get(chimera.config.baseUrl + "/logout");
-            $location.path("/login").replace();
+            $http.get("/logout");
         };
 
         return {
@@ -152,10 +155,9 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookies",
             },
             private: function(passphrase) {
                 var deferred = $q.defer();
-                $.post(chimera.config.baseUrl + "/private", {
-                    passphrase: passphrase
-                }, function(response) {
-                    if (response.content.auth && ($location.path() == "/login")) {
+
+                $http.post("/private", {passphrase: passphrase}).success(function(data, status, headers, config) {
+                    if (data.content.auth && ($location.path() == "/login")) {
                         deferred.resolve();
                         authorization = true;
                         authorizationType = 'manual'

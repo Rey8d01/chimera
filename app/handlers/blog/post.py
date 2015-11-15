@@ -44,7 +44,7 @@ class PostEditHandler(system.handler.BaseHandler):
             .limit(1) \
             .find_all()
         if not collection_post:
-            raise system.utils.exceptions.NotFound(error="Запись не найдена")
+            raise system.utils.exceptions.NotFound(error_message="Запись не найдена")
 
         document_post = collection_post[-1]
         document_post.fill_document_from_dict(self.request.arguments)
@@ -71,7 +71,7 @@ class PostHandler(system.handler.BaseHandler):
             .find_all()
 
         if not collection_post:
-            raise system.utils.exceptions.NotFound(error="Пост не найден")
+            raise system.utils.exceptions.NotFound(error_message="Пост не найден")
         document_post = collection_post[-1]
 
         raise system.utils.exceptions.Result(content=document_post.to_son())
