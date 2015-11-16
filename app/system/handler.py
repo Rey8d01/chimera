@@ -71,32 +71,41 @@ class BaseHandler(tornado.web.RequestHandler):
         else:
             return None
 
-    @coroutine
-    def get_data_current_user(self) -> UserDocument:
+    async def get_data_current_user(self) -> UserDocument:
         """Вернет данные из базы по текущему пользователю."""
         user_data = self.get_current_user()
 
         document_user = UserDocument()
-        users = yield document_user.objects.filter({UserDocument.oauth.name: {"$elemMatch": {
+        users = await document_user.objects.filter({UserDocument.oauth.name: {"$elemMatch": {
             UserOAuthDocument.type.name: user_data[UserOAuthDocument.type.name],
             UserOAuthDocument.id.name: user_data[UserOAuthDocument.id.name]
         }}}).find_all()
 
         return users[-1]
 
-    def get_bytes_body_argument(self, name, default=None):
+    def get_bytes_body_argument(self, name, default=None) -> str:
+        """Вернет значение переданного параметра от клиента.
+
+        Тестовый хак для обработки данных приходящих с приложения angular
+
+        :param name: Название свойства (поля) с которого будут считываться данные;
+        :param default: Значение по умолчанию в случае отсутствия данных;
+        :return: Обычно данные будут приходить в строковом формате;
         """
-        :param name:
-        :param default:
-        :return:
+        return self.get_bytes_body_source().get(name, default)
+
+    def get_bytes_body_source(self) -> dict:
+        """Вернет словарь пришедших данных от клиента.
+
+        Декодировка данных в теле запроса self.request.body и представление в виде словаря.
+
+        :return: dict с клиентскими данными;
         """
         try:
             body_arguments = tornado.escape.to_unicode(self.request.body)
-            source = tornado.escape.json_decode(body_arguments)
+            return tornado.escape.json_decode(body_arguments)
         except TypeError:
-            source = {}
-
-        return source.get(name, default)
+            return {}
 
 
 class MainHandler(BaseHandler):

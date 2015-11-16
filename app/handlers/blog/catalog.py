@@ -24,7 +24,7 @@ class CatalogEditHandler(system.handler.BaseHandler):
     async def post(self):
         """Создание нового каталога и занесение в базу актуальной по нему информации."""
         document_catalog = CatalogDocument()
-        document_catalog.fill_document_from_dict(self.request.arguments)
+        document_catalog.fill_document_from_dict(self.get_bytes_body_source())
 
         await document_catalog.save()
 
