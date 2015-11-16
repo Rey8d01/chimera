@@ -32,7 +32,6 @@ chimera.system.main = angular.module("main", [
     // "navigator",
 
     "catalog",
-    "catalogs",
     "post",
 
     "recommendation",
@@ -44,6 +43,19 @@ chimera.system.main = angular.module("main", [
  */
 chimera.system.main.factory("sessionRecover", ["$q", "$location", function($q, $location) {
     console.debug("sessionRecover");
+
+    // Общая обработка ошибок.
+    var parseError = function(error) {
+        switch(error.code) {
+            case 11:                
+                $location.path("/login").replace();
+                break;
+            default:
+                $.notify(error.message, "error");
+                break;
+        }
+    };
+
     return {
         /**
          * Роутинг запросов по статике и к системе.
@@ -72,14 +84,8 @@ chimera.system.main.factory("sessionRecover", ["$q", "$location", function($q, $
             console.debug("response", response);
             var data = response.data;
 
-            if (data && data.error) {
-                switch(data.error){
-                    case 11:                
-                        $location.path("/login").replace();
-                        break;
-                    default:
-                        break;
-                }
+            if (data && data.error && data.error.code) {
+                parseError(data.error);
             }
             
             return response;
@@ -90,10 +96,10 @@ chimera.system.main.factory("sessionRecover", ["$q", "$location", function($q, $
         //},
         responseError: function(rejection) {
             console.debug("responseError", rejection);
-            // Для неавторизованного пользователя
-            if (rejection.status == 401) {
-                $location.path("/login");
-                $location.replace();
+            var data = rejection.data;
+
+            if (data && data.error && data.error.code) {
+                parseError(data.error);
             }
 
             return $q.reject(rejection);
@@ -169,7 +175,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                     },
                     "catalogs@main.blog": {
                         templateUrl: "/system/templates/blog/catalogs.html",
-                        controller: "CatalogsMenuController"
+                        controller: "CatalogListMainController"
                     },
                     "tags@main.blog": {templateUrl: "/system/templates/blog/tags.html"},
                     "links@main.blog": {templateUrl: "/system/templates/blog/links.html"}
@@ -199,7 +205,19 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 views: {
                     "content": {
                         templateUrl: "/system/templates/blog/catalog.html",
-                        controller: "CatalogPostsController"
+                        controller: "CatalogItemHandler"
+                    }
+                }
+            })
+            /**
+             * Редактирование поста.
+             */
+            .state("main.blog.catalogEdit", {
+                url: "/catalog",
+                views: {
+                    "content": {
+                        templateUrl: "/system/templates/blog/catalogEdit.html",
+                        controller: "CatalogEditController"
                     }
                 }
             })
@@ -216,14 +234,14 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 }
             })
             /**
-             * Просмотр поста.
+             * Редактирование поста.
              */
-            .state("main.blog.newPost", {
+            .state("main.blog.postEdit", {
                 url: "/post",
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/blog/newPost.html",
-                        controller: "NewPostController"
+                        templateUrl: "/system/templates/blog/postEdit.html",
+                        controller: "PostEditController"
                     }
                 }
             })

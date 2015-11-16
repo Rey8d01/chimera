@@ -2,25 +2,44 @@
 
 .catalog {}
 
+/* catalogEdit.html */
+.catalog-edit {}
+.catalog-edit__title {
+    margin: 0 0 10px 0;
+    padding: 5px;
+    border: 1px solid #cacaca;
+}
+.catalog-edit__alias {
+    margin: 0 0 10px 0;
+    padding: 5px;
+    border: 1px solid #cacaca;
+}
+.catalog-edit__parent-alias_view {
+    margin: 0 0 10px 0;
+}
+.catalog-edit__parent-alias_hide {}
+
 .post {}
 
-.new-post {}
-.new-post__title {
+/* postEdit.html */
+.post-edit {}
+.post-edit__title {
     margin: 0 0 10px 0;
     padding: 5px;
     border: 1px solid #cacaca;
 }
-.new-post__text {
+.post-edit__text {
     margin: 0 0 10px 0;
     padding: 5px;
     border: 1px solid #cacaca;
 }
-.new-post__tags {}
-.new-post__alias {
+.post-edit__tags {}
+.post-edit__alias {
     margin: 0 0 10px 0;
     padding: 5px;
     border: 1px solid #cacaca;
 }
-.new-post__catalog-alias {
+.post-edit__catalog-alias_view {
     margin: 0 0 10px 0;
 }
+.post-edit__catalog-alias_hide {}

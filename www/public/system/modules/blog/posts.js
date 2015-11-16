@@ -4,6 +4,9 @@
 
 chimera.system.post = angular.module("post", ["ngResource", "ngSanitize"]);
 
+/**
+ * PostHandler
+ */
 chimera.system.post.controller("PostController", ["$scope", "$state", "postService",
     function ($scope, $state, postService) {
         // Запрос определенного поста
@@ -13,17 +16,20 @@ chimera.system.post.controller("PostController", ["$scope", "$state", "postServi
     }
 ]);
 
-chimera.system.post.controller("NewPostController", ["$scope", "$state", "postService", "catalogsService",
-    function ($scope, $state, postService, catalogsService) {
-        var $typeahead = $('.new-post__catalog-alias.typeahead');
+/**
+ * PostEditHandler
+ */
+chimera.system.post.controller("PostEditController", ["$scope", "$state", "postService", "catalogListService",
+    function ($scope, $state, postService, catalogListService) {
+        var $typeahead = $('.post-edit__catalog-alias_view.typeahead');
 
         // Инициализация автокомплита для категорий.
         $typeahead.typeahead({
             source: function (s, cb) {
-                $('.new-post__catalog-alias.typeahead').parent().removeClass("has-error");
+                $('.post-edit__catalog-alias_view.typeahead').parent().removeClass("has-error");
 
                 //omdbapiService.search({s:s}, function (response) {
-                catalogsService.get({}, function (response) {
+                catalogListService.get({}, function (response) {
                     var matches = [],
                         catalog = null;
                     for (var item in response.content.catalogs) {
@@ -34,26 +40,31 @@ chimera.system.post.controller("NewPostController", ["$scope", "$state", "postSe
                     cb(matches);
                 });
             },
-            //afterSelect: function (item) {
-            //    $scope.selectItem.imdb = item.imdb;
-            //    $scope.selectItem.year = item.year;
-            //    $scope.selectItem.title = item.title;
-            //},
+            afterSelect: function (item) {
+                $('.post-edit__catalog-alias_hide').val(item.alias);
+            },
             autoSelect: true
         });
 
-        $scope.newPost = function () {
-            var title = $(".blog-post-title").html(),
-                text = $(".blog-post-text").html(),
-                tags = $(".blog-post-tags").text(),
-                alias = $(".blog-post-alias").text(),
-                catalogAlias = $(".blog-post-catalogAlias").text();
+        // Отправка запроса на создание поста.
+        $scope.postEdit = function () {
+            var title = $(".post-edit__title").text(),
+                text = $(".post-edit__text").html(),
+                alias = $(".post-edit__alias").text(),
+                tags = $(".post-edit__tags").text(),
+                catalogAlias = $(".post-edit__catalog-alias_hide").val(),
+                data;
 
-            postService.save({
+            data = {
                 "title": title,
                 "text": text,
-                "alias": alias
-            });
+                "alias": alias,
+                "catalogAlias": catalogAlias,
+            };
+
+            // console.info(data);
+
+            postService.save(data);
         };
     }
 ]);
