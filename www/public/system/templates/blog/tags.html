@@ -1,17 +1,7 @@
 <h3>Tags</h3>
-<div class="list-group">
-    <span class="label label-default">Default</span>
-    <span class="label label-primary">Primary</span>
-    <span class="label label-success">Success</span>
-    <span class="label label-info">Info</span>
-    <span class="label label-warning">Warning</span>
-    <span class="label label-danger">Danger</span>
-    <span class="label label-default">Default</span>
-    <span class="label label-primary">Primary</span>
-    <span class="label label-success">Success</span>
-    <span class="label label-info">Info</span>
-    <span class="label label-warning">Warning</span>
-    <span class="label label-danger">Danger</span>
+<div class="list-group tag-list">
+    <a ng-repeat="tag in tags" class="label label-default tag-list__label" ui-sref="main.blog.tag({tagAlias: tag.alias, page: 1})">{{tag.title}}</a>
+
     <span class="label label-default">Default</span>
     <span class="label label-primary">Primary</span>
     <span class="label label-success">Success</span>

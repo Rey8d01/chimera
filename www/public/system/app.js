@@ -33,6 +33,7 @@ chimera.system.main = angular.module("main", [
 
     "catalog",
     "post",
+    "tag",
 
     "recommendation",
     "recommendationFake"
@@ -177,7 +178,10 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                         templateUrl: "/system/templates/blog/catalogs.html",
                         controller: "CatalogListMainController"
                     },
-                    "tags@main.blog": {templateUrl: "/system/templates/blog/tags.html"},
+                    "tags@main.blog": {
+                        templateUrl: "/system/templates/blog/tags.html",
+                        controller: "TagListMainController"
+                    },
                     "links@main.blog": {templateUrl: "/system/templates/blog/links.html"}
                 }
             })
@@ -194,7 +198,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 }
             })
             /**
-             * Посты в каталоге
+             * Посты в каталоге.
              */
             .state("main.blog.catalog", {
                 url: "/catalog/:catalogAlias/:page",
@@ -218,6 +222,21 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                     "content": {
                         templateUrl: "/system/templates/blog/catalogEdit.html",
                         controller: "CatalogEditController"
+                    }
+                }
+            })
+            /**
+             * Посты по определенному тегу.
+             */
+            .state("main.blog.tag", {
+                url: "/tag/:tagAlias/:page",
+                params: {
+                    "page": "1"
+                },
+                views: {
+                    "content": {
+                        templateUrl: "/system/templates/blog/tag.html",
+                        controller: "TagItemHandler"
                     }
                 }
             })

@@ -43,3 +43,9 @@
     margin: 0 0 10px 0;
 }
 .post-edit__catalog-alias_hide {}
+
+/* tags.html */
+.tag-list {}
+.tag-list__label {
+    margin-right: 5px;
+}
