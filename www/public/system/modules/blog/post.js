@@ -52,19 +52,14 @@ chimera.system.post.controller("PostEditController", ["$scope", "$state", "postS
                 text = $(".post-edit__text").html(),
                 alias = $(".post-edit__alias").text(),
                 tags = $(".post-edit__tags").text(),
-                catalogAlias = $(".post-edit__catalog-alias_hide").val(),
-                data;
+                catalogAlias = $(".post-edit__catalog-alias_hide").val();
 
-            data = {
+            postService.save({
                 "title": title,
                 "text": text,
                 "alias": alias,
-                "catalogAlias": catalogAlias,
-            };
-
-            // console.info(data);
-
-            postService.save(data);
+                "catalogAlias": catalogAlias
+            });
         };
     }
 ]);

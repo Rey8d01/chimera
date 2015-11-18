@@ -71,18 +71,13 @@ chimera.system.catalog.controller("CatalogEditController", ["$scope", "$state", 
         $scope.catalogEdit = function () {
             var title = $(".catalog-edit__title").text(),
                 alias = $(".catalog-edit__alias").text(),
-                parentAlias = $(".catalog-edit__parent-alias_hide").val(),
-                data;
+                parentAlias = $(".catalog-edit__parent-alias_hide").val();
 
-            data = {
+            catalogItemService.save({
                 "title": title,
                 "alias": alias,
                 "parentAlias": parentAlias
-            };
-
-            // console.info(data);
-
-            catalogItemService.save(data);
+            });
         };
     }
 ]);
