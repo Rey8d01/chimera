@@ -157,7 +157,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 views: {
                     "": {
                         templateUrl: "/system/templates/main.html",
-                        //controller: "CatalogLatestController"
+                        controller: "AuthController"
                     }
                 }
             })

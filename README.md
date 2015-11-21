@@ -91,6 +91,7 @@ Python 3.5
 * tornado 4.3 - web server + framework;
 * motor 0.4 - MongoDB driver;
 * motorengine 0.9 - MongoDB ODT;
+* tredis 0.1 - Redis client;
 * bcrypt - hashing passwords;
 * transliterate 1.7 - for transliterate input text to eng slugs;
 

@@ -1,14 +1,10 @@
 <div class="post-edit">
-    <h2 class="post-edit__title" contenteditable="true">Заголовок поста</h2>
-
-    <div class="post-edit__text" contenteditable="true">
-        <div>Напиши текст тут</div>
-    </div>
-
-    <h6 class="post-edit__alias" contenteditable="true">Псведоним (alias) поста</h6>
-
-    <input type="text" class="form-control typeahead post-edit__catalog-alias_view" placeholder="Укажи каталог для поста">
-    <input type="hidden" class="post-edit__catalog-alias_hide">
+    <h2 class="post-edit__header">Новый пост</h2>
+    <input type="text" class="post-edit__title" ng-model="postEdit.title" placeholder="Заголовок поста">
+    <textarea class="post-edit__text" ng-model="postEdit.text" placeholder="Текст поста"></textarea>
+    <input type="text" class="post-edit__alias" ng-model="postEdit.alias" placeholder="Псведоним (alias) поста">
+    <input type="text" class="typeahead post-edit__catalog-alias_view" placeholder="Каталог для поста">
+    <input type="hidden" class="post-edit__catalog-alias_hide" ng-model="postEdit.catalogAlias">
 </div>
 
-<a ng-click="postEdit()" class="btn btn-success">Отправить</a>
+<a ng-click="sendPostEdit()" class="btn btn-success">Отправить</a>

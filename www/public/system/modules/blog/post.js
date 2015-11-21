@@ -1,5 +1,5 @@
 /**
- * Основной контент это текст поста
+ * Основной контент это текст поста.
  */
 
 chimera.system.post = angular.module("post", ["ngResource", "ngSanitize"]);
@@ -25,10 +25,13 @@ chimera.system.post.controller("PostEditController", ["$scope", "$state", "postS
 
         // Инициализация автокомплита для категорий.
         $typeahead.typeahead({
+            /**
+             * Источником данных для выпадающего списка будет результат отправки запроса на получение всех каталогов.
+             */
             source: function (s, cb) {
                 $('.post-edit__catalog-alias_view.typeahead').parent().removeClass("has-error");
 
-                //omdbapiService.search({s:s}, function (response) {
+                // todo передавать паттерн поиска в запрос и искать на сервере
                 catalogListService.get({}, function (response) {
                     var matches = [],
                         catalog = null;
@@ -40,25 +43,23 @@ chimera.system.post.controller("PostEditController", ["$scope", "$state", "postS
                     cb(matches);
                 });
             },
+            /**
+             * При выборе каталога запоминаем его псевдоним.
+             */
             afterSelect: function (item) {
-                $('.post-edit__catalog-alias_hide').val(item.alias);
+                $scope.postEdit.catalogAlias = item.alias
             },
             autoSelect: true
         });
 
-        // Отправка запроса на создание поста.
-        $scope.postEdit = function () {
-            var title = $(".post-edit__title").text(),
-                text = $(".post-edit__text").html(),
-                alias = $(".post-edit__alias").text(),
-                tags = $(".post-edit__tags").text(),
-                catalogAlias = $(".post-edit__catalog-alias_hide").val();
-
-            postService.save({
-                "title": title,
-                "text": text,
-                "alias": alias,
-                "catalogAlias": catalogAlias
+        /**
+         * Отправка запроса на создание поста.
+         */
+        $scope.sendPostEdit = function () {
+            postService.save($scope.postEdit).$promise.then(function (response) {
+                if (response.error.code == 0) {
+                    $state.go("main.blog.post", {"aliasPost":$scope.postEdit.alias})
+                }
             });
         };
     }

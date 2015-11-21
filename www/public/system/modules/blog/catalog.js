@@ -10,7 +10,7 @@ chimera.system.catalog = angular.module("catalog", ["ngResource", "ngSanitize"])
  */
 chimera.system.catalog.controller("CatalogItemHandler", ["$scope", "$state", "catalogItemService",
     function ($scope, $state, catalogItemService) {
-        catalogItemService.get({catalogAlias: $state.params.catalogAlias, page: $state.params.page}, function(response) {
+        catalogItemService.get({catalogAlias: $state.params.catalogAlias, page: $state.params.page}, function (response) {
             $scope.catalog = response.content;
             $scope.paging = response.content.pageData;
             $scope.catalog.progress = false;
@@ -24,15 +24,15 @@ chimera.system.catalog.controller("CatalogItemHandler", ["$scope", "$state", "ca
 chimera.system.main.controller("CatalogLatestController", ["$scope", "$state", "catalogItemService",
     function ($scope, $state, catalogItemService) {
 
-        if(!$state.params.catalogAlias) {
+        if (!$state.params.catalogAlias) {
             $state.params.catalogAlias = "latest";
-        }            
+        }
 
-        catalogItemService.get({}, function(response) {
+        catalogItemService.get({}, function (response) {
             $scope.catalog = response.content;
             $scope.paging = response.content.pageData;
-            $scope.catalog.progress = false;  
-        }, function(response) {
+            $scope.catalog.progress = false;
+        }, function (response) {
             $scope.catalog.progress = false;
         });
     }
@@ -47,9 +47,13 @@ chimera.system.catalog.controller("CatalogEditController", ["$scope", "$state", 
 
         // Инициализация автокомплита для категорий.
         $typeahead.typeahead({
+            /**
+             * Источником данных для выпадающего списка будет результат отправки запроса на получение всех каталогов.
+             */
             source: function (s, cb) {
                 $('.catalog-edit__parent-alias_view.typeahead').parent().removeClass("has-error");
 
+                // todo передавать паттерн поиска в запрос и искать на сервере
                 catalogListService.get({}, function (response) {
                     var matches = [],
                         catalog = null;
@@ -62,21 +66,17 @@ chimera.system.catalog.controller("CatalogEditController", ["$scope", "$state", 
                 });
             },
             afterSelect: function (item) {
-                $('.catalog-edit__parent-alias_hide').val(item.alias);
+                $scope.catalogEdit.alias = item.alias
             },
             autoSelect: true
         });
 
         // Отправка запроса на создание поста.
-        $scope.catalogEdit = function () {
-            var title = $(".catalog-edit__title").text(),
-                alias = $(".catalog-edit__alias").text(),
-                parentAlias = $(".catalog-edit__parent-alias_hide").val();
-
-            catalogItemService.save({
-                "title": title,
-                "alias": alias,
-                "parentAlias": parentAlias
+        $scope.sendCatalogEdit = function () {
+            catalogItemService.save($scope.catalogEdit).$promise.then(function (response) {
+                if (response.error.code == 0) {
+                    $state.go("main.blog.catalog", {"catalogAlias":$scope.catalogEdit.alias})
+                }
             });
         };
     }
@@ -87,7 +87,7 @@ chimera.system.catalog.controller("CatalogEditController", ["$scope", "$state", 
  */
 chimera.system.catalog.controller("CatalogListMainController", ["$scope", "$state", "catalogListService",
     function ($scope, $state, catalogListService) {
-        catalogListService.get({}, function(response) {
+        catalogListService.get({}, function (response) {
             $scope.catalogs = response.content.catalogs;
         });
     }

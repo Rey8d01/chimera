@@ -1,7 +1,8 @@
 """Набор документов для формирования поста."""
 
 from system.document import BaseDocument
-from motorengine import EmbeddedDocumentField, StringField, ListField, DateTimeField
+from documents.user import UserDocument
+from motorengine import EmbeddedDocumentField, StringField, ListField, DateTimeField, ReferenceField
 
 
 class PostTagsDocument(BaseDocument):
@@ -23,9 +24,10 @@ class PostMetaDocument(BaseDocument):
     :type dateUpdate: str Дата создания;
     :type author: str Автор поста;
     """
+    user = ReferenceField(reference_document_type=UserDocument)
+    author = StringField()
     dateCreate = DateTimeField(auto_now_on_insert=True)
     dateUpdate = DateTimeField(auto_now_on_update=True)
-    author = StringField()
 
 
 class PostDocument(BaseDocument):

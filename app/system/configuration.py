@@ -9,6 +9,8 @@ from tornado.options import define
 # import motor
 import motorengine
 
+import tredis
+
 import system.handler
 
 import handlers.test
@@ -65,6 +67,12 @@ DB_NAME = "chimera"
 
 motorengine.connect(db=DB_NAME, host=DB_HOST, port=DB_PORT)
 
+# Настройки подключения к Redis
+REDIS_HOST = "localhost"
+REDIS_PORT = 6379
+
+redis = tredis.RedisClient(host=REDIS_HOST, port=REDIS_PORT)
+
 # Настройки приложения - доступны внутри хендлеров через self.settings
 settings = {
     "cookie_secret": "__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
@@ -73,4 +81,6 @@ settings = {
     # Для тестирования можно подключиться к MongoDB через Motor напрямую
     # "db": motor.MotorClient(host=DB_HOST, port=DB_PORT)[DB_NAME]
     # "db": motorengine.connect(db=DB_NAME, host=DB_HOST, port=DB_PORT)
+
+    "redis": redis,
 }

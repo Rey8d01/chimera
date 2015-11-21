@@ -29,7 +29,12 @@ class BaseDocument(Document):
 
         for name, field in list(self._fields.items()):
             value = self.get_field_value(name)
-            result = field.to_son(value)
+
+            try:
+                result = field.to_son(value)
+            except Exception:
+                result = value
+
             if type(result) is not dict and type(result) is not list:
                 result = str(result)
             data[field.db_field] = result

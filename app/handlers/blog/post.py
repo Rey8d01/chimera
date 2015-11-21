@@ -22,8 +22,10 @@ class PostEditHandler(system.handler.BaseHandler):
         """Создание нового поста и занесение в базу актуальной по нему информации."""
         document_post = PostDocument()
         document_post.fill_document_from_dict(self.get_bytes_body_source())
-        # todo заменить на реального автора.
-        document_post.meta.author = 'test'
+
+        document_user = await self.get_data_current_user()
+        document_post.meta.author = document_user.get_main_oauth_document().name
+        document_post.meta.user = document_user
         # Пасринг тегов - предполагается что они идут пачкой под одной переменной.
         tags = self.get_arguments(PostDocument.tags.name)
         if len(tags):

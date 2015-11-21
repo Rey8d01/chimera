@@ -32,7 +32,7 @@ class CatalogEditHandler(system.handler.BaseHandler):
 
     async def put(self):
         """Изменение существующего каталога."""
-        alias = self.get_argument(CatalogDocument.alias.name)
+        alias = self.get_bytes_body_argument(CatalogDocument.alias.name)
 
         # Выбор каталога с указанным псевдонимом (иначе исключение).
         collection_catalog = await CatalogDocument() \
