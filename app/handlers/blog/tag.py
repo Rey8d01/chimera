@@ -30,7 +30,7 @@ class TagItemHandler(system.handler.BaseHandler):
             .objects\
             .filter({PostDocument.tags.name: {"$elemMatch": {PostTagsDocument.alias.name: alias}}}) \
             .count()
-        pagination = Pagination(count_post, current_page, 2)
+        pagination = Pagination(count_post, current_page, 5)
 
         collection_post = await PostDocument() \
             .objects \
@@ -52,7 +52,13 @@ class TagItemHandler(system.handler.BaseHandler):
 
                 list_items_post.append(document_post.to_son())
 
-        result.update({"posts": list_items_post})
+        result.update({
+            "posts": list_items_post,
+            "pageData": {
+                "currentPage": pagination.current_page,
+                "pageSize": pagination.count_items_on_page,
+                "total": pagination.count_all_items,
+            }})
 
         raise system.utils.exceptions.Result(content=result)
 
