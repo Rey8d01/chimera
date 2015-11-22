@@ -5,6 +5,10 @@
     <input type="text" class="post-edit__alias" ng-model="postEdit.alias" placeholder="Псведоним (alias) поста">
     <input type="text" class="typeahead post-edit__catalog-alias_view" placeholder="Каталог для поста">
     <input type="hidden" class="post-edit__catalog-alias_hide" ng-model="postEdit.catalogAlias">
+    <input type="text" class="typeahead post-edit__tags" placeholder="Укажите ключевые метки">
+    <div class="post-edit__list-used-tags">
+        <a ng-repeat="tag in postEdit.tags" class="label label-default post-edit__item-used-tags" ng-click="deleteTag(tag)">{{tag.title}}</a>
+    </div>
 </div>
 
 <a ng-click="sendPostEdit()" class="btn btn-success">Отправить</a>

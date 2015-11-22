@@ -125,7 +125,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
         // Главная блога
         $urlRouterProvider.when("/blog", "/blog/home");
         //// Посты
-        //$urlRouterProvider.when("/post/:aliasPost", "/blog/post/:aliasPost");
+        //$urlRouterProvider.when("/post/:postAlias", "/blog/post/:postAlias");
         //// Каталоги
         //$urlRouterProvider.when("/catalog/:catalogAlias", "/blog/catalog/:catalogAlias");
         //$urlRouterProvider.when("/catalog/:catalogAlias/:page", "/blog/catalog/:catalogAlias/:page");
@@ -244,7 +244,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
              * Просмотр поста.
              */
             .state("main.blog.post", {
-                url: "/post/:aliasPost",
+                url: "/post/:postAlias",
                 views: {
                     "content": {
                         templateUrl: "/system/templates/blog/post.html",

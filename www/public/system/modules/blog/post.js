@@ -10,7 +10,7 @@ chimera.system.post = angular.module("post", ["ngResource", "ngSanitize"]);
 chimera.system.post.controller("PostController", ["$scope", "$state", "postService",
     function ($scope, $state, postService) {
         // Запрос определенного поста
-        postService.get({aliasPost: $state.params.aliasPost}, function (response) {
+        postService.get({postAlias: $state.params.postAlias}, function (response) {
             $scope.post = response.content;
         });
     }
@@ -19,18 +19,24 @@ chimera.system.post.controller("PostController", ["$scope", "$state", "postServi
 /**
  * PostEditHandler
  */
-chimera.system.post.controller("PostEditController", ["$scope", "$state", "postService", "catalogListService",
-    function ($scope, $state, postService, catalogListService) {
-        var $typeahead = $('.post-edit__catalog-alias_view.typeahead');
+chimera.system.post.controller("PostEditController", ["$scope", "$state", "postService", "catalogListService", "tagListService",
+    function ($scope, $state, postService, catalogListService, tagListService) {
+        var $typeaheadCatalogAlias = $('.post-edit__catalog-alias_view.typeahead'),
+            $typeaheadTags = $('.post-edit__tags.typeahead');
+
+        $scope.postEdit = {};
+        $scope.postEdit.title = "";
+        $scope.postEdit.text = "";
+        $scope.postEdit.alias = "";
+        $scope.postEdit.catalogAlias = "";
+        $scope.postEdit.tags = [];
 
         // Инициализация автокомплита для категорий.
-        $typeahead.typeahead({
+        $typeaheadCatalogAlias.typeahead({
             /**
              * Источником данных для выпадающего списка будет результат отправки запроса на получение всех каталогов.
              */
             source: function (s, cb) {
-                $('.post-edit__catalog-alias_view.typeahead').parent().removeClass("has-error");
-
                 // todo передавать паттерн поиска в запрос и искать на сервере
                 catalogListService.get({}, function (response) {
                     var matches = [],
@@ -47,10 +53,48 @@ chimera.system.post.controller("PostEditController", ["$scope", "$state", "postS
              * При выборе каталога запоминаем его псевдоним.
              */
             afterSelect: function (item) {
-                $scope.postEdit.catalogAlias = item.alias
+                $scope.postEdit.catalogAlias = item.alias;
             },
             autoSelect: true
         });
+
+        // Инициализация автокомплита для тегов.
+        $typeaheadTags.typeahead({
+            /**
+             * Источником данных для выпадающего списка будет результат отправки запроса на получение всех тегов.
+             */
+            source: function (s, cb) {
+                // todo передавать паттерн поиска в запрос и искать на сервере
+                tagListService.get({}, function (response) {
+                    var matches = [],
+                        tag = null;
+                    for (var item in response.content.tags) {
+                        tag = response.content.tags[item];
+                        tag.name = tag.title;
+                        matches.push(tag);
+                    }
+                    cb(matches);
+                });
+            },
+            /**
+             * При выборе тега он помещается в скоп для отображения и последующей отправки.
+             */
+            afterSelect: function (item) {
+                if ($scope.postEdit.tags.indexOf(item) == -1) {
+                    $scope.postEdit.tags.push(item);
+                    $scope.$apply();
+                }
+                $typeaheadTags.val('');
+            },
+            autoSelect: true
+        });
+
+        /**
+         * Удаление определенного тега.
+         */
+        $scope.deleteTag = function (tag) {
+            $scope.postEdit.tags = _.without($scope.postEdit.tags, tag);
+        }
 
         /**
          * Отправка запроса на создание поста.
@@ -58,7 +102,7 @@ chimera.system.post.controller("PostEditController", ["$scope", "$state", "postS
         $scope.sendPostEdit = function () {
             postService.save($scope.postEdit).$promise.then(function (response) {
                 if (response.error.code == 0) {
-                    $state.go("main.blog.post", {"aliasPost":$scope.postEdit.alias})
+                    $state.go("main.blog.post", {"postAlias":$scope.postEdit.alias})
                 }
             });
         };
@@ -67,6 +111,6 @@ chimera.system.post.controller("PostEditController", ["$scope", "$state", "postS
 
 chimera.system.post.factory("postService", ["$resource",
     function ($resource) {
-        return $resource("/post/:aliasPost");
+        return $resource("/post/:postAlias");
     }
 ]);

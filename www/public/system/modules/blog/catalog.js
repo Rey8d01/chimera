@@ -21,7 +21,7 @@ chimera.system.catalog.controller("CatalogItemHandler", ["$scope", "$state", "ca
 /**
  * CatalogItemHandler
  */
-chimera.system.main.controller("CatalogLatestController", ["$scope", "$state", "catalogItemService",
+chimera.system.catalog.controller("CatalogLatestController", ["$scope", "$state", "catalogItemService",
     function ($scope, $state, catalogItemService) {
 
         if (!$state.params.catalogAlias) {
@@ -51,8 +51,6 @@ chimera.system.catalog.controller("CatalogEditController", ["$scope", "$state", 
              * Источником данных для выпадающего списка будет результат отправки запроса на получение всех каталогов.
              */
             source: function (s, cb) {
-                $('.catalog-edit__parent-alias_view.typeahead').parent().removeClass("has-error");
-
                 // todo передавать паттерн поиска в запрос и искать на сервере
                 catalogListService.get({}, function (response) {
                     var matches = [],
@@ -65,8 +63,11 @@ chimera.system.catalog.controller("CatalogEditController", ["$scope", "$state", 
                     cb(matches);
                 });
             },
+            /**
+             * При выборе каталога запоминаем его псевдоним.
+             */
             afterSelect: function (item) {
-                $scope.catalogEdit.alias = item.alias
+                $scope.catalogEdit.alias = item.alias;
             },
             autoSelect: true
         });

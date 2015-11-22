@@ -7,7 +7,7 @@
 import system.handler
 import system.utils.exceptions
 from documents.blog.post import PostDocument, PostTagsDocument
-from transliterate import slugify
+import transliterate
 
 
 class PostEditHandler(system.handler.BaseHandler):
@@ -28,8 +28,14 @@ class PostEditHandler(system.handler.BaseHandler):
         document_post.meta.user = document_user
         # Пасринг тегов - предполагается что они идут пачкой под одной переменной.
         tags = self.get_bytes_body_argument(PostDocument.tags.name)
+
+        document_post.tags = []
         if len(tags):
-            document_post.tags = [PostTagsDocument(title=tag, alias=slugify(tag)) for tag in tags]
+            for tag in tags:
+                alias = tag[PostTagsDocument.alias.name]
+                alias = transliterate.slugify(alias) if transliterate.detect_language(alias) else alias
+                document_tag = PostTagsDocument(title=tag[PostTagsDocument.title.name], alias=alias)
+                document_post.tags.append(document_tag)
 
         await document_post.save()
 
