@@ -22,7 +22,8 @@ chimera.system.post.controller("PostController", ["$scope", "$state", "postServi
 chimera.system.post.controller("PostEditController", ["$scope", "$state", "postService", "catalogListService", "tagListService",
     function ($scope, $state, postService, catalogListService, tagListService) {
         var $typeaheadCatalogAlias = $('.post-edit__catalog-alias_view.typeahead'),
-            $typeaheadTags = $('.post-edit__tags.typeahead');
+            $typeaheadTags = $('.post-edit__tags.typeahead'),
+            tags = [];
 
         $scope.postEdit = {};
         $scope.postEdit.title = "";
@@ -49,6 +50,7 @@ chimera.system.post.controller("PostEditController", ["$scope", "$state", "postS
                     cb(matches);
                 });
             },
+            minLength: 3,
             /**
              * При выборе каталога запоминаем его псевдоним.
              */
@@ -58,24 +60,20 @@ chimera.system.post.controller("PostEditController", ["$scope", "$state", "postS
             autoSelect: true
         });
 
+        /**
+         * Источником данных для выпадающего списка будет результат отправки запроса на получение всех тегов.
+         */
+        tagListService.get({}, function (response) {
+            for (var item in response.content.tags) {
+                tag = response.content.tags[item];
+                tag.name = tag.title;
+                tags.push(tag);
+            }
+        });
         // Инициализация автокомплита для тегов.
         $typeaheadTags.typeahead({
-            /**
-             * Источником данных для выпадающего списка будет результат отправки запроса на получение всех тегов.
-             */
-            source: function (s, cb) {
-                // todo передавать паттерн поиска в запрос и искать на сервере
-                tagListService.get({}, function (response) {
-                    var matches = [],
-                        tag = null;
-                    for (var item in response.content.tags) {
-                        tag = response.content.tags[item];
-                        tag.name = tag.title;
-                        matches.push(tag);
-                    }
-                    cb(matches);
-                });
-            },
+            source: tags,
+            minLength: 2,
             /**
              * При выборе тега он помещается в скоп для отображения и последующей отправки.
              */

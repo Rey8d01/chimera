@@ -71,15 +71,19 @@ class TagListHandler(system.handler.BaseHandler):
     """
 
     async def get(self):
-        """Вернет список всех тегов."""
+        """Вернет список всех тегов. Теги помещаются в кеш."""
+        tags = await self.redis.get("tags")
 
-        collection_aggregate_tags = await PostDocument() \
-            .objects \
-            .aggregate \
-            .unwind(PostDocument.tags) \
-            .group_by(PostDocument.tags) \
-            .fetch()
+        if tags is None:
+            collection_aggregate_tags = await PostDocument() \
+                .objects \
+                .aggregate \
+                .unwind(PostDocument.tags) \
+                .group_by(PostDocument.tags) \
+                .fetch()
+            tags = [item_aggregate_tags[PostDocument.tags.name] for item_aggregate_tags in collection_aggregate_tags]
+            await self.redis.set("tags", self.escape.json_encode(tags))
+        else:
+            tags = self.escape.json_decode(self.escape.to_unicode(tags))
 
-        list_tags = [item_aggregate_tags[PostDocument.tags.name] for item_aggregate_tags in collection_aggregate_tags]
-
-        raise system.utils.exceptions.Result(content={"tags": list_tags})
+        raise system.utils.exceptions.Result(content={"tags": tags})
