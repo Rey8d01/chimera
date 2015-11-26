@@ -1,7 +1,4 @@
-# Используем JSON для преобразования объекта словаря в текст и обратно
-import json
-from math import sqrt, fabs, floor
-# from similarity import SimilarityDistance, SimilarityPearson, SimilarityJaccard, SimilarityManhattan
+from math import sqrt, fabs
 
 
 class Similarity:
@@ -12,7 +9,6 @@ class Similarity:
         """Нормализация вектора.
 
         :param source_vector:
-        :type source_vector: dict
         :return: dict
         """
         vector = source_vector.copy()
@@ -27,9 +23,7 @@ class Similarity:
         """Восстановлние нормализованного вектора по данным исходного вектора.
 
         :param normalize_vector:
-        :type normalize_vector: dict
         :param source_vector:
-        :type source_vector: dict
         :return: dict
         """
         normalize_vector = normalize_vector.copy()
@@ -43,11 +37,8 @@ class Similarity:
         """Оценка подобия на основе Евклидова расстояния.
 
         :param vector1:
-        :type vector1: dict
         :param vector2:
-        :type vector2: dict
         :return: [0;+1]
-        :rtype: float
         """
         # Получить список предметов, оцененных обоими.
         si = {}
@@ -68,11 +59,8 @@ class Similarity:
         """Коэффициент корреляции Пирсона.
 
         :param vector1:
-        :type vector1: dict
         :param vector2:
-        :type vector2: dict
         :return: [-1;+1]
-        :rtype: float
         """
         # Получить список предметов оцененных обоими.
         si = {}
@@ -111,11 +99,8 @@ class Similarity:
         """Коэффициент Жаккара (Танимото). Используется для оценки схожести двух образцов.
 
         :param vector1:
-        :type vector1: dict
         :param vector2:
-        :type vector2: dict
         :return: [0;+1]
-        :rtype: float
         """
         # Получить количество предметов оцененных обоими.
         si = 0
@@ -134,11 +119,8 @@ class Similarity:
         """Расстояние городских кварталов (манхэттенское расстояние).
 
         :param vector1:
-        :type vector1: dict
         :param vector2:
-        :type vector2: dict
         :return: [0;+1]
-        :rtype: float
         """
         # Получить список предметов, оцененных обоими.
         si = {}
@@ -260,13 +242,9 @@ class Statistic(Similarity):
         Количество результатов в списке и функция подобия - необязательные параметры.
 
         :param person:
-        :type person: str
         :param n:
-        :type n: int
         :param source:
-        :type source: str
         :param similarity:
-        :type similarity: callable
         :return:
         """
 
