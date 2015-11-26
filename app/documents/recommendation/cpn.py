@@ -22,16 +22,16 @@ class KohonenClusterExtractor(ClusterDocument, ClusterExtractor):
     __collection__ = ClusterDocument.__collection__
 
     def get_cluster_id(self):
-        return super().name
+        return self.name
 
     def set_cluster_id(self, cluster_id):
-        super().name = cluster_id
+        self.name = cluster_id
 
     def get_cluster_vector(self):
-        return super().vector
+        return self.vector
 
     def set_cluster_vector(self, cluster_vector):
-        super().vector = cluster_vector
+        self.vector = cluster_vector
 
 
 class OutStarDocument(BaseDocument):
