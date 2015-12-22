@@ -47,12 +47,13 @@ class Similarity:
                 si[item] = 1
 
         # Если нет ни одной общей оценки вернуть 0 если нет ни одного предмета который оценили бы оба.
-        if len(si) == 0: return 0
+        if len(si) == 0:
+            return 0
 
         # Сложить квадраты разностей.
         sum_of_squares = sum([pow(vector1[item] - vector2[item], 2) for item in vector1 if item in vector2])
 
-        return round(1 / (1 + sum_of_squares), 3)
+        return round(1 / (1 + sqrt(sum_of_squares)), 3)
 
     @staticmethod
     def pearson(vector1: dict, vector2: dict) -> float:
