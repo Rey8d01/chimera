@@ -57,8 +57,8 @@ class StatisticForUserHandler(BaseHandler):
         result = {
             "euclid": recommendations.euclid(recommendations.source[user1], recommendations.source[user2]),
             "pearson": recommendations.pearson(recommendations.source[user1], recommendations.source[user2]),
-            "jaccard": recommendations.jaccard(recommendations.source[user1], recommendations.source[user2]),
-            "manhattan": recommendations.manhattan(recommendations.source[user1], recommendations.source[user2]),
+            # "jaccard": recommendations.jaccard(recommendations.source[user1], recommendations.source[user2]),
+            # "manhattan": recommendations.manhattan(recommendations.source[user1], recommendations.source[user2]),
             "matches": recommendations.top_matches(user1, 2, recommendations.TYPE_SOURCE, recommendations.pearson),
             "recommendations": recommendations.get_recommendations(user1),
         }

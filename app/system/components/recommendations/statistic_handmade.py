@@ -1,6 +1,4 @@
-"""Набор утилитарных классов и методов для обеспечения математических расчетов по готовым алгоритмам."""
-from scipy.spatial import distance
-from scipy import stats
+from math import sqrt, fabs
 
 
 class Similarity:
@@ -35,82 +33,110 @@ class Similarity:
         return {id: weight * sum_sqrt for (id, weight) in normalize_vector.items()}
 
     @staticmethod
-    def _get_lists(vector_x: dict, vector_y: dict) -> tuple:
-        """Метод преобразует словари в списки значений по совпадающим ключам в обоих словарях.
-
-        Решение использует set и map как наиболее быстрый способ (по сравнению с перебором элементов в цикле)
-        для генерации списков значений по совпадающим ключам.
-
-        :param vector_x:
-        :param vector_y:
-        :return: (list, list)
-        """
-        if (type(vector_x) is list) and (type(vector_y) is list):
-            return vector_x, vector_y
-
-        # Список одинаковых ключей.
-        intersection = set(vector_x.keys()) & set(vector_y.keys())
-        # Списки значений по совпадающим ключам векторов.
-        items_vector_x = list(map(vector_x.get, intersection))
-        items_vector_y = list(map(vector_y.get, intersection))
-
-        return items_vector_x, items_vector_y
-
-    @staticmethod
-    def euclid(vector_x: dict, vector_y: dict) -> float:
+    def euclid(vector1: dict, vector2: dict) -> float:
         """Оценка подобия на основе Евклидова расстояния.
 
-        :param vector_x:
-        :param vector_y:
+        :param vector1:
+        :param vector2:
         :return: [0;+1]
         """
-        items_vector_x, items_vector_y = Similarity._get_lists(vector_x, vector_y)
-        d = distance.euclidean(items_vector_x, items_vector_y)
-        return round(1 / (1 + d), 3)
+        # Получить список предметов, оцененных обоими.
+        si = {}
+        for item in vector1:
+            if item in vector2:
+                si[item] = 1
+
+        # Если нет ни одной общей оценки вернуть 0 если нет ни одного предмета который оценили бы оба.
+        if len(si) == 0:
+            return 0
+
+        # Сложить квадраты разностей.
+        sum_of_squares = sum([pow(vector1[item] - vector2[item], 2) for item in vector1 if item in vector2])
+
+        return round(1 / (1 + sqrt(sum_of_squares)), 3)
 
     @staticmethod
-    def pearson(vector_x: dict, vector_y: dict) -> float:
+    def pearson(vector1: dict, vector2: dict) -> float:
         """Коэффициент корреляции Пирсона.
 
-        :param vector_x:
-        :param vector_y:
+        :param vector1:
+        :param vector2:
         :return: [-1;+1]
         """
-        items_vector_x, items_vector_y = Similarity._get_lists(vector_x, vector_y)
-        return round(stats.pearsonr(items_vector_x, items_vector_y)[0], 3)
+        # Получить список предметов оцененных обоими.
+        si = {}
+        for item in vector1:
+            if item in vector2:
+                si[item] = 1
+
+        # Найти число элементов.
+        n = len(si)
+
+        # Если нет ни одной общей оценки, вернуть 0.
+        if n == 0:
+            return 0
+
+        # Вычислить сумму всех предпочтений.
+        sum1 = sum([vector1[it] for it in si])
+        sum2 = sum([vector2[it] for it in si])
+
+        # Вычислить сумму квадратов.
+        sum1sq = sum([pow(vector1[it], 2) for it in si])
+        sum2sq = sum([pow(vector2[it], 2) for it in si])
+
+        # Вычислить сумму произведений.
+        psum = sum([vector1[it] * vector2[it] for it in si])
+
+        # Вычислить коэффициент Пирсона.
+        num = psum - (sum1 * sum2 / n)
+        den = sqrt((sum1sq - pow(sum1, 2) / n) * (sum2sq - pow(sum2, 2) / n))
+        if den == 0:
+            return 0
+
+        return round(num / den, 3)
 
     @staticmethod
-    def manhattan(vector_x: dict, vector_y: dict) -> float:
+    def jaccard(vector1: dict, vector2: dict) -> float:
+        """Коэффициент Жаккара (Танимото). Используется для оценки схожести двух образцов.
+
+        :param vector1:
+        :param vector2:
+        :return: [0;+1]
+        """
+        # Получить количество предметов оцененных обоими.
+        si = 0
+        for item in vector1:
+            if item in vector2:
+                si = si + 1
+
+        return round(si / (len(vector1) + len(vector2) - si), 3)
+
+    @staticmethod
+    def tanimoto(vector1: dict, vector2: dict) -> float:
+        return Similarity.jaccard(vector1, vector2)
+
+    @staticmethod
+    def manhattan(vector1: dict, vector2: dict) -> float:
         """Расстояние городских кварталов (манхэттенское расстояние).
 
-        :param vector_x:
-        :param vector_y:
+        :param vector1:
+        :param vector2:
         :return: [0;+1]
         """
-        items_vector_x, items_vector_y = Similarity._get_lists(vector_x, vector_y)
-        return distance.cityblock(items_vector_x, items_vector_y)
+        # Получить список предметов, оцененных обоими.
+        si = {}
+        for item in vector1:
+            if item in vector2:
+                si[item] = 1
 
-    @staticmethod
-    def jaccard(vector_x: dict, vector_y: dict) -> float:
-        """Коэффициент Жаккара. Используется для оценки схожести двух образцов.
+        # Если нет ни одной общей оценки вернуть 0.
+        if len(si) == 0: return 0
 
-        :param vector_x:
-        :param vector_y:
-        :return: [0;+1]
-        """
-        items_vector_x, items_vector_y = Similarity._get_lists(vector_x, vector_y)
-        return distance.jaccard(items_vector_x, items_vector_y)
+        # Сложить модули разностей.
+        sum_of_abs = sum([fabs(vector1[item] - vector2[item])
+                          for item in vector1 if item in vector2])
 
-    @staticmethod
-    def tanimoto(vector_x: dict, vector_y: dict) -> float:
-        """Коэффициент Танимото. Используется для оценки схожести двух образцов.
-
-        :param vector_x:
-        :param vector_y:
-        :return: [0;+1]
-        """
-        items_vector_x, items_vector_y = Similarity._get_lists(vector_x, vector_y)
-        return distance.rogerstanimoto(items_vector_x, items_vector_y)
+        return round(1 / (1 + sum_of_abs), 3)
 
 
 class Statistic(Similarity):
@@ -397,7 +423,7 @@ if __name__ == "__main__":
         'Люди:', test1, 'и', test2, '\n',
         'Евклидово расстояние		', my_stat.euclid(my_stat.source[test1], my_stat.source[test2]), '\n',
         'Корреляця Пирсона			', my_stat.pearson(my_stat.source[test1], my_stat.source[test2]), '\n',
-        # 'Коэффициент Жаккара		', my_stat.jaccard(my_stat.source[test1], my_stat.source[test2]), '\n',
+        'Коэффициент Жаккара		', my_stat.jaccard(my_stat.source[test1], my_stat.source[test2]), '\n',
         'Манхэттенское расстояние	', my_stat.manhattan(my_stat.source[test1], my_stat.source[test2]), '\n',
         '\n',
         'Ранжирование критиков		', my_stat.top_matches(test1, 2, my_stat.TYPE_SOURCE, my_stat.pearson), '\n',

@@ -622,7 +622,7 @@ if __name__ == "__main__":
     net_kohonen = Kohonen(
         # list_cluster=list_clusters,
         similarity=Kohonen.euclid,
-        allowable_similarity=0.8,
+        allowable_similarity=0.69,
         acceptable_similarity=0.9,
         # similarity=Kohonen.manhattan,
         # allowable_similarity=0.15,

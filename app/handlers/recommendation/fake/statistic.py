@@ -71,9 +71,9 @@ class FakeStatisticHandler(BaseHandler):
                 # Корреляця Пирсона
                 "pearson": instance_recommendations.pearson(instance_recommendations.source[user1],
                                                             instance_recommendations.source[user2]),
-                # Коэффициент Жаккара
-                "jaccard": instance_recommendations.jaccard(instance_recommendations.source[user1],
-                                                            instance_recommendations.source[user2]),
+                # # Коэффициент Жаккара
+                # "jaccard": instance_recommendations.jaccard(instance_recommendations.source[user1],
+                #                                             instance_recommendations.source[user2]),
                 # Манхэттенское расстояние
                 "manhattan": instance_recommendations.manhattan(instance_recommendations.source[user1],
                                                                 instance_recommendations.source[user2]),
