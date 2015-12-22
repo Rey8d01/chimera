@@ -397,7 +397,6 @@ if __name__ == "__main__":
         'Люди:', test1, 'и', test2, '\n',
         'Евклидово расстояние		', my_stat.euclid(my_stat.source[test1], my_stat.source[test2]), '\n',
         'Корреляця Пирсона			', my_stat.pearson(my_stat.source[test1], my_stat.source[test2]), '\n',
-        # 'Коэффициент Жаккара		', my_stat.jaccard(my_stat.source[test1], my_stat.source[test2]), '\n',
         'Манхэттенское расстояние	', my_stat.manhattan(my_stat.source[test1], my_stat.source[test2]), '\n',
         '\n',
         'Ранжирование критиков		', my_stat.top_matches(test1, 2, my_stat.TYPE_SOURCE, my_stat.pearson), '\n',

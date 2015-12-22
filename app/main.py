@@ -17,16 +17,12 @@ import tornado.httpserver  # очень простой HTTP сервер, на �
 #  считывания и записи
 import tornado.ioloop  # основная петля ввода/вывода
 # import tornado.websocket  #
-import tornado.log            #
+import tornado.log
 from tornado.options import options
 import system.configuration
 
 if __name__ == "__main__":
-    """
-    Передача настроек, создание приложения и его запуск.
-
-    :return:
-    """
+    # Передача настроек, создание приложения и его запуск.
     options.parse_command_line()
     application = tornado.web.Application(system.configuration.handlers, **system.configuration.settings)
     http_server = tornado.httpserver.HTTPServer(application)
