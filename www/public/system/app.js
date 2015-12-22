@@ -157,7 +157,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 views: {
                     "": {
                         templateUrl: "/system/templates/main.html",
-                        controller: "AuthController"
+                        controller: "ChimeraController"
                     }
                 }
             })
@@ -287,6 +287,65 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
             })
             // MultiCriteria - processor
         ;
+
+    }
+]);
+
+
+chimera.system.main.controller("ChimeraController", ["$scope", "$q", "authService",
+    function($scope, $q, authService) {
+        authService.initialize();
+
+        $scope.main = {
+            "title": "Rey's-ysetm",
+            "readMore": "ReadMe...",
+            "foo": "BAAAAAR"
+        };
+
+        // Отложенная запись в скоп всех данных
+        if (authService.isReady()) {
+            authService.getMeData().then(function(data) {
+                $scope.user = data;
+            });
+        }
+
+        //$scope.connectButton = function(typeAuthService) {
+        //    authService.connect(typeAuthService).then(function() {
+        //        if (authService.isReady()) {
+        //            $(".sign-in-button").fadeOut();
+        //            $(".sign-out-button").fadeIn();
+        //        }
+        //    });
+        //};
+
+        //$scope.pass = {
+        //    word: ''
+        //};
+        //$scope.privateConnectButton = function() {
+        //    authService.private($scope.pass.word).then(function(data) {
+        //        $(".sign-in-button").fadeOut();
+        //        $(".sign-out-button").fadeIn();
+        //    });
+        //};
+
+        $scope.signOut = function() {
+            authService.disconnect();
+            $(".sign-in-button").fadeIn();
+            $(".sign-out-button").fadeOut();
+        };
+
+        //if (authService.isReady()) {
+        //    $(".sign-in-button").hide();
+        //    $(".sign-out-button").fadeIn();
+        //}
+
+        //-----------------------------------todo pre
+
+        $scope.signOut = function() {
+            authService.disconnect();
+            $(".sign-in-button").fadeIn();
+            $(".sign-out-button").fadeOut();
+        };
 
     }
 ]);

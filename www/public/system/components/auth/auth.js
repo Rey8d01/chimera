@@ -5,18 +5,18 @@ chimera.system.main.controller("AuthController", ["$scope", "$q", "authService",
     function($scope, $q, authService) {
         authService.initialize();
 
-        $scope.main = {
-            "title": "Rey's-ysetm",
-            "readMore": "ReadMe...",
-            "foo": "BAAAAAR"
-        };
+        //$scope.main = {
+        //    "title": "Rey's-ysetm",
+        //    "readMore": "ReadMe...",
+        //    "foo": "BAAAAAR"
+        //};
 
-        // Отложенная запись в скоп всех данных
-        if (authService.isReady()) {
-            authService.getMeData().then(function(data) {
-                $scope.user = data;
-            });
-        }
+        //// Отложенная запись в скоп всех данных
+        //if (authService.isReady()) {
+        //    authService.getMeData().then(function(data) {
+        //        $scope.user = data;
+        //    });
+        //}
 
         $scope.connectButton = function(typeAuthService) {
             authService.connect(typeAuthService).then(function() {
