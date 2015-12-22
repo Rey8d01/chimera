@@ -106,6 +106,7 @@ class CatalogItemHandler(system.handler.BaseHandler):
                 }
             })
         else:
+            # Запрос информации по каталогу с уникальным именем.
             collection_catalog = await CatalogDocument() \
                 .objects \
                 .filter({CatalogDocument.alias.name: alias}) \
