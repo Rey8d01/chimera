@@ -94,6 +94,8 @@ Python 3.5
 * tredis 0.1 - Redis client;
 * bcrypt - hashing passwords;
 * transliterate 1.7 - for transliterate input text to eng slugs;
+* numpy >=1.10;
+* scipy >=0.14;
 
 
 #### Web server
