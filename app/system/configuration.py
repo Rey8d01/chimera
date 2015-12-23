@@ -16,9 +16,11 @@ import tredis
 import system.handler
 
 import handlers.test
+import handlers.user
 import handlers.blog.catalog
 import handlers.blog.post
 import handlers.blog.tag
+import handlers.blog.author
 
 import handlers.recommendation.harvest
 import handlers.recommendation.process
@@ -37,9 +39,12 @@ handlers = [
     (r"/_/private", system.handler.PrivateIntroduceHandler),
     (r"/_/logout", system.handler.LogoutHandler),
 
+    (r"/_/me", handlers.user.MeHandler),
     (r"/_/test", handlers.test.TestHandler),
 
     # Blog
+    (r"/_/author/([\w-]+)/([\d+]+)", handlers.blog.author.AuthorHandler),
+
     (r"/_/catalog", handlers.blog.catalog.CatalogEditHandler),
     (r"/_/catalog/([\w-]+)/([\d+]+)", handlers.blog.catalog.CatalogItemHandler),
     (r"/_/catalogs", handlers.blog.catalog.CatalogListMainHandler),

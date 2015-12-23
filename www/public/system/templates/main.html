@@ -4,7 +4,7 @@
             <div class="col-md-12 text-right affix">
                 <button type="button" class="btn btn-link" title="Посты" ui-sref="main.blog.postEdit"><i class="fa fa-file-text-o"></i></button>
                 <button type="button" class="btn btn-link" title="Каталоги" ui-sref="main.blog.catalogEdit"><i class="fa fa-folder-o"></i></button>
-                <button type="button" class="btn btn-link"><i class="fa fa-user"> {{user.name}}</i></button>
+                <button type="button" class="btn btn-link" title="{{user.social.name}}" ui-sref="main.blog.author({userId: user.system.id})"><i class="fa fa-user"> {{user.social.name}}</i></button>
                 <button ng-click="signOut()" id="signOut" type="button" class="btn btn-link"><i class="fa fa-sign-out"></i></button>
             </div>
         </div>

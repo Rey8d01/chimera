@@ -29,8 +29,10 @@ chimera.system.main = angular.module("main", [
     "ui.router",
     
     "auth",
+    "user",
     // "navigator",
 
+    "author",
     "catalog",
     "post",
     "tag",
@@ -200,6 +202,21 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
             /**
              * Посты в каталоге.
              */
+            .state("main.blog.author", {
+                url: "/author/:userId/:page",
+                params: {
+                    "page": "1"
+                },
+                views: {
+                    "content": {
+                        templateUrl: "/system/templates/blog/author.html",
+                        controller: "AuthorHandler"
+                    }
+                }
+            })
+            /**
+             * Посты в каталоге.
+             */
             .state("main.blog.catalog", {
                 url: "/catalog/:catalogAlias/:page",
                 params: {
@@ -292,8 +309,8 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
 ]);
 
 
-chimera.system.main.controller("ChimeraController", ["$scope", "$q", "authService",
-    function($scope, $q, authService) {
+chimera.system.main.controller("ChimeraController", ["$scope", "$q", "authService", "userMeService",
+    function($scope, $q, authService, userMeService) {
         authService.initialize();
 
         $scope.main = {
@@ -301,45 +318,19 @@ chimera.system.main.controller("ChimeraController", ["$scope", "$q", "authServic
             "readMore": "ReadMe...",
             "foo": "BAAAAAR"
         };
-
-        // Отложенная запись в скоп всех данных
-        if (authService.isReady()) {
-            authService.getMeData().then(function(data) {
-                $scope.user = data;
-            });
-        }
-
-        //$scope.connectButton = function(typeAuthService) {
-        //    authService.connect(typeAuthService).then(function() {
-        //        if (authService.isReady()) {
-        //            $(".sign-in-button").fadeOut();
-        //            $(".sign-out-button").fadeIn();
-        //        }
-        //    });
-        //};
-
-        //$scope.pass = {
-        //    word: ''
-        //};
-        //$scope.privateConnectButton = function() {
-        //    authService.private($scope.pass.word).then(function(data) {
-        //        $(".sign-in-button").fadeOut();
-        //        $(".sign-out-button").fadeIn();
-        //    });
-        //};
-
-        $scope.signOut = function() {
-            authService.disconnect();
-            $(".sign-in-button").fadeIn();
-            $(".sign-out-button").fadeOut();
+        $scope.user = {
+            system: null,
+            social: null
         };
 
-        //if (authService.isReady()) {
-        //    $(".sign-in-button").hide();
-        //    $(".sign-out-button").fadeIn();
-        //}
+        // Отложенная запись в скоп всех запрашиваемых данных.
+        authService.getMeData().then(function(data) {
+            $scope.user.social = data;
+        });
 
-        //-----------------------------------todo pre
+        userMeService.get(function(response) {
+            $scope.user.system = response.content;
+        });
 
         $scope.signOut = function() {
             authService.disconnect();

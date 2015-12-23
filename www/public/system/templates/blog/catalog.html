@@ -30,7 +30,7 @@
                 <a ng-repeat="tag in post.tags" class="label label-default tag-list__label" ui-sref="main.blog.tag({tagAlias: tag.alias, page: 1})">{{tag.title}}</a>
             </p>
             <ul class="list-inline">
-                <li>{{post.meta.dateCreate}} by <a href="#">{{post.meta.author}}</a></li>
+                <li>{{post.meta.dateCreate}} от <a ui-sref="main.blog.author({userId: post.meta.user})">{{post.meta.author}}</a></li>
                 <li><a href="#"><i class="fa fa-comments-o"></i> 4 Comments</a></li>
             </ul>
             <br>
