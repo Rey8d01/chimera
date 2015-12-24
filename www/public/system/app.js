@@ -18,6 +18,7 @@ var chimera = {
         baseWWWUrl: "http://www.chimera.rey",
         // baseUrl: "/system/responses/",
         auth: ["manual", "twitter", "github"],
+        debug: false,
         test: ""
     },
     system: {},
@@ -45,7 +46,7 @@ chimera.system.main = angular.module("main", [
  * Перехват входящих/исходящих запросов.
  */
 chimera.system.main.factory("sessionRecover", ["$q", "$location", function($q, $location) {
-    console.debug("sessionRecover");
+    chimera.helpers.debug("sessionRecover");
 
     // Общая обработка ошибок.
     var parseError = function(error) {
@@ -67,7 +68,7 @@ chimera.system.main.factory("sessionRecover", ["$q", "$location", function($q, $
          * @returns {*}
          */
         request: function(config) {
-            console.debug("request", config);
+            chimera.helpers.debug("request", config);
             if (/.*\.(js|css|ico|htm|html|json)/.test(config.url)) {
                 // Запросы по статик файлам переадресуются на основной домен.
                 config.url = chimera.config.baseWWWUrl + config.url;
@@ -84,7 +85,7 @@ chimera.system.main.factory("sessionRecover", ["$q", "$location", function($q, $
          * @returns {*}
          */
         response: function(response) {
-            console.debug("response", response);
+            chimera.helpers.debug("response", response);
             var data = response.data;
 
             if (data && data.error && data.error.code) {
@@ -94,11 +95,11 @@ chimera.system.main.factory("sessionRecover", ["$q", "$location", function($q, $
             return response;
         },
         //requestError: function(rejection) {
-        //    console.debug("requestError", rejection);
+        //    chimera.helpers.debug("requestError", rejection);
         //    return $q.reject(rejection);
         //},
         responseError: function(rejection) {
-            console.debug("responseError", rejection);
+            chimera.helpers.debug("responseError", rejection);
             var data = rejection.data;
 
             if (data && data.error && data.error.code) {

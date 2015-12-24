@@ -6,6 +6,7 @@ chimera.system.recommendation = angular.module("recommendation", ["ngResource", 
 
 chimera.system.recommendation.controller("RecommendationController", ["$scope", "$state", "recommendationService", "recommendationFakeService", "omdbapiService",
     function ($scope, $state, recommendationService, recommendationFakeService, omdbapiService) {
+        chimera.helpers.log(42);
         var $input = $('.typeahead');
 
         $scope.selectItem = {
