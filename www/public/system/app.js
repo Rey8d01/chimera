@@ -94,10 +94,6 @@ chimera.system.main.factory("sessionRecover", ["$q", "$location", function($q, $
             
             return response;
         },
-        //requestError: function(rejection) {
-        //    chimera.helpers.debug("requestError", rejection);
-        //    return $q.reject(rejection);
-        //},
         responseError: function(rejection) {
             chimera.helpers.debug("responseError", rejection);
             var data = rejection.data;
@@ -288,7 +284,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
             .state("main.recommendation", {
                 url: "/recommendation",
                 views: {
-                    "content": {
+                    "container": {
                         templateUrl: "/system/templates/recommendation/index.html",
                         controller: "RecommendationController"
                     }
@@ -297,7 +293,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
             .state("main.recommendationFake", {
                 url: "/recommendationFake",
                 views: {
-                    "content": {
+                    "container": {
                         templateUrl: "/system/templates/recommendation/fake/index.html",
                         controller: "RecommendationFakeController"
                     }
