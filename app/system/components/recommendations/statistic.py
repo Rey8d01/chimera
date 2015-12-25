@@ -1,6 +1,7 @@
 """Набор утилитарных классов и методов для обеспечения математических расчетов по готовым алгоритмам."""
 from scipy.spatial import distance
 from scipy import stats
+import math
 
 
 class Similarity:
@@ -66,7 +67,7 @@ class Similarity:
         """
         items_vector_x, items_vector_y = Similarity._get_lists(vector_x, vector_y)
         d = distance.euclidean(items_vector_x, items_vector_y)
-        return round(1 / (1 + d), 3)
+        return 1 / (1 + d)
 
     @staticmethod
     def pearson(vector_x: dict, vector_y: dict) -> float:
@@ -77,7 +78,8 @@ class Similarity:
         :return: [-1;+1]
         """
         items_vector_x, items_vector_y = Similarity._get_lists(vector_x, vector_y)
-        return round(stats.pearsonr(items_vector_x, items_vector_y)[0], 3)
+        pearson = stats.pearsonr(items_vector_x, items_vector_y)[0]
+        return 0 if math.isnan(pearson) else pearson
 
     @staticmethod
     def manhattan(vector_x: dict, vector_y: dict) -> float:
@@ -237,49 +239,50 @@ class Statistic(Similarity):
 
 
 class Recommendations(Statistic):
-    def get_recommendations(self, person: str, n: int = 5, source: str = Statistic.TYPE_SOURCE, similarity: callable = None):
+    def get_recommendations(self, person: str, n: int = 5, source: str = Statistic.TYPE_SOURCE, get_similarity: callable = None) -> list:
         """Получить рекомендации для заданного человека, пользуясь взвешенным средним оценок, данных всеми остальными пользователями.
 
         :param person:
-        :param person: str
         :param n:
-        :param n: int
         :param source:
-        :param source: str
-        :param similarity:
-        :param similarity: callable
+        :param get_similarity:
         :return:
-        :rtype:
         """
         source = source if isinstance(source, dict) else getattr(self, source, self.source)
-        similarity = self.pearson if similarity is None else similarity
+        get_similarity = self.pearson if get_similarity is None else get_similarity
 
         totals = {}
-        sim_sums = {}
+        sum_similarity = {}
+        source_person = source[person]
 
+        # Сравнение каждого пользователя с person.
         for other in source:
             # Сравнивать пользователя с собой же не нужно.
             if other == person:
                 continue
-            sim = similarity(source[person], source[other])
-
+            # Получение результата функции близости оценок person и other.
+            similarity = get_similarity(source_person, source[other])
             # Игнорировать нулевые и отрицательные оценки.
-            if sim <= 0:
+            if similarity <= 0:
                 continue
 
+            # Построение списка рекомендаций для person исходя из его близости к other.
             for item in source[other]:
-                # Оценивать только то что нет среди оценок пользователя person.
-                if item not in source[person] or source[person][item] == 0:
-                    # Коэффициент подибия * Оценка
+                # Оценивать только те объекты, которых нет среди оценок person.
+                if item not in source_person or source_person[item] == 0:
+                    # Совокупная оценка для объекта item = коэффициент подобия между person и other * оценку other.
+                    # Считаем что влияние other будет незначительным благодаря низкому коэффициенту близости (и наоборот).
                     totals.setdefault(item, 0)
-                    totals[item] += source[other][item] * sim
-                    # Сумма коэффициентов подобия
-                    sim_sums.setdefault(item, 0)
-                    sim_sums[item] += sim
+                    totals[item] += source[other][item] * similarity
+                    # Сумма коэффициентов подобия для данного оцениваемого объекта.
+                    sum_similarity.setdefault(item, 0)
+                    sum_similarity[item] += similarity
 
-        # Создать нормализованный список.
-        rankings = {item: round(total / sim_sums[item], 3) for item, total in totals.items()}
-        # Вернуть отсортированный список.
+        # Нормализованный список рекомендаций.
+        # Оценка по каждому объекту = совокупная оценка от всех критиков / сумму коэффициентов близости всех критиков.
+        rankings = {item: total / sum_similarity[item] for item, total in totals.items()}
+
+        # Возврат отсортированного списка рекомендаций.
         return sorted(rankings.items(), key=lambda x: x[1], reverse=True)[:n]
 
     def get_recommendations_transforms(self, person, n=5, similarity=None):

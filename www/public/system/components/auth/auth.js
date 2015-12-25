@@ -55,8 +55,6 @@ chimera.system.main.controller("AuthController", ["$scope", "$q", "authService",
 chimera.system.auth.factory("authService", ["$q", "$location", "$cookies", "$http",
     function($q, $location, $cookies, $http) {
 
-        chimera.helpers.log("authService", $http);
-
         // Объект авторизации через который происходят все соединения с сервером авторизации
         var authorization = false;
         // Имя сервиса через который произошла авторизация
@@ -64,7 +62,6 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookies", "$htt
 
         // Попытка пересоздать подключение при перезагрузке страницы
         var reConnect = function() {
-            chimera.helpers.log($cookies.getAll());
             var tryAuthorization = false,
                 authType = null;
             for (var i in chimera.config.auth) {
@@ -83,7 +80,6 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookies", "$htt
 
         // Представление серверу
         var introduce = function(full) {
-            chimera.helpers.log('introduce', full);
             authorization.me().done(function(data) {
                 if (!data.id) {
                     disconnect();
@@ -105,7 +101,6 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookies", "$htt
 
         // Выход из системы, очистка кук
         var disconnect = function() {
-            chimera.helpers.log('disconnect', authorization);
             OAuth.clearCache(authorizationType);
             authorization = authorizationType = false;
 
@@ -114,16 +109,13 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookies", "$htt
 
         return {
             initialize: function() {
-                chimera.helpers.log('init', authorization);
                 // Соединение с OAuth.io
                 OAuth.initialize("t3zjIiwpODrlse81ifHaaTC-VPs", {
                     cache: true
                 });
                 if (reConnect()) {
-                    chimera.helpers.log('reConnect true', authorization);
                     authorization || introduce();
                 } else {
-                    chimera.helpers.log('reConnect false', authorization);
                     authorization || disconnect();
                 }
             },
@@ -148,7 +140,6 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookies", "$htt
                         introduce(true);
                     } else {
                         deferred.reject();
-                        chimera.helpers.log("error");
                     }
                 });
                 return deferred.promise;

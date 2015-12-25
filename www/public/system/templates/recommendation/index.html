@@ -1,37 +1,34 @@
-<div>
-    <p>Установите оценку и получите рекомендации</p>
-</div>
+<div class="recommendation">
 
-<div class="panel panel-default">
-    <!-- title -->
-    <div class="panel-heading">Movies</div>
-    <!-- input -->
-    <div class="panel-body">
-        <div class="input-group">
-            <input type="text" class="form-control typeahead" placeholder="Search for...">
+    <div class="recommendation__panel-rate panel panel-default">
+        <div class="panel-heading">Укажите несколько просмотренных фильмов, поставьте им оценки и получите рекомендации.</div>
 
-            <span class="input-group-btn" data-toggle="buttons">
-                <label class="btn btn-default" ng-click="setRate(0)"><input type="radio" name="inputWalls" value="0">0</label>
-                <label class="btn btn-default" ng-click="setRate(1)"><input type="radio" name="inputWalls" value="1">1</label>
-                <label class="btn btn-default" ng-click="setRate(2)"><input type="radio" name="inputWalls" value="2">2</label>
-                <label class="btn btn-default" ng-click="setRate(3)"><input type="radio" name="inputWalls" value="3">3</label>
-                <label class="btn btn-default" ng-click="setRate(4)"><input type="radio" name="inputWalls" value="4">4</label>
-                <label class="btn btn-default" ng-click="setRate(5)"><input type="radio" name="inputWalls" value="5">5</label>
-            </span>
+        <div class="panel-body recommendation__set-rate">
+            <div class="input-group">
+                <input type="text" class="form-control typeahead" placeholder="Введите название фильма">
+
+                <span class="input-group-btn" data-toggle="buttons">
+                    <label class="btn btn-default" ng-click="setRate(0)"><input type="radio" name="inputWalls" value="0">0</label>
+                    <label class="btn btn-default" ng-click="setRate(1)"><input type="radio" name="inputWalls" value="1">1</label>
+                    <label class="btn btn-default" ng-click="setRate(2)"><input type="radio" name="inputWalls" value="2">2</label>
+                    <label class="btn btn-default" ng-click="setRate(3)"><input type="radio" name="inputWalls" value="3">3</label>
+                    <label class="btn btn-default" ng-click="setRate(4)"><input type="radio" name="inputWalls" value="4">4</label>
+                    <label class="btn btn-default" ng-click="setRate(5)"><input type="radio" name="inputWalls" value="5">5</label>
+                </span>
+            </div>
         </div>
 
+        <div class="list-group recommendation__view-rate">
+            <a class="list-group-item" ng-repeat="(imdb, criticItem) in criticList">{{criticItem.title}} <span class="badge">{{criticItem.rate}}</span></a>
+        </div>
     </div>
 
-    <!-- list group -->
-    <div class="list-group">
-        <a class="list-group-item" ng-repeat="(imdb, criticItem) in criticList">{{criticItem.title}} <span class="badge">{{criticItem.rate}}</span></a>
+    <div>
+        <p>Демонстрация системы рекомендаций на примере случайных данных.</p>
+        <p>Выберите двух пользователей и посмотрите на их рекомендации.</p>
+        <p ng-repeat="(id, name) in fakeUserList">{{id}} - {{name}}</p>
+        <p>Или укажите фильм из списка TOP 250 IMDB (по состоянию на начало 2015 года) что бы узнать его схожесть
+            с остальными фильмами на основе оценок пользователей.</p>
     </div>
-</div>
 
-<div>
-    <p>Демонстрация системы рекомендаций на примере случайных данных</p>
-    <p>Выберите двух пользователей и посмотрите на их рекомендации</p>
-    <p ng-repeat="(id, name) in fakeUserList">{{id}} - {{name}}</p>
-    <p>Или укажите фильм из списка TOP 250 IMDB (по состоянию на начало 2015 года) что бы узнать его схожесть с остальными фильмами на основе оценок пользователей </p>
-    
 </div>

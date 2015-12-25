@@ -18,7 +18,7 @@ var chimera = {
         baseWWWUrl: "http://www.chimera.rey",
         // baseUrl: "/system/responses/",
         auth: ["manual", "twitter", "github"],
-        debug: false,
+        debug: true,
         test: ""
     },
     system: {},
@@ -39,7 +39,6 @@ chimera.system.main = angular.module("main", [
     "tag",
 
     "recommendation",
-    "recommendationFake"
 ]);
 
 /**
@@ -69,13 +68,18 @@ chimera.system.main.factory("sessionRecover", ["$q", "$location", function($q, $
          */
         request: function(config) {
             chimera.helpers.debug("request", config);
-            if (/.*\.(js|css|ico|htm|html|json)/.test(config.url)) {
-                // Запросы по статик файлам переадресуются на основной домен.
-                config.url = chimera.config.baseWWWUrl + config.url;
-            } else {
-                // Запросы не относящиея к статик файлам идут к основной системе.
-                config.url = chimera.config.baseUrl + config.url;
+
+            if (!s.startsWith(config.url, "//")) {
+                // Внешние запросы остаются без модификаций.
+                if (/.*\.(js|css|ico|htm|html|json)/.test(config.url)) {
+                    // Запросы по статик файлам переадресуются на основной домен.
+                    config.url = chimera.config.baseWWWUrl + config.url;
+                } else {
+                    // Запросы не относящиея к статик файлам идут к основной системе.
+                    config.url = chimera.config.baseUrl + config.url;
+                }
             }
+
             return config;
         },
         /**
@@ -290,15 +294,15 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                     }
                 }
             })
-            .state("main.recommendationFake", {
-                url: "/recommendationFake",
-                views: {
-                    "container": {
-                        templateUrl: "/system/templates/recommendation/fake/index.html",
-                        controller: "RecommendationFakeController"
-                    }
-                }
-            })
+            //.state("main.recommendationFake", {
+            //    url: "/recommendationFake",
+            //    views: {
+            //        "container": {
+            //            templateUrl: "/system/templates/recommendation/fake/index.html",
+            //            controller: "RecommendationFakeController"
+            //        }
+            //    }
+            //})
             // MultiCriteria - processor
         ;
 
@@ -309,6 +313,9 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
 chimera.system.main.controller("ChimeraController", ["$scope", "$q", "authService", "userMeService",
     function($scope, $q, authService, userMeService) {
         authService.initialize();
+        if (!authService.isReady()) {
+            chimera.helpers.debug("ChimeraController", 'auth!');
+        }
 
         $scope.main = {
             "title": "Rey's-ysetm",

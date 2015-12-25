@@ -1,12 +1,12 @@
-"""Укомлпектованный набор классов для работы различных конфигураций сети встречного распространения и статистики.
+"""Укомплектованный набор классов для работы различных конфигураций сети встречного распространения и статистики.
 
 StatisticForUserHandler реализует подсчет статистики для пользователя.
 StatisticForMovieHandler реализует подсчет статистики по данным оценкам к фильму.
 UserCPNHandler работа сети встречного распространения на основе пользовательских данных и по пресональным данным одного пользователя.
 UtilsCPNHandler утилитарный класс для обслуживания сети.
 
-user1 = "5501eec480a9e10c639d60e0"
-user2 = "5501eec480a9e10c639d60e4"
+user_x = "5501eec480a9e10c639d60e0"
+user_y = "5501eec480a9e10c639d60e4"
 movie = "tt0407887"
 
 """
@@ -24,51 +24,42 @@ from bson.objectid import ObjectId
 class StatisticForUserHandler(BaseHandler):
     """Класс для работы статистических методов над пользовательскими данными и персональным результатом для них."""
 
-    async def get(self):
-        """Запрос данных по пользователям (случайные 10)."""
-        collection_user = await UserDocument().objects.find_all()
-        # Перемешивание втупую и срез 10 пользователей.
-        random.shuffle(collection_user)
-        user_list = {str(document_user._id): document_user.get_user_name() for document_user in collection_user[:10]}
-
-        raise system.utils.exceptions.Result(content={"userList": user_list})
-
-    async def post(self):
-        """Расчет статистики.
-
-        В качестве параметров передавать список необходимых данных: двоих пользователей.
+    async def get(self, user_x: str, user_y: str):
+        """Расчет статистики. Принимает двоих пользователей между которыми будут производиться основные расчеты.
 
         * euclid - Евклидово расстояние.
         * pearson - Корреляця Пирсона.
-        * jaccard - Коэффициент Жаккара.
-        * manhattan - Манхэттенское расстояние.
         * matches - Ранжированный список критиков.
         * recommendations - Выработка рекомендации.
 
+        :param user_x: id первого пользователя;
+        :param user_y: id второго пользователя;
+        :return:
         """
-        user1 = self.get_argument("user1")
-        user2 = self.get_argument("user2")
-
-        collection_user = await UserDocument().objects.limit(100).find_all()
+        collection_user = await UserDocument().objects.limit(60).find_all()
         # Формирование массива данных для анализа - массив данных имеет вид [ид_пользователя => [ид_объекта => оценка,],... ]
         list_critic = {str(document_user._id): document_user.critic for document_user in collection_user}
 
         recommendations = Recommendations(list_critic)
+        _euclid = recommendations.euclid(recommendations.source[user_x], recommendations.source[user_y])
+        _pearson = recommendations.pearson(recommendations.source[user_x], recommendations.source[user_y])
+        _matches = recommendations.top_matches(user_x, 2, recommendations.TYPE_SOURCE, recommendations.pearson)
+        _recommendations = recommendations.get_recommendations(user_x)
+
         result = {
-            "euclid": recommendations.euclid(recommendations.source[user1], recommendations.source[user2]),
-            "pearson": recommendations.pearson(recommendations.source[user1], recommendations.source[user2]),
-            # "jaccard": recommendations.jaccard(recommendations.source[user1], recommendations.source[user2]),
-            # "manhattan": recommendations.manhattan(recommendations.source[user1], recommendations.source[user2]),
-            "matches": recommendations.top_matches(user1, 2, recommendations.TYPE_SOURCE, recommendations.pearson),
-            "recommendations": recommendations.get_recommendations(user1),
+            "euclid": _euclid,
+            "pearson": _pearson,
+            "matches": _matches,
+            "recommendations": _recommendations,
         }
+
         raise system.utils.exceptions.Result(content=result)
 
 
-class StatisticForMovieHandler(BaseHandler):
+class StatisticForItemsHandler(BaseHandler):
     """Класс для работы статистических методов над пользовательскими данными и результатом для тех образцов, которые они оценили."""
 
-    async def post(self):
+    async def get(self):
         """Расчет статистики.
 
         В качестве параметров передавать список необходимых данных: пользователя и фильм.

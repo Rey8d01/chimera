@@ -5,36 +5,66 @@
 Состоит из набора информации связи объект критики (фильм) - субъект (пользователь) - оценка, а так же служебной информации.
 
 """
+import random
 import system.utils.exceptions
 from system.handler import BaseHandler
+from documents.user import UserDocument
+
+
+class ListRatedItemsHandler(BaseHandler):
+    """Список сохраненной пользовательской информации для анализа.
+
+    GET - список оценок уже проставленных пользователем.
+
+    """
+
+    async def get(self, count: int=5):
+        """Вернет список данных критики по текущему авторизованному пользователю.
+
+        У документа пользователя должно быть соответствующее свойство которое отвечает за сохранность информации с оценками.
+
+        :param count:
+        """
+        count = int(count)
+        document_user = await self.get_data_current_user()
+        # Выборка указанного количества фильмов (по последним).
+        result = []
+        if document_user.critic is not None:
+            result = dict(list(document_user.critic.items())[-count:])
+
+        raise system.utils.exceptions.Result(content=result)
+
+
+class ListRatedUsersHandler(BaseHandler):
+    """Список пользователей с оценками (для списков с которыми можно осуществлять сравнение).
+
+    GET - вернет список пользователей.
+
+    """
+
+    async def get(self):
+        """Запрос данных по пользователям (случайные 10)."""
+        collection_user = await UserDocument().objects.find_all()
+        # Перемешивание втупую и срез 10 пользователей.
+        random.shuffle(collection_user)
+        user_list = {str(document_user._id): document_user.get_user_name() for document_user in collection_user[:10]}
+
+        raise system.utils.exceptions.Result(content={"userList": user_list})
 
 
 class HarvestHandler(BaseHandler):
     """Сборщик информации для анализа.
 
-    GET - список оценок уже проставленных пользователем.
     POST - изменение оценок пользователя.
 
     """
 
-    async def get(self):
-        """Вернет список данных критики по пользователяю."""
-        # Тут проще воспользоваться функцией которая получает данные пользователей для системы.
-        document_user = await self.get_data_current_user()
-        """ :type: documents.user.UserDocument """
-        # У документа пользователя должно быть соответствующее свойство которое отвечает за сохранность информации с оценками.
-        raise system.utils.exceptions.Result(content={document_user.critic.name: document_user.critic})
-
     async def post(self):
         """Сохранение данных критики."""
+        imdb = self.get_bytes_body_argument("imdb")
+        rate = int(self.get_bytes_body_argument("rate"))
         document_user = await self.get_data_current_user()
-        """ :type: documents.user.UserDocument """
-        # Начальный парсинг приходящих данных с ангулара через пост - потому что это не параметры формы а request payload.
-        data_critic = self.escape.json_decode(self.request.body)
-        imdb = data_critic["imdb"]
-        rate = data_critic["rate"]
-
-        if len(document_user.critic) == 0:
+        if document_user.critic is None:
             # Создание новой записи в случае если вообще никаких данных не было до этого (вдруг там не dict).
             document_user.critic = {imdb: int(rate)}
         else:
