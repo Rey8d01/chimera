@@ -115,165 +115,120 @@ class Similarity:
         return distance.rogerstanimoto(items_vector_x, items_vector_y)
 
 
-class Statistic(Similarity):
+class Recommendations(Similarity):
+    """Класс построения рекомендаций на основе статистических методов.
+
+    В методах используются одинаковые термины:
+    source - набор данных с людьми и их оценками к объектам;
+    transformed_source - преобразованный набор данных в котором оценки фильмов по каждому человеку
+    трансформируются в оценки людей  по каждому фильму;
+    person - конкретный человек для которого определяется наилучший критик (человек с похожими оценками) и выработка рекомендации;
+
+
     """
-    source - набор данных с людьми и их оценками к фильмам
-    person - конкретный человек для которого определяется наилучший критик (человек с похожими оценками) и выработка рекомендации
-    n - количество данных в результате
-    similarity_class - класс функции сходимости
-    """
 
-    TYPE_SOURCE = 'source'
-    TYPE_TRANSFORMS = 'transforms'
-    TYPE_SIMILARITY_ITEMS = 'similarity_items'
+    @staticmethod
+    def calculate_source_transforms(source: dict) -> dict:
+        """Трансформация оценщиков в оцениваемых (преобразование людей в товары).
 
-    def __init__(self, source):
-        self.source = source
-        self.transforms = self.calculate_source_transforms()
-
-    @property
-    def source(self):
-        return self._source
-
-    @source.setter
-    def source(self, value):
-        self._source = value
-
-    @property
-    def transforms(self):
-        if hasattr(self, '_transforms') is False:
-            self.transforms = self.calculate_source_transforms()
-        return self._transforms
-
-    @transforms.setter
-    def transforms(self, value):
-        self._transforms = value
-
-    @property
-    def similar_items(self):
-
-        # try:
-        #     f = open('item_sim.data')
-        #     j = json.JSONDecoder()
-        #     item_sim = j.decode(f.read())
-        #     print('old calculate_similar_items')
-        # except Exception as e:
-        #     f = open('item_sim.data', 'w')
-        #     item_sim = Statistic.calculate_similar_items(critics)
-        #     j = json.JSONEncoder()
-        #     f.write(j.encode(item_sim))
-        #     print('new calculate_similar_items')
-
-        if hasattr(self, '_similar_items') is False:
-            self.similar_items = self.calculate_similar_items()
-        return self._similar_items
-
-    @similar_items.setter
-    def similar_items(self, value):
-        self._similar_items = value
-
-    def calculate_source_transforms(self):
-        """
-        Преобразование людей в товары
-
-        :return:
+        :param source: Исходный источник данных;
+        :return: Словарь объектов с оценками людей;
         """
         result = {}
-        for person in self.source:
-            for item in self.source[person]:
+        for person in source:
+            for item in source[person]:
                 result.setdefault(item, {})
-
-                # Обменять местами человека и предмет
-                result[item][person] = self.source[person][item]
-
+                # Обменять местами человека и предмет.
+                result[item][person] = source[person][item]
         return result
 
-    def calculate_similar_items(self, n=10):
-        """
-        Построение набора данных для сравнения образцов
+    @staticmethod
+    def calculate_similar_items(source: dict = None, transformed_source: dict = None, n=10,
+                                get_similarity: callable = Similarity.euclid) -> dict:
+        """Вернет список оценщиков, у каждого из которых будет список наиболее похожих на них других оценщиков.
 
-        :param n:
-        :return:
+        Построение набора данных для сравнения образцов.
+        Для работы необходимо передать transformed_source, но он может быть получен если был передан source.
+
+        :param source: Исходный источник данных;
+        :param transformed_source: Трансформированный исходный источник данных с оценками образцов;
+        :param n: Количество наилучших соответствий;
+        :param get_similarity: Функция сходимости;
+        :return: {person: [(int, other_person), ...]}
         """
+        # Обратить матрицу предпочтений, чтобы строки соответствовали образцам
+        transformed_source = transformed_source or Recommendations.calculate_source_transforms(source=source)
         # Создать словарь, содержащий для каждого образца те образцы, которые больше всего похожи на него
         result = {}
-
-        # Обратить матрицу предпочтений, чтобы строки соответствовали образцам
-        item_source = self.calculate_source_transforms()
         c = 0
 
-        for item in item_source:
+        for person in transformed_source:
             # Обновление состояния для больших наборов данных
             c += 1
             # if c % 100 == 0:
             #     print("%d / %d" % (c, len(item_source)))
             # Найти образцы, максимально похожий на данный
-            scores = self.top_matches(item, n=n, source=item_source, similarity=self.euclid)
-            result[item] = scores
+            scores = Recommendations.top_matches(source=transformed_source, person=person, n=n, get_similarity=get_similarity)
+            result[person] = scores
         return result
 
-    def top_matches(self, person: str, n: int = 5, source: str = TYPE_SOURCE, similarity: callable = None):
+    @staticmethod
+    def top_matches(source: dict, person: str, n: int = 5, get_similarity: callable = Similarity.pearson) -> list:
         """Возвращает список наилучших соответствий для человека из словаря source.
 
         Наиболее похожего человека мнением которого будем в последствии оперировать для выработки рекомендации.
         Количество результатов в списке и функция подобия - необязательные параметры.
 
-        :param person:
-        :param n:
-        :param source:
-        :param similarity:
-        :return:
+        :param source: Исходный источник данных;
+        :param person: Имя объекта-оценщика, человек;
+        :param n: Количество наилучших соответствий;
+        :param get_similarity: Функция сходимости;
+        :return: [(int, id_person), ...]
         """
-
-        source = source if isinstance(source, dict) else getattr(self, source, self.source)
-        similarity = similarity or self.pearson
-
-        # Сравнение person со всеми остальными (критиками) по одной из определенных метрик
-        scores = [(similarity(source[person], source[other]), other)
-                  for other in source if other != person]
-        # Отсортировать список по убыванию оценок
+        # Составление списка значений результатов функции сходимости между основным объектом person и всеми остальными.
+        scores = [(get_similarity(source[person], source[other_person]), other_person)
+                  for other_person in source if other_person != person]
+        # Отсортировать список по убыванию оценок.
         scores.sort()
         scores.reverse()
 
         return scores[0:n]
 
+    @staticmethod
+    def get_recommendations_by_person_for_person(source: dict, person: str, source_person: dict = None, n: int = 5,
+                                                 get_similarity: callable = Similarity.pearson) -> list:
+        """Коллаборативная фильтрация по схожести пользователей.
 
-class Recommendations(Statistic):
-    def get_recommendations(self, person: str, n: int = 5, source: str = Statistic.TYPE_SOURCE, get_similarity: callable = None) -> list:
-        """Получить рекомендации для заданного человека, пользуясь взвешенным средним оценок, данных всеми остальными пользователями.
-
-        :param person:
-        :param n:
-        :param source:
-        :param get_similarity:
+        :param source: Исходный источник данных;
+        :param person: Имя объекта-оценщика, человек;
+        :param source_person: Набор данных оценок человека (Если не задано берется из source по person);
+        :param n: Количество наилучших соответствий;
+        :param get_similarity: Функция сходимости;
         :return:
         """
-        source = source if isinstance(source, dict) else getattr(self, source, self.source)
-        get_similarity = self.pearson if get_similarity is None else get_similarity
-
+        source_person = source_person or source[person]
         totals = {}
         sum_similarity = {}
-        source_person = source[person]
 
         # Сравнение каждого пользователя с person.
-        for other in source:
+        for other_person in source:
             # Сравнивать пользователя с собой же не нужно.
-            if other == person:
+            if other_person == person:
                 continue
             # Получение результата функции близости оценок person и other.
-            similarity = get_similarity(source_person, source[other])
+            similarity = get_similarity(source_person, source[other_person])
             # Игнорировать нулевые и отрицательные оценки.
             if similarity <= 0:
                 continue
 
             # Построение списка рекомендаций для person исходя из его близости к other.
-            for item in source[other]:
+            for item in source[other_person]:
                 # Оценивать только те объекты, которых нет среди оценок person.
                 if item not in source_person or source_person[item] == 0:
                     # Совокупная оценка для объекта item = коэффициент подобия между person и other * оценку other.
                     # Считаем что влияние other будет незначительным благодаря низкому коэффициенту близости (и наоборот).
                     totals.setdefault(item, 0)
-                    totals[item] += source[other][item] * similarity
+                    totals[item] += source[other_person][item] * similarity
                     # Сумма коэффициентов подобия для данного оцениваемого объекта.
                     sum_similarity.setdefault(item, 0)
                     sum_similarity[item] += similarity
@@ -285,11 +240,10 @@ class Recommendations(Statistic):
         # Возврат отсортированного списка рекомендаций.
         return sorted(rankings.items(), key=lambda x: x[1], reverse=True)[:n]
 
-    def get_recommendations_transforms(self, person, n=5, similarity=None):
-        return self.get_recommendations(person, n, Statistic.TYPE_TRANSFORMS, similarity)
-
-    def get_recommendations_items(self, user):
-        """Выдача рекомендаций на основе сравнения образцов.
+    @staticmethod
+    def get_recommendations_by_items_for_person(person: str, source: dict = None, source_similar_items: dict = None,
+                                                get_similarity: callable = Similarity.euclid) -> list:
+        """Коллаборативная фильтрация по схожести образцов.
 
         Для выработки рекомендации по образцам набор данных можно строить заранее и использовать его при необходимости,
         в отличие от способа фильтрации по пользователям, который нужно пересчитывать постоянно при рекомендации.
@@ -297,13 +251,16 @@ class Recommendations(Statistic):
         поэтому предпочтительно сравнивать схожесть образцов
         (которая существенно меняется реже при больших объемах) и выдавать рекомендацию основываясь на ней.
 
-        :param user:
+        Для работы нужно передать источник данных source_similar_items но он может быть получен если передать source.
+
+        :param source: Исходный источник данных оценок пользователей;
+        :param source_similar_items: Исходный источник данных оценок образцов;
+        :param person: Объект-оценщик, человек;
+        :param get_similarity: Функция сходимости;
         :return:
         """
-        source = self.source
-        item_match = self.similar_items
-
-        user_ratings = source[user]
+        source_similar_items = source_similar_items or Recommendations.calculate_similar_items(source=source, get_similarity=get_similarity)
+        user_ratings = source[person]
         scores = {}
         total_sim = {}
 
@@ -311,27 +268,43 @@ class Recommendations(Statistic):
         for (item, rating) in user_ratings.items():
 
             # Цикл по образцам похожий на данный
-            for (similarity, item2) in item_match[item]:
+            for (similarity, other_item) in source_similar_items[item]:
 
                 # Пропускаем если пользователь оценил данный образец
-                if item2 in user_ratings:
+                if other_item in user_ratings:
                     continue
 
                 # Взвешенная суммы оценок, умноженных на коэффициент подобия
-                scores.setdefault(item2, 0)
-                scores[item2] += similarity * rating
+                scores.setdefault(other_item, 0)
+                scores[other_item] += similarity * rating
 
                 # Сумма всех коэффициентов подобия
-                total_sim.setdefault(item2, 0)
-                total_sim[item2] += similarity
+                total_sim.setdefault(other_item, 0)
+                total_sim[other_item] += similarity
 
         # Делим каждую итоговую оценку на взвешенную сумму, чтобы вычислить среднее
         rankings = [(score / total_sim[item], item) for item, score in scores.items()]
 
-        # Вовзвращает список rankings, отсортированный по убыванию
+        # Возвращает список rankings, отсортированный по убыванию
         rankings.sort()
         rankings.reverse()
         return rankings
+
+    @staticmethod
+    def get_recommendations_by_items_for_item(item: str, source: dict = None, transformed_source: dict = None, n: int = 5,
+                                              get_similarity: callable = Similarity.pearson):
+        """
+
+        :param source:
+        :param transformed_source:
+        :param item:
+        :param n:
+        :param get_similarity:
+        :return:
+        """
+        transformed_source = transformed_source or Recommendations.calculate_source_transforms(source=source)
+        return Recommendations.get_recommendations_by_person_for_person(source=transformed_source, person=item, n=n,
+                                                                        get_similarity=get_similarity)
 
 
 if __name__ == "__main__":
@@ -394,21 +367,23 @@ if __name__ == "__main__":
 
     movie = 'You, Me, and Dupree'
 
-    my_stat = Recommendations(critics)
+    items = Recommendations.calculate_source_transforms(source=critics)
 
     print(
-        'Люди:', test1, 'и', test2, '\n',
-        'Евклидово расстояние		', my_stat.euclid(my_stat.source[test1], my_stat.source[test2]), '\n',
-        'Корреляця Пирсона			', my_stat.pearson(my_stat.source[test1], my_stat.source[test2]), '\n',
-        'Манхэттенское расстояние	', my_stat.manhattan(my_stat.source[test1], my_stat.source[test2]), '\n',
-        '\n',
-        'Ранжирование критиков		', my_stat.top_matches(test1, 2, my_stat.TYPE_SOURCE, my_stat.pearson), '\n',
-        'Выработка рекомендации		', my_stat.get_recommendations(test1), '\n',
-        '\n',
-        'Фильмы похожие на 			', movie, my_stat.top_matches(movie, 3, my_stat.TYPE_TRANSFORMS, my_stat.pearson), '\n',
-        'Кто еще не смотрел фильм	', movie, my_stat.get_recommendations_transforms(movie), '\n',
-        'AAAAAAAAAA	', my_stat.transforms, '\n',
-        '\n',
-        'Похожие фильмы	\n			', my_stat.similar_items, '\n',
-        'Выработка рекомендации	по образцам	', my_stat.get_recommendations_items(test1), '\n',
+            'Люди:', test1, 'и', test2, '\n',
+            'Евклидово расстояние		', Similarity.euclid(critics[test1], critics[test2]), '\n',
+            'Корреляця Пирсона			', Similarity.pearson(critics[test1], critics[test2]), '\n',
+            'Манхэттенское расстояние	', Similarity.manhattan(critics[test1], critics[test2]), '\n',
+            '\n',
+            'Ранжирование критиков		', Recommendations.top_matches(source=critics, person=test1, n=2), '\n',
+            'Выработка рекомендации		', Recommendations.get_recommendations_by_person_for_person(source=critics, person=test1), '\n',
+            '\n',
+            'Фильмы похожие на 			', movie, Recommendations.top_matches(source=items, person=movie, n=3), '\n',
+            'Кто еще не смотрел фильм	', movie,
+            Recommendations.get_recommendations_by_items_for_item(transformed_source=items, item=movie), '\n',
+            'AAAAAAAAAA	', items, '\n',
+            '\n',
+            'Похожие фильмы	\n			', Recommendations.calculate_similar_items(transformed_source=items, n=3), '\n',
+            'Выработка рекомендации	по образцам	',
+            Recommendations.get_recommendations_by_items_for_person(person=test1, source=critics), '\n',
     )

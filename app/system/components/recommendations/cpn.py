@@ -14,7 +14,7 @@ class ItemExtractor:
 
     @abstractmethod
     def get_item_id(self) -> str:
-        """Должен вернуть уникальный id образца, например .
+        """Должен вернуть уникальный id образца.
 
         :return: Значение id образца в БД;
         """
@@ -82,7 +82,7 @@ class KohonenExceptionClustering(Exception):
     """Исключение для процесса кластеризации."""
 
 
-class Kohonen(Similarity):
+class Kohonen:
     """Сеть Кохонена для кластеризации.
 
     1. Определяются образцы для классификации/кластеризации. Если сеть уже была в работе и сохранила свои результаты их так же можно
@@ -140,7 +140,7 @@ class Kohonen(Similarity):
         """
         print("Инициализация сети Кохонена")
         # Установка стандартных значений на этапе инициализации
-        self._similarity = similarity if similarity is not None else self.euclid
+        self._similarity = similarity if similarity is not None else Similarity.euclid
         self._allowable_similarity = allowable_similarity if allowable_similarity is not None else 0.55
         self._acceptable_similarity = acceptable_similarity if acceptable_similarity is not None else 0.95
         self._max_deep = max_deep if max_deep is not None else 200
@@ -267,7 +267,7 @@ class Kohonen(Similarity):
 
         item_id = item.get_item_id()
         item_name = item.get_item_name()
-        item_vector = self.normalize_vector(item.get_item_vector())
+        item_vector = Similarity.normalize_vector(item.get_item_vector())
         return self._classify(item_id, item_name, item_vector)
 
     def _clustered(self, item_id: str, item_name: str, item_vector: dict) -> ClusterExtractor:
@@ -371,7 +371,7 @@ class OutStarExtractor:
         """
 
 
-class GrossbergOutStar(Similarity):
+class GrossbergOutStar:
     """Сеть Гроссберга для аппроксимации результатов слоя Кохонена.
 
     Каждый нейрон в сети гроссберга по сути является одной из компонент
@@ -462,7 +462,7 @@ class GrossbergOutStar(Similarity):
         :param item: Объект содержащий вектор входа в слой Кохонена, он же является желаемым выходом;
         :param cluster: Объект (нейрон-победитель слоя Кохонена) содержащий вектор выхода;
         """
-        item_vector = self.normalize_vector(item.get_item_vector())
+        item_vector = Similarity.normalize_vector(item.get_item_vector())
         cluster_id = cluster.get_cluster_id()
         beta_learning = self.get_cluster_beta_learning(cluster_id)
 

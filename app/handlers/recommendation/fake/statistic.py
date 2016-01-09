@@ -46,21 +46,21 @@ class FakeStatisticHandler(BaseHandler):
         # print(list_critic)
 
         # Recommendations
-        instance_recommendations = Recommendations(list_critic)
+        # instance_recommendations = Recommendations(list_critic)
 
         result = {}
         if movie != "":
             # Для проверки объектов
             result = {
                 # Фильмы похожие на
-                "matches": instance_recommendations.top_matches(movie, 3, instance_recommendations.TYPE_TRANSFORMS,
+                "matches": instance_recommendations.top_matches(instance_recommendations.TYPE_TRANSFORMS, movie, 3,
                                                                 instance_recommendations.pearson),
                 # Кто еще не смотрел фильм
-                "recommendations": instance_recommendations.get_recommendations_transforms(movie),
+                "recommendations": instance_recommendations.get_recommendations_by_items_for_item(movie),
                 # Похожие фильмы
                 #"similarItems": instance_recommendations.similar_items,
                 # Выработка рекомендации по образцам
-                "pearson": instance_recommendations.get_recommendations_items(user1),
+                "pearson": instance_recommendations.get_recommendations_by_items_for_person(user1),
             }
         elif (user1 != "") and (user2 != ""):
             # Для сравнения пользователей
@@ -78,10 +78,10 @@ class FakeStatisticHandler(BaseHandler):
                 "manhattan": instance_recommendations.manhattan(instance_recommendations.source[user1],
                                                                 instance_recommendations.source[user2]),
                 # Ранжирование критиков
-                "matches": instance_recommendations.top_matches(user1, 2, instance_recommendations.TYPE_SOURCE,
+                "matches": instance_recommendations.top_matches(instance_recommendations.TYPE_SOURCE, user1, 2,
                                                                 instance_recommendations.pearson),
                 # Выработка рекомендации
-                "recommendations": instance_recommendations.get_recommendations(user1),
+                "recommendations": instance_recommendations.get_recommendations_by_person_for_person(user1),
             }
 
         raise system.utils.exceptions.Result(content=result)

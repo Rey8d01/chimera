@@ -146,10 +146,9 @@ class FakeCPNHandler(BaseHandler):
         # К данным для статистики добаляется новый пользователь кластера (или его данные актуализируются)
         data_cluster_user[document_user.get_item_id()] = document_user.get_item_vector()
         # После локализации выборки пользователей можно использовать статистические методы для выработки рекомендаций
-        # Формируется класс стистики
-        user_stat = Recommendations(data_cluster_user)
+
         # Выработка рекомендаций через статистику
-        stat_recommendations = dict(user_stat.get_recommendations(document_user.get_item_id(), 250))
+        stat_recommendations = dict(Recommendations.get_recommendations_by_person_for_person(source=data_cluster_user, person=document_user.get_item_id(), n=250))
 
         # Сбор общей информации по кластерам
         count_users = await FakeUserDocument().objects.count()

@@ -40,17 +40,17 @@ class StatisticForUserHandler(BaseHandler):
         # Формирование массива данных для анализа - массив данных имеет вид [ид_пользователя => [ид_объекта => оценка,],... ]
         list_critic = {str(document_user._id): document_user.critic for document_user in collection_user}
 
-        recommendations = Recommendations(list_critic)
-        _euclid = recommendations.euclid(recommendations.source[user_x], recommendations.source[user_y])
-        _pearson = recommendations.pearson(recommendations.source[user_x], recommendations.source[user_y])
-        _matches = recommendations.top_matches(user_x, 2, recommendations.TYPE_SOURCE, recommendations.pearson)
-        _recommendations = recommendations.get_recommendations(user_x)
+        euclid = Similarity.euclid(list_critic[user_x], list_critic[user_y])
+        pearson = Similarity.pearson(list_critic[user_x], list_critic[user_y])
+        matches = Recommendations.top_matches(source=list_critic, person=user_x, n=2, get_similarity=Similarity.pearson)
+        recommendations = Recommendations.get_recommendations_by_person_for_person(source=list_critic, person=user_x, n=5,
+                                                                                   get_similarity=Similarity.pearson)
 
         result = {
-            "euclid": _euclid,
-            "pearson": _pearson,
-            "matches": _matches,
-            "recommendations": _recommendations,
+            "euclid": euclid,
+            "pearson": pearson,
+            "matches": matches,
+            "recommendations": recommendations,
         }
 
         raise system.utils.exceptions.Result(content=result)
@@ -76,16 +76,16 @@ class StatisticForItemsHandler(BaseHandler):
         # Формирование массива данных для анализа - массив данных имеет вид [ид_пользователя => [ид_объекта => оценка,],... ]
         list_critic = {str(document_critic._id): document_critic.critic for document_critic in collection_user}
 
-        recommendations = Recommendations(list_critic)
+        list_items = Recommendations.calculate_source_transforms(source=list_critic)
         result = {
             # Фильмы похожие на movie.
-            "matches": recommendations.top_matches(movie, 3, recommendations.TYPE_TRANSFORMS, recommendations.pearson),
+            "matches": Recommendations.top_matches(source=list_items, person=movie, n=3, get_similarity=Similarity.pearson),
             # Кто еще не смотрел фильм movie.
-            "recommendations": recommendations.get_recommendations_transforms(movie),
+            "recommendations": Recommendations.get_recommendations_by_items_for_item(source=list_critic, item=movie),
             # Похожие фильмы на movie.
             # "similarItems": recommendations.similar_items,
             # Выработка рекомендации по образцам.
-            "pearson": recommendations.get_recommendations_items(user),
+            "pearson": Recommendations.get_recommendations_by_items_for_person(person=user, source=list_items),
         }
         raise system.utils.exceptions.Result(content=result)
 
@@ -185,7 +185,7 @@ class UserCPNHandler(BaseHandler):
         # После локализации выборки пользователей можно использовать статистические методы для выработки рекомендаций.
         user_stat = Recommendations(data_cluster_user)
         # Выработка рекомендаций через статистику.
-        stat_recommendations = dict(user_stat.get_recommendations(document_user.get_item_id(), 250))
+        stat_recommendations = dict(user_stat.get_recommendations_by_person_for_person(document_user.get_item_id(), 250))
 
         # Этап 6.
         # Сбор общей информации по кластерам.
