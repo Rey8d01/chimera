@@ -115,7 +115,7 @@ class Similarity:
         return distance.rogerstanimoto(items_vector_x, items_vector_y)
 
 
-class Recommendations(Similarity):
+class Recommendations:
     """Класс построения рекомендаций на основе статистических методов.
 
     В методах используются одинаковые термины:
@@ -143,8 +143,8 @@ class Recommendations(Similarity):
         return result
 
     @staticmethod
-    def calculate_similar_items(source: dict = None, transformed_source: dict = None, n=10,
-                                get_similarity: callable = Similarity.euclid) -> dict:
+    def calculate_source_similar_items(source: dict = None, transformed_source: dict = None, n=10,
+                                       get_similarity: callable = Similarity.euclid) -> dict:
         """Вернет список оценщиков, у каждого из которых будет список наиболее похожих на них других оценщиков.
 
         Построение набора данных для сравнения образцов.
@@ -241,8 +241,8 @@ class Recommendations(Similarity):
         return sorted(rankings.items(), key=lambda x: x[1], reverse=True)[:n]
 
     @staticmethod
-    def get_recommendations_by_items_for_person(person: str, source: dict = None, source_similar_items: dict = None,
-                                                get_similarity: callable = Similarity.euclid) -> list:
+    def get_recommendations_by_items_for_person(person: str, source: dict = None, transformed_source: dict = None,
+                                                source_similar_items: dict = None, get_similarity: callable = Similarity.euclid) -> list:
         """Коллаборативная фильтрация по схожести образцов.
 
         Для выработки рекомендации по образцам набор данных можно строить заранее и использовать его при необходимости,
@@ -251,15 +251,18 @@ class Recommendations(Similarity):
         поэтому предпочтительно сравнивать схожесть образцов
         (которая существенно меняется реже при больших объемах) и выдавать рекомендацию основываясь на ней.
 
-        Для работы нужно передать источник данных source_similar_items но он может быть получен если передать source.
+        Для работы нужно передать источник данных source_similar_items но он может быть получен если передать source или transformed_source.
 
         :param source: Исходный источник данных оценок пользователей;
+        :param transformed_source: Трансформированный исходный источник данных с оценками образцов;
         :param source_similar_items: Исходный источник данных оценок образцов;
         :param person: Объект-оценщик, человек;
         :param get_similarity: Функция сходимости;
         :return:
         """
-        source_similar_items = source_similar_items or Recommendations.calculate_similar_items(source=source, get_similarity=get_similarity)
+        source_similar_items = source_similar_items or Recommendations.calculate_source_similar_items(source=source,
+                                                                                                      transformed_source=transformed_source,
+                                                                                                      get_similarity=get_similarity)
         user_ratings = source[person]
         scores = {}
         total_sim = {}
@@ -383,7 +386,7 @@ if __name__ == "__main__":
             Recommendations.get_recommendations_by_items_for_item(transformed_source=items, item=movie), '\n',
             'AAAAAAAAAA	', items, '\n',
             '\n',
-            'Похожие фильмы	\n			', Recommendations.calculate_similar_items(transformed_source=items, n=3), '\n',
+            'Похожие фильмы	\n			', Recommendations.calculate_source_similar_items(transformed_source=items, n=3), '\n',
             'Выработка рекомендации	по образцам	',
             Recommendations.get_recommendations_by_items_for_person(person=test1, source=critics), '\n',
     )

@@ -67,3 +67,11 @@ class UserDocument(Document):
     def get_user_name(self) -> str:
         """Реализует вывод имени пользователя, в зависимости от актуальной схемы."""
         return self.get_main_oauth_document().name
+
+    @staticmethod
+    def get_list_critic(collection_user):
+        """Формирование массива данных для анализа - массив данных имеет вид [ид_пользователя => [ид_объекта => оценка,],... ]
+        :param collection_user:
+        :return:
+        """
+        return {str(document_critic._id): document_critic.critic for document_critic in collection_user}

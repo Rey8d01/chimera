@@ -21,36 +21,55 @@ from system.components.recommendations.statistic import Recommendations, Similar
 from bson.objectid import ObjectId
 
 
+class MetricsHandler(BaseHandler):
+    """Класс для получения результатов вычисления различных метрик расстояний между пользователями."""
+
+    async def get(self, user_x: str, user_y: str):
+        """Вернет результат вычислений метрик по двум пользователям.
+
+        * euclid - Евклидово расстояние.
+        * pearson - Корреляция Пирсона.
+
+        :param user_x:
+        :param user_y:
+        :return:
+        """
+        collection_user = await UserDocument().objects.filter({"_id": ObjectId(user_x)}).find_all()
+        document_user_x = collection_user[-1]
+        critic_x = document_user_x.critic
+
+        collection_user = await UserDocument().objects.filter({"_id": ObjectId(user_y)}).find_all()
+        document_user_y = collection_user[-1]
+        critic_y = document_user_y.critic
+
+        result = {
+            "euclid": Similarity.euclid(critic_x, critic_y),
+            "pearson": Similarity.pearson(critic_x, critic_y),
+        }
+
+        raise system.utils.exceptions.Result(content=result)
+
+
 class StatisticForUserHandler(BaseHandler):
     """Класс для работы статистических методов над пользовательскими данными и персональным результатом для них."""
 
     async def get(self, user_x: str, user_y: str):
-        """Расчет статистики. Принимает двоих пользователей между которыми будут производиться основные расчеты.
+        """Коллаборативная фильтрация по схожести пользователей.
 
-        * euclid - Евклидово расстояние.
-        * pearson - Корреляця Пирсона.
+        Долгий расчет поскольку каждый раз выбирается вся база пользователей и их оценки.
+
         * matches - Ранжированный список критиков.
         * recommendations - Выработка рекомендации.
 
         :param user_x: id первого пользователя;
         :param user_y: id второго пользователя;
-        :return:
         """
         collection_user = await UserDocument().objects.limit(60).find_all()
-        # Формирование массива данных для анализа - массив данных имеет вид [ид_пользователя => [ид_объекта => оценка,],... ]
-        list_critic = {str(document_user._id): document_user.critic for document_user in collection_user}
-
-        euclid = Similarity.euclid(list_critic[user_x], list_critic[user_y])
-        pearson = Similarity.pearson(list_critic[user_x], list_critic[user_y])
-        matches = Recommendations.top_matches(source=list_critic, person=user_x, n=2, get_similarity=Similarity.pearson)
-        recommendations = Recommendations.get_recommendations_by_person_for_person(source=list_critic, person=user_x, n=5,
-                                                                                   get_similarity=Similarity.pearson)
+        list_critic = UserDocument.get_list_critic(collection_user)
 
         result = {
-            "euclid": euclid,
-            "pearson": pearson,
-            "matches": matches,
-            "recommendations": recommendations,
+            "matches": Recommendations.top_matches(source=list_critic, person=user_x, n=2, get_similarity=Similarity.pearson),
+            "recommendations": Recommendations.get_recommendations_by_person_for_person(source=list_critic, person=user_x),
         }
 
         raise system.utils.exceptions.Result(content=result)
@@ -59,35 +78,38 @@ class StatisticForUserHandler(BaseHandler):
 class StatisticForItemsHandler(BaseHandler):
     """Класс для работы статистических методов над пользовательскими данными и результатом для тех образцов, которые они оценили."""
 
-    async def get(self):
-        """Расчет статистики.
+    async def get(self, user: str, item: str):
+        """Коллаборативная фильтрация по схожести образцов.
 
-        В качестве параметров передавать список необходимых данных: пользователя и фильм.
-
-        * pearson - Корреляця Пирсона.
         * matches - Ранжированный список критиков.
         * recommendations - Выработка рекомендации.
 
+        :param user: id пользователя;
+        :param item: id образца;
         """
-        user = self.get_argument("user")
-        movie = self.get_argument("movie")
+        source_similar_items = await self.redis.get("recommendation_source_similar_items")
 
-        collection_user = await UserDocument().objects.limit(100).find_all()
-        # Формирование массива данных для анализа - массив данных имеет вид [ид_пользователя => [ид_объекта => оценка,],... ]
-        list_critic = {str(document_critic._id): document_critic.critic for document_critic in collection_user}
+        print(source_similar_items)
+        return 1
+        # self.escape.json_decode(self.escape.to_unicode(tags))
 
-        list_items = Recommendations.calculate_source_transforms(source=list_critic)
         result = {
-            # Фильмы похожие на movie.
-            "matches": Recommendations.top_matches(source=list_items, person=movie, n=3, get_similarity=Similarity.pearson),
-            # Кто еще не смотрел фильм movie.
-            "recommendations": Recommendations.get_recommendations_by_items_for_item(source=list_critic, item=movie),
-            # Похожие фильмы на movie.
-            # "similarItems": recommendations.similar_items,
-            # Выработка рекомендации по образцам.
-            "pearson": Recommendations.get_recommendations_by_items_for_person(person=user, source=list_items),
+            # "matches": Recommendations.top_matches(source=list_items, person=item, n=3, get_similarity=Similarity.pearson),
+            "recommendations": Recommendations.get_recommendations_by_items_for_person(person=user,
+                                                                                       source_similar_items=source_similar_items),
+            # "recommendations_item": Recommendations.get_recommendations_by_items_for_item(transformed_source=list_items, item=item),
         }
         raise system.utils.exceptions.Result(content=result)
+
+    async def put(self):
+        """Обновление (пересчет) массива данных для фильтрации по схожести образцов."""
+        collection_user = await UserDocument().objects.find_all()
+        list_critic = UserDocument.get_list_critic(collection_user)
+        source_similar_items = Recommendations.calculate_source_similar_items(source=list_critic)
+
+        await self.redis.set("recommendation_source_similar_items", source_similar_items)
+
+        raise system.utils.exceptions.Result(content={"result": True})
 
 
 class UserCPNHandler(BaseHandler):
@@ -227,10 +249,10 @@ class UtilsCPNHandler(BaseHandler):
 
         print("Kohonen")
         net_kohonen = Kohonen(
-            list_cluster=collection_cluster,
-            allowable_similarity=0.67,
-            acceptable_similarity=0.95,
-            cluster_class=KohonenClusterExtractor
+                list_cluster=collection_cluster,
+                allowable_similarity=0.67,
+                acceptable_similarity=0.95,
+                cluster_class=KohonenClusterExtractor
         )
 
         # Образцы
@@ -242,14 +264,14 @@ class UtilsCPNHandler(BaseHandler):
         print("GrossbergOutStar")
 
         net_grossberg = GrossbergOutStar(
-            out_star=out_star,
-            components=top250,
-            count_items=len(collection_user)
+                out_star=out_star,
+                components=top250,
+                count_items=len(collection_user)
         )
         print("CPN")
         net_cpn = CPN(
-            net_kohonen=net_kohonen,
-            net_grossberg=net_grossberg
+                net_kohonen=net_kohonen,
+                net_grossberg=net_grossberg
         )
         print("Запуск сети")
         net_cpn.run(source=collection_user)
@@ -265,5 +287,5 @@ class UtilsCPNHandler(BaseHandler):
         print("Сохранение пользователей")  # (у них изменилась принадлежность к кластеру)
         for document_user in collection_user:
             await UserItemExtractor().objects.filter({"_id": ObjectId(document_user._id)}).update(
-                {UserItemExtractor.cluster.name: document_user.cluster})
+                    {UserItemExtractor.cluster.name: document_user.cluster})
         print("Завершено")
