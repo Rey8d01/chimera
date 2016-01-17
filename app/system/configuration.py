@@ -57,10 +57,16 @@ handlers = [
     (r"/_/post/([\w-]+)", handlers.blog.post.PostHandler),
 
     # Recommendation
-    (r"/_/recommendation/harvest/([\d+]+)", handlers.recommendation.harvest.ListRatedItemsHandler),
     (r"/_/recommendation/harvest", handlers.recommendation.harvest.HarvestHandler),
+    (r"/_/recommendation/harvest/list-rated-items/([\d+]+)", handlers.recommendation.harvest.ListRatedItemsHandler),
+    (r"/_/recommendation/harvest/list-users/([\d+]+)", handlers.recommendation.harvest.ListUsersHandler),
+
+    (r"/_/recommendation/metrics/([\w\-]+)/([\w\-]+)", handlers.recommendation.process.MetricsHandler),
+
     (r"/_/recommendation/stat-users/([\w\-]+)/([\w\-]+)", handlers.recommendation.process.StatisticForUserHandler),
     (r"/_/recommendation/stat-items/([\w\-]+)/([\w\-]+)", handlers.recommendation.process.StatisticForItemsHandler),
+    (r"/_/recommendation/stat-utils", handlers.recommendation.process.UtilsStatisticHandler),
+
     (r"/_/recommendation/cpn-user", handlers.recommendation.process.UserCPNHandler),
     (r"/_/recommendation/cpn-utils", handlers.recommendation.process.UtilsCPNHandler),
 

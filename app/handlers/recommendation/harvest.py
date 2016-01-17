@@ -35,19 +35,22 @@ class ListRatedItemsHandler(BaseHandler):
         raise system.utils.exceptions.Result(content=result)
 
 
-class ListRatedUsersHandler(BaseHandler):
+class ListUsersHandler(BaseHandler):
     """Список пользователей с оценками (для списков с которыми можно осуществлять сравнение).
 
     GET - вернет список пользователей.
 
     """
 
-    async def get(self):
-        """Запрос данных по пользователям (случайные 10)."""
+    async def get(self, count: int=10):
+        """Запрос данных по пользователям (случайные 10).
+
+        :param count:
+        """
         collection_user = await UserDocument().objects.find_all()
         # Перемешивание втупую и срез 10 пользователей.
         random.shuffle(collection_user)
-        user_list = {str(document_user._id): document_user.get_user_name() for document_user in collection_user[:10]}
+        user_list = {str(document_user._id): document_user.get_user_name() for document_user in collection_user[:count]}
 
         raise system.utils.exceptions.Result(content={"userList": user_list})
 

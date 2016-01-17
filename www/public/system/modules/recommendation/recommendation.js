@@ -222,3 +222,45 @@ chimera.system.recommendation.factory("omdbapiService", ["$resource",
         });
     }
 ]);
+
+// -----
+
+chimera.system.recommendation.factory("recommendationHarvestService", ["$resource",
+    function ($resource) {
+        var endPoint = "/recommendation/harvest";
+        return $resource(endPoint, {}, {
+            "harvest" : {method: "POST"},
+            "getListRatedItems" : {method: "GET", isArray: false, url: endPoint + "/list-rated-items/:count", params: {count:5}},
+            "getListUsers" : {method: "GET", isArray: false, url: endPoint + "/list-users/:count", params: {count:10}},
+        });
+    }
+]);
+
+chimera.system.recommendation.factory("recommendationMetricsService", ["$resource",
+    function ($resource) {
+        return $resource("/recommendation/metrics/:userX/:userY", {}, {
+            "getMetrics" : {method: "POST"}
+        });
+    }
+]);
+
+chimera.system.recommendation.factory("recommendationStatService", ["$resource",
+    function ($resource) {
+        var endPoint = "/recommendation";
+        return $resource(endPoint, {}, {
+            "getStatUsers" : {method: "GET", isArray: false, url: endPoint + "/stat-users/:userX/:userY"},
+            "getStatItems" : {method: "GET", isArray: false, url: endPoint + "/stat-items/:user/:item"},
+            "utils" : {method: "PUT", isArray: false, url: endPoint + "/stat-utils"},
+        });
+    }
+]);
+
+chimera.system.recommendation.factory("recommendationCPNService", ["$resource",
+    function ($resource) {
+        var endPoint = "/recommendation";
+        return $resource(endPoint, {}, {
+            "getCPNUser" : {method: "POST", isArray: false, url: endPoint + "/cpn-user/"},
+            "utils" : {method: "POST", isArray: false, url: endPoint + "/cpn-utils/"},
+        });
+    }
+]);

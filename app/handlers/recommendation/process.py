@@ -101,6 +101,10 @@ class StatisticForItemsHandler(BaseHandler):
         }
         raise system.utils.exceptions.Result(content=result)
 
+
+class UtilsStatisticHandler(BaseHandler):
+    """Класс вызова утилитарных функций для коррекции статистических данных."""
+
     async def put(self):
         """Обновление (пересчет) массива данных для фильтрации по схожести образцов."""
         collection_user = await UserDocument().objects.find_all()
