@@ -71,7 +71,7 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
         $scope.setRate = function(rate) {
             $scope.selectItem.rate = rate;
             if ($scope.selectItem.imdb) {
-                recommendationService.save($scope.selectItem, function (response) {
+                recommendationService.harvest($scope.selectItem, function (response) {
                     // @todo в рамках одной сессии - могут быть повторы при изменении оценки
                     $scope.criticList[response.content.imdb] = response.content.rate;
                     // getInfoItem(response.content.imdb);
@@ -90,7 +90,7 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
         /**
          * Начальная выборка нескольких последних оцененных фильмов.
          */
-        recommendationService.get({}, function (response) {
+        recommendationService.getListRatedItems({}, function (response) {
             var criticList = response.content;
             if (criticList) {
                 for (var imdb in criticList) {
@@ -117,8 +117,20 @@ chimera.system.recommendation.controller("RecommendationController", ["$scope", 
 
 chimera.system.recommendation.factory("recommendationService", ["$resource",
     function ($resource) {
-        return $resource("/recommendation/harvest/:count", {count: 5}, {
-            save: {method: "POST", params: {count: null}}
+        var endPoint = "/recommendation";
+        return $resource(endPoint, {}, {
+            "harvest" : {method: "POST", url: endPoint + "/harvest"},
+            "getListRatedItems" : {method: "GET", isArray: false, url: endPoint + "/harvest/list-rated-items/:count", params: {count:5}},
+            "getListUsers" : {method: "GET", isArray: false, url: endPoint + "/harvest/list-users/:count", params: {count:10}},
+
+            "getMetrics" : {method: "POST", url: endPoint + "/metrics/:userX/:userY"}
+
+            "getStatUsers" : {method: "GET", isArray: false, url: endPoint + "/stat-users/:userX/:userY"},
+            "getStatItems" : {method: "GET", isArray: false, url: endPoint + "/stat-items/:user/:item"},
+            "utils" : {method: "PUT", isArray: false, url: endPoint + "/stat-utils"},
+
+            "getCPNUser" : {method: "POST", isArray: false, url: endPoint + "/cpn-user/"},
+            "utils" : {method: "POST", isArray: false, url: endPoint + "/cpn-utils/"},
         });
     }
 ]);
@@ -219,48 +231,6 @@ chimera.system.recommendation.factory("omdbapiService", ["$resource",
         return $resource(urlApi, {}, {
             "search": {'method': "GET", isArray: false, url: urlApi + "/?s=:s", params: {s:''}},
             "findByImdb": {'method': "GET", isArray: false, url: urlApi + "/?i=:i", params: {i:''}}
-        });
-    }
-]);
-
-// -----
-
-chimera.system.recommendation.factory("recommendationHarvestService", ["$resource",
-    function ($resource) {
-        var endPoint = "/recommendation/harvest";
-        return $resource(endPoint, {}, {
-            "harvest" : {method: "POST"},
-            "getListRatedItems" : {method: "GET", isArray: false, url: endPoint + "/list-rated-items/:count", params: {count:5}},
-            "getListUsers" : {method: "GET", isArray: false, url: endPoint + "/list-users/:count", params: {count:10}},
-        });
-    }
-]);
-
-chimera.system.recommendation.factory("recommendationMetricsService", ["$resource",
-    function ($resource) {
-        return $resource("/recommendation/metrics/:userX/:userY", {}, {
-            "getMetrics" : {method: "POST"}
-        });
-    }
-]);
-
-chimera.system.recommendation.factory("recommendationStatService", ["$resource",
-    function ($resource) {
-        var endPoint = "/recommendation";
-        return $resource(endPoint, {}, {
-            "getStatUsers" : {method: "GET", isArray: false, url: endPoint + "/stat-users/:userX/:userY"},
-            "getStatItems" : {method: "GET", isArray: false, url: endPoint + "/stat-items/:user/:item"},
-            "utils" : {method: "PUT", isArray: false, url: endPoint + "/stat-utils"},
-        });
-    }
-]);
-
-chimera.system.recommendation.factory("recommendationCPNService", ["$resource",
-    function ($resource) {
-        var endPoint = "/recommendation";
-        return $resource(endPoint, {}, {
-            "getCPNUser" : {method: "POST", isArray: false, url: endPoint + "/cpn-user/"},
-            "utils" : {method: "POST", isArray: false, url: endPoint + "/cpn-utils/"},
         });
     }
 ]);
