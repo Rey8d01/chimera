@@ -12,6 +12,7 @@ chimera.system.catalog.controller("CatalogItemHandler", ["$scope", "$state", "ca
     function ($scope, $state, catalogItemService) {
         catalogItemService.get({catalogAlias: $state.params.catalogAlias, page: $state.params.page}, function (response) {
             $scope.catalog = response.content;
+            $scope.posts = response.content.posts;
             $scope.paging = response.content.pageData;
             $scope.catalog.progress = false;
         });

@@ -174,7 +174,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
 
                 views: {
                     "container@main": {
-                        templateUrl: "/system/templates/blog/blog.html",
+                        templateUrl: "/system/templates/blog/index.html",
                         //controller: "CatalogLatestController"
                     },
                     "catalogs@main.blog": {
@@ -195,7 +195,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 url: "/home",
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/blog/catalog.html",
+                        templateUrl: "/system/templates/blog/content/catalog.html",
                         controller: "CatalogLatestController"
                     }
                 }
@@ -210,8 +210,11 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 },
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/blog/author.html",
+                        templateUrl: "/system/templates/blog/content/author.html",
                         controller: "AuthorHandler"
+                    },
+                    "listPosts@main.blog.author": {
+                        templateUrl: "/system/templates/blog/content/listPosts.html"
                     }
                 }
             })
@@ -226,8 +229,11 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 },
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/blog/catalog.html",
+                        templateUrl: "/system/templates/blog/content/catalog.html",
                         controller: "CatalogItemHandler"
+                    },
+                    "listPosts@main.blog.catalog": {
+                        templateUrl: "/system/templates/blog/content/listPosts.html"
                     }
                 }
             })
@@ -238,7 +244,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 url: "/catalog",
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/blog/catalogEdit.html",
+                        templateUrl: "/system/templates/blog/content/catalogEdit.html",
                         controller: "CatalogEditController"
                     }
                 }
@@ -253,9 +259,12 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 },
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/blog/tag.html",
+                        templateUrl: "/system/templates/blog/content/tag.html",
                         controller: "TagItemHandler"
                     }
+                },
+                "listPosts@main.blog.tag": {
+                    templateUrl: "/system/templates/blog/content/listPosts.html"
                 }
             })
             /**
@@ -265,7 +274,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 url: "/post/:postAlias",
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/blog/post.html",
+                        templateUrl: "/system/templates/blog/content/post.html",
                         controller: "PostController"
                     }
                 }
@@ -277,7 +286,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 url: "/post",
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/blog/postEdit.html",
+                        templateUrl: "/system/templates/blog/content/postEdit.html",
                         controller: "PostEditController"
                     }
                 }

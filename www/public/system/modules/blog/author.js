@@ -11,6 +11,7 @@ chimera.system.author.controller("AuthorHandler", ["$scope", "$state", "authorIt
     function ($scope, $state, authorItemService) {
         authorItemService.get({userId: $state.params.userId, page: $state.params.page}, function(response) {
             $scope.author = response.content;
+            $scope.posts = response.content.posts;
             $scope.paging = response.content.pageData;
             $scope.author.progress = false;
         });

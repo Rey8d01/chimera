@@ -120,17 +120,17 @@ chimera.system.recommendation.factory("recommendationService", ["$resource",
         var endPoint = "/recommendation";
         return $resource(endPoint, {}, {
             "harvest" : {method: "POST", url: endPoint + "/harvest"},
-            "getListRatedItems" : {method: "GET", isArray: false, url: endPoint + "/harvest/list-rated-items/:count", params: {count:5}},
-            "getListUsers" : {method: "GET", isArray: false, url: endPoint + "/harvest/list-users/:count", params: {count:10}},
-
-            "getMetrics" : {method: "POST", url: endPoint + "/metrics/:userX/:userY"}
-
-            "getStatUsers" : {method: "GET", isArray: false, url: endPoint + "/stat-users/:userX/:userY"},
-            "getStatItems" : {method: "GET", isArray: false, url: endPoint + "/stat-items/:user/:item"},
-            "utils" : {method: "PUT", isArray: false, url: endPoint + "/stat-utils"},
-
-            "getCPNUser" : {method: "POST", isArray: false, url: endPoint + "/cpn-user/"},
-            "utils" : {method: "POST", isArray: false, url: endPoint + "/cpn-utils/"},
+//            "getListRatedItems" : {method: "GET", isArray: false, url: endPoint + "/harvest/list-rated-items/:count", params: {count:5}},
+//            "getListUsers" : {method: "GET", isArray: false, url: endPoint + "/harvest/list-users/:count", params: {count:10}},
+//
+//            "getMetrics" : {method: "POST", url: endPoint + "/metrics/:userX/:userY"}
+//
+//            "getStatUsers" : {method: "GET", isArray: false, url: endPoint + "/stat-users/:userX/:userY"},
+//            "getStatItems" : {method: "GET", isArray: false, url: endPoint + "/stat-items/:user/:item"},
+//            "utils" : {method: "PUT", isArray: false, url: endPoint + "/stat-utils"},
+//
+//            "getCPNUser" : {method: "POST", isArray: false, url: endPoint + "/cpn-user/"},
+//            "utils" : {method: "POST", isArray: false, url: endPoint + "/cpn-utils/"},
         });
     }
 ]);
