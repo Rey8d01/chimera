@@ -10,13 +10,7 @@
     </div>
 
     <div class="alert alert-danger" role="alert" ng-if="catalog.error">{{catalog.error}}</div>
-    <div class="alert alert-info" role="alert" ng-if="!catalog.posts.length">Коллекция пуста</div>
-
-    <div ui-view="listPosts"></div>
-    <hr>
 
 </div>
 
-<!-- pagination -->
-<div paging page="paging.currentPage" page-size="paging.pageSize" total="paging.total" ui-sref="main.blog.catalog({catalogAlias: catalog.alias, page: paging.currentPage})"></div>
-<!-- end pagination -->
+<div list-posts posts="catalog.posts" pagination-data="catalog.pageData" read-more="main.readMore"></div>

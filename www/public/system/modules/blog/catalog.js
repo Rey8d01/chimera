@@ -13,7 +13,7 @@ chimera.system.catalog.controller("CatalogItemHandler", ["$scope", "$state", "ca
         catalogItemService.get({catalogAlias: $state.params.catalogAlias, page: $state.params.page}, function (response) {
             $scope.catalog = response.content;
             $scope.posts = response.content.posts;
-            $scope.paging = response.content.pageData;
+            //$scope.paging = response.content.pageData;
             $scope.catalog.progress = false;
         });
     }
@@ -31,7 +31,7 @@ chimera.system.catalog.controller("CatalogLatestController", ["$scope", "$state"
 
         catalogItemService.get({}, function (response) {
             $scope.catalog = response.content;
-            $scope.paging = response.content.pageData;
+            //$scope.paging = response.content.pageData;
             $scope.catalog.progress = false;
         }, function (response) {
             $scope.catalog.progress = false;
@@ -77,7 +77,7 @@ chimera.system.catalog.controller("CatalogEditController", ["$scope", "$state", 
         $scope.sendCatalogEdit = function () {
             catalogItemService.save($scope.catalogEdit).$promise.then(function (response) {
                 if (response.error.code == 0) {
-                    $state.go("main.blog.catalog", {"catalogAlias":$scope.catalogEdit.alias})
+                    $state.go("main.blog.catalog", {"catalogAlias":$scope.catalogEdit.alias});
                 }
             });
         };

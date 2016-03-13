@@ -92,7 +92,7 @@ chimera.system.post.controller("PostEditController", ["$scope", "$state", "postS
          */
         $scope.deleteTag = function (tag) {
             $scope.postEdit.tags = _.without($scope.postEdit.tags, tag);
-        }
+        };
 
         /**
          * Отправка запроса на создание поста.
