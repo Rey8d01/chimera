@@ -9,11 +9,12 @@ chimera.system.author = angular.module("author", ["ngResource", "ngSanitize"]);
  */
 chimera.system.author.controller("AuthorHandler", ["$scope", "$state", "authorItemService",
     function ($scope, $state, authorItemService) {
+        $scope.main.blogContentLoad = true;
         authorItemService.get({userId: $state.params.userId, page: $state.params.page}, function(response) {
             $scope.author = response.content;
             $scope.posts = response.content.posts;
             //$scope.paging = response.content.pageData;
-            $scope.author.progress = false;
+            $scope.main.blogContentLoad = false;
         });
     }
 ]);

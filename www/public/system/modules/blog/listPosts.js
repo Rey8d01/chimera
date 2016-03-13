@@ -10,7 +10,9 @@ chimera.system.main.directive('listPosts', function () {
             posts: '=',
             paginationData: '=',
             readMore: '=',
+            state: '@',
+            catalogAlias: '='
         },
-        templateUrl: "/system/templates/blog/content/posts.html"
+        templateUrl: "/system/templates/blog/content/listPosts.html"
     };
 });

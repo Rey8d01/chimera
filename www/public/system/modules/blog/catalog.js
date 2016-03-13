@@ -10,11 +10,12 @@ chimera.system.catalog = angular.module("catalog", ["ngResource", "ngSanitize"])
  */
 chimera.system.catalog.controller("CatalogItemHandler", ["$scope", "$state", "catalogItemService",
     function ($scope, $state, catalogItemService) {
+        $scope.main.blogContentLoad = true;
         catalogItemService.get({catalogAlias: $state.params.catalogAlias, page: $state.params.page}, function (response) {
             $scope.catalog = response.content;
             $scope.posts = response.content.posts;
             //$scope.paging = response.content.pageData;
-            $scope.catalog.progress = false;
+            $scope.main.blogContentLoad = false;
         });
     }
 ]);
@@ -24,6 +25,7 @@ chimera.system.catalog.controller("CatalogItemHandler", ["$scope", "$state", "ca
  */
 chimera.system.catalog.controller("CatalogLatestController", ["$scope", "$state", "catalogItemService",
     function ($scope, $state, catalogItemService) {
+        $scope.main.blogContentLoad = true;
 
         if (!$state.params.catalogAlias) {
             $state.params.catalogAlias = "latest";
@@ -32,9 +34,9 @@ chimera.system.catalog.controller("CatalogLatestController", ["$scope", "$state"
         catalogItemService.get({}, function (response) {
             $scope.catalog = response.content;
             //$scope.paging = response.content.pageData;
-            $scope.catalog.progress = false;
+            $scope.main.blogContentLoad = false;
         }, function (response) {
-            $scope.catalog.progress = false;
+            $scope.main.blogContentLoad = false;
         });
     }
 ]);

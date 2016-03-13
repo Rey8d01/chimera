@@ -1,3 +1,6 @@
+
+<div class="alert alert-info" role="alert" ng-if="posts && !posts.length">Постов не найдено</div>
+
 <div class="row" ng-repeat="post in posts">
     <br>
     <div class="col-md-2 col-md-3 text-center">
@@ -7,7 +10,7 @@
         <h3>{{post.title}}</h3>
         <div ng-bind-html="post.text"></div>
         <p class="lead">
-            <a class="btn btn-default" ui-sref="main.blog.post({postAlias: post.alias})">{{main.readMore}}</a>
+            <a class="btn btn-default" ui-sref="main.blog.post({postAlias: post.alias})">{{readMore}}</a>
         </p>
         <p class="pull-right tag-list">
             <a ng-repeat="tag in post.tags" class="label label-default tag-list__label" ui-sref="main.blog.tag({tagAlias: tag.alias, page: 1})">{{tag.title}}</a>
@@ -20,3 +23,6 @@
         <br>
     </div>
 </div>
+
+<div paging page="paginationData.currentPage" page-size="paginationData.pageSize" total="paginationData.total"
+     ui-state="state" ui-state-params="{catalogAlias: catalogAlias, page: paginationData.currentPage}"></div>

@@ -193,6 +193,10 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
              */
             .state("main.blog.home", {
                 url: "/home",
+                //params: {
+                //    "catalogAlias": "latest",
+                //    "page": "1"
+                //},
                 views: {
                     "content": {
                         templateUrl: "/system/templates/blog/content/catalog.html",
@@ -213,9 +217,6 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                         templateUrl: "/system/templates/blog/content/author.html",
                         controller: "AuthorHandler"
                     },
-                    "listPosts@main.blog.author": {
-                        templateUrl: "/system/templates/blog/content/listPosts.html"
-                    }
                 }
             })
             /**
@@ -232,9 +233,6 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                         templateUrl: "/system/templates/blog/content/catalog.html",
                         controller: "CatalogItemHandler"
                     },
-                    "listPosts@main.blog.catalog": {
-                        templateUrl: "/system/templates/blog/content/listPosts.html"
-                    }
                 }
             })
             /**
@@ -263,9 +261,6 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                         controller: "TagItemHandler"
                     }
                 },
-                "listPosts@main.blog.tag": {
-                    templateUrl: "/system/templates/blog/content/listPosts.html"
-                }
             })
             /**
              * Просмотр поста.
@@ -329,6 +324,7 @@ chimera.system.main.controller("ChimeraController", ["$scope", "$q", "authServic
         $scope.main = {
             "title": "Rey's-ysetm",
             "readMore": "ReadMe...",
+            "blogContentLoad": true,
             "foo": "BAAAAAR"
         };
         $scope.user = {
