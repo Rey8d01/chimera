@@ -13,6 +13,14 @@ chimera.system.post.controller("PostController", ["$scope", "$state", "postServi
         postService.get({postAlias: $state.params.postAlias}, function (response) {
             $scope.post = response.content;
         });
+
+        $scope.deletePost = function() {
+            postService.delete({postAlias: $state.params.postAlias}).$promise.then(function (response) {
+                if (response.error.code == 0) {
+                    $state.go("main.blog.home")
+                }
+            });
+        }
     }
 ]);
 

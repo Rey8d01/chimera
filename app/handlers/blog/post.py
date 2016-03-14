@@ -65,6 +65,7 @@ class PostHandler(system.handler.BaseHandler):
     """Обработчик запросов для указанного поста.
 
     GET - Запрос информации по заданному псевдониму.
+    DELETE - Запрос на удаление информации по заданному псевдониму.
 
     """
 
@@ -83,3 +84,21 @@ class PostHandler(system.handler.BaseHandler):
         document_post = collection_post[-1]
 
         raise system.utils.exceptions.Result(content=document_post.to_son())
+
+    async def delete(self, alias: str):
+        """Запрос на удаление поста.
+
+        :param alias: Имя псевдонима поста;
+        """
+        collection_post = await PostDocument() \
+            .objects \
+            .filter({PostDocument.alias.name: alias}) \
+            .find_all()
+
+        if not collection_post:
+            raise system.utils.exceptions.NotFound(error_message="Пост не найден")
+        document_post = collection_post[-1]
+
+        result = await document_post.delete()
+
+        raise system.utils.exceptions.Result(content={"result": result})

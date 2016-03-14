@@ -4,8 +4,12 @@
     <p class="post__meta">{{post.meta.dateCreate}} by <a href="#">{{post.meta.author}}</a></p>
 
     <div class="post__tags">
-        <a ng-repeat="tag in post.tags" class="label label-default post__tag" ui-sref="main.blog.tag({tagAlias: tag.alias, page: 1})">{{tag.title}}</a>
+        <p class="tag-list">
+            <a ng-repeat="tag in post.tags" class="label label-default tag-list__label" ui-sref="main.blog.tag({tagAlias: tag.alias, page: 1})">{{tag.title}}</a>
+        </p>
     </div>
 
     <div class="post__text" ng-bind-html="post.text"></div>
 </div>
+
+<a ng-click="deletePost()" class="btn btn-default">Удалить</a>

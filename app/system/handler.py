@@ -61,12 +61,15 @@ class BaseHandler(tornado.web.RequestHandler):
         self.finish()
 
     def set_default_headers(self):
-        """Перекрытый метод установки ряда стандартных заголовков."""
+        """Перекрытый метод установки ряда стандартных заголовков необходимых для CORS."""
         self.set_header('Content-Type', 'application/json; charset="utf-8"')
-        self.set_header('Access-Control-Allow-Origin', 'http://www.chimera.rey')  # *
+        self.set_header('Access-Control-Allow-Origin', 'http://www.chimera.rey')  # * | http://www.chimera.rey
         self.set_header('Access-Control-Allow-Headers', 'X-Requested-With')
+        self.set_header('Access-Control-Allow-Credentials', 'true')
+        self.set_header('Access-Control-Max-Age', '600')
+        self.set_header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS')
 
-    async def options(self):
+    async def options(self, *args, **kwargs):
         """Обработчик запроса по методу OPTIONS."""
         raise system.utils.exceptions.Result(content={"hello": "world"})
 
