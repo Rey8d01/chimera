@@ -63,7 +63,12 @@ class BaseHandler(tornado.web.RequestHandler):
     def set_default_headers(self):
         """Перекрытый метод установки ряда стандартных заголовков."""
         self.set_header('Content-Type', 'application/json; charset="utf-8"')
-        self.set_header('Access-Control-Allow-Origin', '*')
+        self.set_header('Access-Control-Allow-Origin', 'http://www.chimera.rey')  # *
+        self.set_header('Access-Control-Allow-Headers', 'X-Requested-With')
+
+    async def options(self):
+        """Обработчик запроса по методу OPTIONS."""
+        raise system.utils.exceptions.Result(content={"hello": "world"})
 
     async def get_current_user(self):
         """Перекрытый метод определения пользователя."""
