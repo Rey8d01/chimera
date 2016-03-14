@@ -12,7 +12,7 @@ chimera.system.tag.controller("TagItemHandler", ["$scope", "$state", "tagItemSer
         $scope.main.blogContentLoad = true;
         tagItemService.get({tagAlias: $state.params.tagAlias, page: $state.params.page}, function(response) {
             $scope.tag = response.content;
-            $scope.posts = response.content.posts;
+            //$scope.posts = response.content.posts;
             //$scope.paging = response.content.pageData;
             $scope.main.blogContentLoad = false;
         });

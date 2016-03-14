@@ -12,7 +12,7 @@ chimera.system.author.controller("AuthorHandler", ["$scope", "$state", "authorIt
         $scope.main.blogContentLoad = true;
         authorItemService.get({userId: $state.params.userId, page: $state.params.page}, function(response) {
             $scope.author = response.content;
-            $scope.posts = response.content.posts;
+            //$scope.posts = response.content.posts;
             //$scope.paging = response.content.pageData;
             $scope.main.blogContentLoad = false;
         });

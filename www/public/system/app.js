@@ -193,14 +193,14 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
              */
             .state("main.blog.home", {
                 url: "/home",
-                //params: {
-                //    "catalogAlias": "latest",
-                //    "page": "1"
-                //},
+                params: {
+                    "catalogAlias": "latest",
+                    "page": "1"
+                },
                 views: {
                     "content": {
                         templateUrl: "/system/templates/blog/content/catalog.html",
-                        controller: "CatalogLatestController"
+                        controller: "CatalogItemHandler"
                     }
                 }
             })
@@ -324,7 +324,7 @@ chimera.system.main.controller("ChimeraController", ["$scope", "$q", "authServic
         $scope.main = {
             "title": "Rey's-ysetm",
             "readMore": "ReadMe...",
-            "blogContentLoad": true,
+            "blogContentLoad": false,
             "foo": "BAAAAAR"
         };
         $scope.user = {
