@@ -33,12 +33,6 @@ class ResultMessage:
                 "code": error_code
             },
             "content": content if content is not None else {},
-            "maintenance": {
-                "redirect": None,
-                "refresh": None,
-                "delay": None,
-                "cookie": None
-            }
         }
 
     def __str__(self):
@@ -51,11 +45,6 @@ class ResultMessage:
         :param data: Передаваемые данные могут быть любого типа, с которым не возникнет проблем при сериализации в json;
         """
         self._message["content"].update(data)
-
-    def set_cookie(self, cookie: str):
-        # todo ref
-        # self._message["maintenance"]["cookie"] = str(cookie)[len("Set-Cookie: chimera_user="):]
-        self._message["maintenance"]["cookie"] = str(cookie)[len("Set-Cookie: "):]
 
     def get_message(self) -> dict:
         """Вернет весь подготовленный ответ целиком.

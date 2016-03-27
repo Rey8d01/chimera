@@ -43,22 +43,32 @@ class BaseHandler(tornado.web.RequestHandler):
         exception = exc_info[1]
         traceback = exc_info[0]
 
+        self.result(exception)
+
+        # result = self._parse_result(exception)
+        # # Вывод результата обработки исключения.
+        # self.finish(result)
+
+    def result(self, source_result=None):
+        result = self._parse_result(source_result)
+        # Вывод результата обработки исключения.
+        self.finish(result)
+
+    def _parse_result(self, source_result):
         # Попытка привести исключение к строковому виду.
-        if isinstance(exception, system.utils.exceptions.Result):
+        if isinstance(source_result, system.utils.exceptions.Result):
             # Успешная отработка запроса
-            self.set_status(200)
-            result = str(exception)
-        elif isinstance(exception, system.utils.exceptions.ChimeraException):
+            # self.set_status(200)
+            result = str(source_result)
+        elif isinstance(source_result, system.utils.exceptions.ChimeraException):
             # Относительно успешная отработка запроса - исключение которое не было правильно обработано.
-            result = str(exception)
+            result = str(source_result)
         else:
             # Системное исключение которое было возбуждено феймворком - попытка отработать его корректно для клиента.
-            result_message = system.utils.exceptions.ResultMessage(error_message=str(exception), error_code=1)
+            result_message = system.utils.exceptions.ResultMessage(error_message=str(source_result), error_code=1)
             result = str(result_message)
 
-        # Вывод результата обработки исключения.
-        self.write(result)
-        self.finish()
+        return result
 
     def set_default_headers(self):
         """Перекрытый метод установки ряда стандартных заголовков необходимых для CORS."""

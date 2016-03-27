@@ -39,7 +39,7 @@ class PostEditHandler(system.handler.BaseHandler):
 
         await document_post.save()
 
-        raise system.utils.exceptions.Result(content=document_post.to_son())
+        raise system.utils.exceptions.Result(content=document_post.to_json())
 
     async def put(self):
         """Изменение существующего поста."""
@@ -58,7 +58,7 @@ class PostEditHandler(system.handler.BaseHandler):
         document_post.fill_document_from_dict(self.request.arguments)
         await document_post.save()
 
-        raise system.utils.exceptions.Result(content=document_post.to_son())
+        raise system.utils.exceptions.Result(content=document_post.to_json())
 
 
 class PostHandler(system.handler.BaseHandler):
@@ -83,7 +83,7 @@ class PostHandler(system.handler.BaseHandler):
             raise system.utils.exceptions.NotFound(error_message="Пост не найден")
         document_post = collection_post[-1]
 
-        raise system.utils.exceptions.Result(content=document_post.to_son())
+        raise system.utils.exceptions.Result(content=document_post.to_json())
 
     async def delete(self, alias: str):
         """Запрос на удаление поста.

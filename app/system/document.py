@@ -23,6 +23,30 @@ class BaseDocument(Document):
         """Инициализация воспроизводит действия основного документа-родителя"""
         Document.__init__(self, **kw)
 
+    def to_json(self) -> dict:
+        """Подготовка документа для перевода его в JSON."""
+        data = {'id': str(self._id)}
+
+        for name, field in list(self._fields.items()):
+            value = self.get_field_value(name)
+
+            try:
+                result = field.to_son(value)
+            except Exception:
+                result = value
+
+            if type(result) is list:
+                result = list(map(str, result))
+            elif type(result) is dict:
+                # result = list(map(str, result))
+                pass
+            else:
+                result = str(result)
+
+            data[field.db_field] = result
+
+        return data
+
     def to_son(self) -> dict:
         """Подготовка документа для перевода его в JSON."""
         data = dict()

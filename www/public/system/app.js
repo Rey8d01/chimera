@@ -48,9 +48,10 @@ chimera.system.main.factory("sessionRecover", ["$q", "$location", function($q, $
     chimera.helpers.debug("sessionRecover");
 
     // Общая обработка ошибок.
-    var parseError = function(error) {
-        switch(error.code) {
-            case 11:                
+    var parseError = function (error) {
+        switch (error.code) {
+            case 11:
+                $.notify(error.message, "error");
                 $location.path("/login").replace();
                 break;
             default:

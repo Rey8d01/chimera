@@ -28,7 +28,7 @@ class CatalogEditHandler(system.handler.BaseHandler):
 
         await document_catalog.save()
 
-        raise system.utils.exceptions.Result(content=document_catalog.to_son())
+        raise system.utils.exceptions.Result(content=document_catalog.to_json())
 
     async def put(self):
         """Изменение существующего каталога."""
@@ -47,7 +47,7 @@ class CatalogEditHandler(system.handler.BaseHandler):
         document_catalog.fill_document_from_dict(self.request.arguments)
         await document_catalog.save()
 
-        raise system.utils.exceptions.Result(content=document_catalog.to_son())
+        raise system.utils.exceptions.Result(content=document_catalog.to_json())
 
 
 class CatalogItemHandler(system.handler.BaseHandler):
@@ -93,7 +93,7 @@ class CatalogItemHandler(system.handler.BaseHandler):
 
                 document_post.text = " ".join(clipped_text)
 
-                list_items_post.append(document_post.to_son())
+                list_items_post.append(document_post.to_json())
 
             result.update({
                 CatalogDocument.title.name: "Последние новости",
@@ -116,7 +116,7 @@ class CatalogItemHandler(system.handler.BaseHandler):
                 raise system.utils.exceptions.NotFound(error_message="Коллекция не найдена")
             document_catalog = collection_catalog[0]
 
-            result.update(document_catalog.to_son())
+            result.update(document_catalog.to_json())
 
             count_post = await PostDocument().objects.filter({PostDocument.catalogAlias.name: alias}).count()
             pagination = Pagination(count_post, current_page, 5)
@@ -139,7 +139,7 @@ class CatalogItemHandler(system.handler.BaseHandler):
 
                     document_post.text = " ".join(clipped_text)
 
-                    list_items_post.append(document_post.to_son())
+                    list_items_post.append(document_post.to_json())
 
             result.update({
                 "posts": list_items_post,
@@ -171,7 +171,7 @@ class CatalogListMainHandler(system.handler.BaseHandler):
         for document_catalog in collection_catalog:
             # К каждому каталогу примешиваем количество сообщений в каталоге.
             count_posts = await PostDocument().objects.filter({PostDocument.catalogAlias.name: document_catalog.alias}).count()
-            result = document_catalog.to_son()
+            result = document_catalog.to_json()
             result["countPosts"] = count_posts
             list_catalogs.append(result)
 
@@ -199,7 +199,7 @@ class CatalogListChildrenHandler(system.handler.BaseHandler):
         for document_catalog in collection_catalog:
             # К каждому каталогу примешиваем количество сообщений в каталоге.
             count_posts = await PostDocument().objects.filter({PostDocument.catalogAlias.name: document_catalog.alias}).count()
-            result = document_catalog.to_son()
+            result = document_catalog.to_json()
             result["countPosts"] = count_posts
             list_catalogs.append(result)
 

@@ -54,7 +54,7 @@ class AuthorHandler(system.handler.BaseHandler):
 
                 document_post.text = " ".join(clipped_text)
 
-                list_items_post.append(document_post.to_son())
+                list_items_post.append(document_post.to_json())
 
         result = {
             "userName": document_user.get_user_name(),
