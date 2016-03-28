@@ -6,32 +6,10 @@
 обработчики) должны возвращать один и тот же, по своей структуре, результат.
 
 """
-from system.utils.result import ResultMessage
+from tornado.web import Finish
 
 
-class ChimeraException(Exception):
-    """Базовый класс исключений для системы.
-
-    :type message: str Текст при выводе исключения;
-    """
-
-    message = None
-
-    def __init__(self, message: str):
-        """Инициализация базового класса исключений.
-
-        :param message: Текст для сообщения в исключении;
-        :type message: str
-        """
-
-        self.message = message
-
-    def __str__(self):
-        """Базовый вывод текста исключения."""
-        return str(self.message)
-
-
-class Result(ChimeraException):
+class Result(Finish):
     """Базовое исключение для вывода результата работы обработчиков.
 
     Возбуждение этого исключения и его наследников должно свидетельствовать о корректном завершении работы над запросом
@@ -44,15 +22,28 @@ class Result(ChimeraException):
     _error_message = None
 
     def __init__(self, content: dict = None, error_message: str = None, error_code: int = None):
-        """Перекрытие инициализации для предачи аргументов в объект ResultMessage.
+        """Перекрытие инициализации для передачи аргументов в объект Finish.
 
-        Инициализация отличается от родительской тем что в качестве результирующего сообщения будет задан объект ResultMessage
-        с результатом работы системы, при этом перевод в строку должен отрабатываться корректно поскольку вывод будет идти в виде json.
+        Ответ должен содержать в себе всю необходимую информацию для адекватной реакции клиента:
+        - список ошибок возникших в результате обработки запроса;
+        - запрошенный контент;
+
+        Инициализация отличается от родительской тем что в данном исключении приводится структура ответа к единому виду
+        при этом перевод в строку должен отрабатываться корректно поскольку вывод будет идти в виде json, перевод в который обеспечит
+        сам tornado через обработку исключения Finish и выводом (не как ошибки) через стандартный механизм ответов.
 
         """
         error_code = error_code if error_code is not None else self._error_code
         error_message = error_message if error_message is not None else self._error_message
-        self.message = ResultMessage(content=content, error_message=error_message, error_code=error_code)
+
+        message = {
+            "error": {
+                "message": error_message,
+                "code": error_code
+            },
+            "content": content if content is not None else {},
+        }
+        super().__init__(message)
 
 
 class ErrorResult(Result):
