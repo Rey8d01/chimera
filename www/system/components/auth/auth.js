@@ -70,7 +70,7 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookies", "$htt
                     tryAuthorization = OAuth.create(authType);
                     if (tryAuthorization) {
                         authorizationType = authType;
-                        authorization = tryAuthorization
+                        authorization = tryAuthorization;
                         return true;
                     }
                 }
@@ -151,7 +151,7 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookies", "$htt
                     if (data.content.auth && ($location.path() == "/login")) {
                         deferred.resolve();
                         authorization = true;
-                        authorizationType = 'manual'
+                        authorizationType = 'manual';
                         $location.path("/main/home").replace();
                     } else {
                         deferred.reject();
@@ -186,6 +186,8 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookies", "$htt
                     var promise = authorization.me().done(function(data) {
                         //when the data is retrieved resolved the deferred object
                         deferred.resolve(data);
+                    }).fail(function(err) {
+                        $location.path("/login").replace();
                     });
                 }
                 //return the promise of the deferred object

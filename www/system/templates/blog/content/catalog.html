@@ -1,5 +1,11 @@
 <div>
     <h3>{{catalog.title}}</h3>
+
+    <!-- editable -->
+    <div>
+        <i class="fa fa-edit"></i>
+    </div>
+
     <div class="alert alert-danger" role="alert" ng-if="catalog.error">{{catalog.error}}</div>
     <div list-posts posts="catalog.posts" pagination-data="catalog.pageData" read-more="main.readMore" catalog-alias="catalog.alias" state="main.blog.catalog"></div>
 </div>

@@ -7,6 +7,6 @@ chimera.system.main.directive('progressBar', function () {
         scope: {
             progress: '=',
         },
-        templateUrl: "/www/system/templates/blog/progressBar.html"
+        templateUrl: "/system/templates/blog/progressBar.html"
     };
 });
