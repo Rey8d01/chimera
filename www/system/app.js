@@ -146,7 +146,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 url: "/login",
                 views: {
                     "": {
-                        templateUrl: "/system/templates/login.html",
+                        templateUrl: "/www/system/templates/login.html",
                         controller: "AuthController"
                     }
                 }
@@ -160,7 +160,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 url: "",
                 views: {
                     "": {
-                        templateUrl: "/system/templates/main.html",
+                        templateUrl: "/www/system/templates/main.html",
                         controller: "ChimeraController"
                     }
                 }
@@ -175,18 +175,18 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
 
                 views: {
                     "container@main": {
-                        templateUrl: "/system/templates/blog/index.html",
+                        templateUrl: "/www/system/templates/blog/index.html",
                         //controller: "CatalogLatestController"
                     },
                     "catalogs@main.blog": {
-                        templateUrl: "/system/templates/blog/catalogs.html",
+                        templateUrl: "/www/system/templates/blog/catalogs.html",
                         controller: "CatalogListMainController"
                     },
                     "tags@main.blog": {
-                        templateUrl: "/system/templates/blog/tags.html",
+                        templateUrl: "/www/system/templates/blog/tags.html",
                         controller: "TagListMainController"
                     },
-                    "links@main.blog": {templateUrl: "/system/templates/blog/links.html"}
+                    "links@main.blog": {templateUrl: "/www/system/templates/blog/links.html"}
                 }
             })
             /**
@@ -200,7 +200,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 },
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/blog/content/catalog.html",
+                        templateUrl: "/www/system/templates/blog/content/catalog.html",
                         controller: "CatalogItemHandler"
                     }
                 }
@@ -215,7 +215,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 },
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/blog/content/author.html",
+                        templateUrl: "/www/system/templates/blog/content/author.html",
                         controller: "AuthorHandler"
                     },
                 }
@@ -231,7 +231,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 },
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/blog/content/catalog.html",
+                        templateUrl: "/www/system/templates/blog/content/catalog.html",
                         controller: "CatalogItemHandler"
                     },
                 }
@@ -243,7 +243,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 url: "/catalog",
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/blog/content/catalogEdit.html",
+                        templateUrl: "/www/system/templates/blog/content/catalogEdit.html",
                         controller: "CatalogEditController"
                     }
                 }
@@ -258,7 +258,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 },
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/blog/content/tag.html",
+                        templateUrl: "/www/system/templates/blog/content/tag.html",
                         controller: "TagItemHandler"
                     }
                 },
@@ -270,7 +270,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 url: "/post/:postAlias",
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/blog/content/post.html",
+                        templateUrl: "/www/system/templates/blog/content/post.html",
                         controller: "PostController"
                     }
                 }
@@ -282,7 +282,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 url: "/post",
                 views: {
                     "content": {
-                        templateUrl: "/system/templates/blog/content/postEdit.html",
+                        templateUrl: "/www/system/templates/blog/content/postEdit.html",
                         controller: "PostEditController"
                     }
                 }
@@ -294,7 +294,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 url: "/recommendation",
                 views: {
                     "container": {
-                        templateUrl: "/system/templates/recommendation/index.html",
+                        templateUrl: "/www/system/templates/recommendation/index.html",
                         controller: "RecommendationController"
                     }
                 }

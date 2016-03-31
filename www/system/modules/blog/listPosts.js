@@ -13,6 +13,6 @@ chimera.system.main.directive('listPosts', function () {
             state: '@',
             catalogAlias: '='
         },
-        templateUrl: "/system/templates/blog/content/listPosts.html"
+        templateUrl: "/www/system/templates/blog/content/listPosts.html"
     };
 });
