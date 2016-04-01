@@ -12,7 +12,7 @@ from system.utils.pagination import Pagination
 from documents.user import UserDocument
 
 
-class AuthorHandler(system.handler.BaseHandler):
+class AuthorHandler(system.handler.MainHandler):
     """Обработчик запросов для указанного каталога.
 
     GET - Запрос списка постов по заданному id автора.

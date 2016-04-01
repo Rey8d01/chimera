@@ -26,7 +26,7 @@ class ListRatedItemsHandler(BaseHandler):
         :param count:
         """
         count = int(count)
-        document_user = await self.get_data_current_user()
+        document_user = self.current_user
         # Выборка указанного количества фильмов (по последним).
         result = []
         if document_user.critic is not None:
@@ -66,7 +66,7 @@ class HarvestHandler(BaseHandler):
         """Сохранение данных критики."""
         imdb = self.get_bytes_body_argument("imdb")
         rate = int(self.get_bytes_body_argument("rate"))
-        document_user = await self.get_data_current_user()
+        document_user = self.current_user
         if document_user.critic is None:
             # Создание новой записи в случае если вообще никаких данных не было до этого (вдруг там не dict).
             document_user.critic = {imdb: int(rate)}

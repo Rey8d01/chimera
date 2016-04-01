@@ -1,8 +1,9 @@
 """Документы для хранения информации пользователей."""
-from motorengine import Document, EmbeddedDocumentField, StringField, ListField, JsonField, DateTimeField, BaseField, BooleanField
+from system.document import BaseDocument
+from motorengine import EmbeddedDocumentField, StringField, ListField, JsonField, DateTimeField, BaseField, BooleanField
 
 
-class UserOAuthDocument(Document):
+class UserOAuthDocument(BaseDocument):
     """Данные по авторизации через соцсети.
 
     :type type: str Тип социальной сети (уникальное имя);
@@ -24,7 +25,7 @@ class UserOAuthDocument(Document):
     main = BooleanField(default=False)
 
 
-class UserInfoDocument(Document):
+class UserInfoDocument(BaseDocument):
     """Некие информационные поля.
 
     :type data: dict Неформализованная информация по пользователю;
@@ -32,7 +33,7 @@ class UserInfoDocument(Document):
     data = BaseField()
 
 
-class UserMetaDocument(Document):
+class UserMetaDocument(BaseDocument):
     """Всякая сервисная информация.
 
     :type dateRegistration: str Дата регистрации;
@@ -42,7 +43,7 @@ class UserMetaDocument(Document):
     dateLastActivity = DateTimeField()
 
 
-class UserDocument(Document):
+class UserDocument(BaseDocument):
     """Основной документ.
 
     :type info: UserInfoDocument Информация по пользователю;

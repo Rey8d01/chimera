@@ -13,7 +13,7 @@ from documents.blog.post import PostDocument, PostMetaDocument
 from system.utils.pagination import Pagination
 
 
-class CatalogEditHandler(system.handler.BaseHandler):
+class CatalogEditHandler(system.handler.MainHandler):
     """Обработчик запросов для создания/редактирования информации по каталогам.
 
     POST - Создание нового каталога возможно при отсутствии заданного псевдонима в базе данных.
@@ -50,7 +50,7 @@ class CatalogEditHandler(system.handler.BaseHandler):
         raise system.utils.exceptions.Result(content=document_catalog.to_json())
 
 
-class CatalogItemHandler(system.handler.BaseHandler):
+class CatalogItemHandler(system.handler.MainHandler):
     """Обработчик запросов для указанного каталога.
 
     GET - Запрос информации по заданному псевдониму (с постраничной навигацией).
@@ -153,7 +153,7 @@ class CatalogItemHandler(system.handler.BaseHandler):
         raise system.utils.exceptions.Result(content=result)
 
 
-class CatalogListMainHandler(system.handler.BaseHandler):
+class CatalogListMainHandler(system.handler.MainHandler):
     """Обработчик запросов для работы со списком каталогов у которых нет родительского каталога (корень).
 
     GET - Запрос информации по всем каталогам.
@@ -178,7 +178,7 @@ class CatalogListMainHandler(system.handler.BaseHandler):
         raise system.utils.exceptions.Result(content={"catalogs": list_catalogs})
 
 
-class CatalogListChildrenHandler(system.handler.BaseHandler):
+class CatalogListChildrenHandler(system.handler.MainHandler):
     """Обработчик запросов для работы со списком каталогов, которые относятся к определенному родителю.
 
     GET - Запрос информации по всем каталогам.

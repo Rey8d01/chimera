@@ -6,15 +6,16 @@
 """
 import system.handler
 import system.utils.exceptions
-from documents.blog.post import PostDocument, PostTagsDocument
+from documents.blog.post import PostDocument, PostTagsDocument, PostMetaDocument
 import transliterate
 
 
 class PostEditHandler(system.handler.BaseHandler):
-    """Обработчик запросов для создания/редактирования информации по постам.
+    """Обработчик запросов для редактирования информации по постам.
 
     POST - Создание нового поста возможно при отсутствии заданного псевдонима в базе данных.
     PUT - Редактирование нового поста по заданному и существующему псевдониму в базе данных.
+    DELETE - Удаление поста по заданному и существующему псевдониму в базе данных.
 
     """
 
@@ -23,7 +24,7 @@ class PostEditHandler(system.handler.BaseHandler):
         document_post = PostDocument()
         document_post.fill_document_from_dict(self.get_bytes_body_source())
 
-        document_user = await self.get_data_current_user()
+        document_user = self.current_user
         document_post.meta.author = document_user.get_main_oauth_document().name
         document_post.meta.user = document_user
         # Пасринг тегов - предполагается что они идут пачкой под одной переменной.
@@ -60,8 +61,25 @@ class PostEditHandler(system.handler.BaseHandler):
 
         raise system.utils.exceptions.Result(content=document_post.to_json())
 
+    async def delete(self, alias):
+        """Удаление существующего поста."""
+        document_user = self.current_user
 
-class PostHandler(system.handler.BaseHandler):
+        # Выбор поста с указанным псевдонимом (иначе исключение).
+        collection_post = await PostDocument() \
+            .objects \
+            .filter({PostDocument.alias.name: alias, PostDocument.meta.name: {"$elemMatch": {PostMetaDocument.user.name: document_user}}}) \
+            .limit(1) \
+            .find_all()
+        if not collection_post:
+            raise system.utils.exceptions.NotFound(error_message="Запись не найдена")
+        document_post = collection_post[-1]
+
+        await document_post.delete()
+        raise system.utils.exceptions.Result()
+
+
+class PostHandler(system.handler.MainHandler):
     """Обработчик запросов для указанного поста.
 
     GET - Запрос информации по заданному псевдониму.

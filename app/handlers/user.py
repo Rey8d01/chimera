@@ -12,7 +12,7 @@ class MeHandler(system.handler.MainHandler):
 
     async def get(self):
         """Получение данных текущего пользователя, который представился системе."""
-        document_user = await self.get_data_current_user()
+        document_user = self.current_user
 
         result = {
             "id": str(document_user._id)

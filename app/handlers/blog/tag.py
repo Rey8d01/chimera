@@ -10,7 +10,7 @@ from documents.blog.post import PostDocument, PostMetaDocument, PostTagsDocument
 from system.utils.pagination import Pagination
 
 
-class TagItemHandler(system.handler.BaseHandler):
+class TagItemHandler(system.handler.MainHandler):
     """Обработчик запросов для указанного тега.
 
     GET - Запрос списка постов по заданному тегу (с постраничной навигацией).
@@ -63,7 +63,7 @@ class TagItemHandler(system.handler.BaseHandler):
         raise system.utils.exceptions.Result(content=result)
 
 
-class TagListHandler(system.handler.BaseHandler):
+class TagListHandler(system.handler.MainHandler):
     """Обработчик запросов для работы со списком каталогов у которых нет родительского каталога (корень).
 
     GET - Запрос списка всех тегов.

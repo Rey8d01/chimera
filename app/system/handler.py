@@ -66,41 +66,6 @@ class BaseHandler(tornado.web.RequestHandler):
         """Обработчик запроса по методу OPTIONS."""
         raise system.utils.exceptions.Result(content={"hello": "world"})
 
-    async def get_current_user(self):
-        """Перекрытый метод определения пользователя."""
-        user_data = await self.get_user_session()
-        if user_data:
-            return self.escape.json_decode(user_data)
-        else:
-            raise system.utils.exceptions.UserNotAuth()
-
-    async def set_user_session(self, chimera_user: str):
-        """Запись данных пользователя в сессию.
-
-        :param chimera_user: json строка с данными пользователя;
-        """
-        await self.redis.set("chimera_user", chimera_user)
-
-    async def get_user_session(self) -> str:
-        """Получение из сессии данных пользователя."""
-        return await self.redis.get("chimera_user")
-
-    async def clear_user_session(self):
-        """Очищение данных пользователя из сессии."""
-        await self.redis.delete("chimera_user")
-
-    async def get_data_current_user(self) -> UserDocument:
-        """Вернет данные из базы по текущему пользователю."""
-        user_data = await self.get_current_user()
-
-        document_user = UserDocument()
-        users = await document_user.objects.filter({UserDocument.oauth.name: {"$elemMatch": {
-            UserOAuthDocument.type.name: user_data[UserOAuthDocument.type.name],
-            UserOAuthDocument.id.name: user_data[UserOAuthDocument.id.name]
-        }}}).find_all()
-
-        return users[-1]
-
     def get_bytes_body_argument(self, name, default=None) -> str:
         """Вернет значение переданного параметра от клиента.
 
@@ -131,7 +96,18 @@ class MainHandler(BaseHandler):
 
     async def prepare(self):
         """Перекрытие срабатывает перед вызовом обработчиков и в случае отсутствия данных по пользователю возбуждает исключение."""
-        await self.get_current_user()
+        user_data = self.get_secure_cookie("chimera_user")
+        if not user_data:
+            raise system.utils.exceptions.UserNotAuth()
+        user_data = self.escape.json_decode(user_data)
+
+        document_user = UserDocument()
+        users = await document_user.objects.filter({UserDocument.oauth.name: {"$elemMatch": {
+            UserOAuthDocument.type.name: user_data[UserOAuthDocument.type.name],
+            UserOAuthDocument.id.name: user_data[UserOAuthDocument.id.name]
+        }}}).find_all()
+
+        self.current_user = users[-1]
 
 
 class PrivateIntroduceHandler(BaseHandler):
@@ -148,7 +124,6 @@ class PrivateIntroduceHandler(BaseHandler):
         if bcrypt.hashpw(passphrase, hash) == hash:
             chimera_user = self.escape.json_encode({"type": "admin", "id": "-1"})
             result["auth"] = True
-            self.set_secure_cookie("chimera_user", chimera_user, domain=".chimera.rey")
             self.set_secure_cookie("chimera_user", chimera_user, domain=".chimera.rey")
 
         raise system.utils.exceptions.Result(content=result)
@@ -200,7 +175,6 @@ class IntroduceHandler(BaseHandler):
 
         chimera_user = self.escape.json_encode({"type": auth_type, "id": user_id})
         self.set_secure_cookie("chimera_user", chimera_user, domain=".chimera.rey")
-        await self.set_user_session(chimera_user)
 
         raise system.utils.exceptions.Result(content={"auth": True})
 
@@ -211,4 +185,3 @@ class LogoutHandler(MainHandler):
     async def get(self):
         """Сброс авторизации."""
         self.clear_cookie("chimera_user")
-        await self.clear_user_session()
