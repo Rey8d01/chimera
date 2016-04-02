@@ -22,7 +22,8 @@ class PostMetaDocument(BaseDocument):
 
     :type dateCreate: str Дата создания;
     :type dateUpdate: str Дата создания;
-    :type author: str Автор поста;
+    :type author: str Имя автора поста;
+    :type user: UserDocument Документ автора поста;
     """
     user = ReferenceField(reference_document_type=UserDocument)
     author = StringField()

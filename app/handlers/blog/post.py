@@ -10,7 +10,7 @@ from documents.blog.post import PostDocument, PostTagsDocument, PostMetaDocument
 import transliterate
 
 
-class PostEditHandler(system.handler.BaseHandler):
+class PostEditHandler(system.handler.MainHandler):
     """Обработчик запросов для редактирования информации по постам.
 
     POST - Создание нового поста возможно при отсутствии заданного псевдонима в базе данных.
@@ -45,37 +45,38 @@ class PostEditHandler(system.handler.BaseHandler):
     async def put(self):
         """Изменение существующего поста."""
         alias = self.get_argument(PostDocument.alias.name)
+        document_user = self.current_user
 
         # Выбор поста с указанным псевдонимом (иначе исключение).
         collection_post = await PostDocument() \
             .objects \
-            .filter({PostDocument.alias.name: alias}) \
+            .filter({PostDocument.alias.name: alias, PostDocument.meta.name + "." + PostMetaDocument.user.name: str(document_user._id)}) \
             .limit(1) \
             .find_all()
         if not collection_post:
             raise system.utils.exceptions.NotFound(error_message="Запись не найдена")
-
         document_post = collection_post[-1]
+
         document_post.fill_document_from_dict(self.request.arguments)
         await document_post.save()
 
         raise system.utils.exceptions.Result(content=document_post.to_json())
 
-    async def delete(self, alias):
+    async def delete(self, alias: str):
         """Удаление существующего поста."""
         document_user = self.current_user
 
         # Выбор поста с указанным псевдонимом (иначе исключение).
         collection_post = await PostDocument() \
             .objects \
-            .filter({PostDocument.alias.name: alias, PostDocument.meta.name: {"$elemMatch": {PostMetaDocument.user.name: document_user}}}) \
-            .limit(1) \
+            .filter({PostDocument.alias.name: alias, PostDocument.meta.name + "." + PostMetaDocument.user.name: str(document_user._id)}) \
             .find_all()
         if not collection_post:
             raise system.utils.exceptions.NotFound(error_message="Запись не найдена")
         document_post = collection_post[-1]
 
         await document_post.delete()
+
         raise system.utils.exceptions.Result()
 
 
@@ -102,21 +103,3 @@ class PostHandler(system.handler.MainHandler):
         document_post = collection_post[-1]
 
         raise system.utils.exceptions.Result(content=document_post.to_json())
-
-    async def delete(self, alias: str):
-        """Запрос на удаление поста.
-
-        :param alias: Имя псевдонима поста;
-        """
-        collection_post = await PostDocument() \
-            .objects \
-            .filter({PostDocument.alias.name: alias}) \
-            .find_all()
-
-        if not collection_post:
-            raise system.utils.exceptions.NotFound(error_message="Пост не найден")
-        document_post = collection_post[-1]
-
-        result = await document_post.delete()
-
-        raise system.utils.exceptions.Result(content={"result": result})
