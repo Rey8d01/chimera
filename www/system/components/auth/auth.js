@@ -183,12 +183,18 @@ chimera.system.auth.factory("authService", ["$q", "$location", "$cookies", "$htt
                     };
                     deferred.resolve(data);
                 } else {
-                    var promise = authorization.me().done(function(data) {
-                        //when the data is retrieved resolved the deferred object
-                        deferred.resolve(data);
-                    }).fail(function(err) {
+                    try {
+                        authorization.me().done(function(data) {
+                            //when the data is retrieved resolved the deferred object
+                            deferred.resolve(data);
+                        }).fail(function(err) {
+                            deferred.reject();
+                            $location.path("/login").replace();
+                        });
+                    } catch (e) {
+                        deferred.reject();
                         $location.path("/login").replace();
-                    });
+                    }
                 }
                 //return the promise of the deferred object
                 return deferred.promise;

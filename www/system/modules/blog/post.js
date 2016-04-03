@@ -14,7 +14,7 @@ chimera.system.post.controller("PostController", ["$scope", "$state", "postServi
             $scope.post = response.content;
         });
 
-        $scope.deletePost = function() {
+        $scope.deletePost = function () {
             postService.delete({postAlias: $state.params.postAlias}).$promise.then(function (response) {
                 if (response.error.code == 0) {
                     $state.go("main.blog.home")
@@ -70,6 +70,8 @@ chimera.system.post.controller("PostEditController", ["$scope", "$state", "postS
 
         /**
          * Источником данных для выпадающего списка будет результат отправки запроса на получение всех тегов.
+         *
+         * todo вывести в source для удаленного поиска
          */
         tagListService.get({}, function (response) {
             for (var item in response.content.tags) {
@@ -80,7 +82,28 @@ chimera.system.post.controller("PostEditController", ["$scope", "$state", "postS
         });
         // Инициализация автокомплита для тегов.
         $typeaheadTags.typeahead({
-            source: tags,
+            source: function (request, response) {
+                var resultSearch = [];
+                for (var tag in tags) {
+                    if (tags[tag].title.toLowerCase().search(request.trim().toLowerCase()) + 1) {
+                        resultSearch.push({
+                            "alias": tags[tag].alias,
+                            "name": tags[tag].title,
+                            "title": tags[tag].title
+                        });
+                    }
+                }
+
+                // Добавление нового тега
+                if (_.isEmpty(resultSearch)) {
+                    resultSearch.push({
+                        "alias": "",
+                        "name": "Новый тег: " + request,
+                        "title": request
+                    });
+                }
+                response(resultSearch);
+            },
             minLength: 2,
             /**
              * При выборе тега он помещается в скоп для отображения и последующей отправки.
@@ -108,7 +131,7 @@ chimera.system.post.controller("PostEditController", ["$scope", "$state", "postS
         $scope.sendPostEdit = function () {
             postService.save($scope.postEdit).$promise.then(function (response) {
                 if (response.error.code == 0) {
-                    $state.go("main.blog.post", {"postAlias":$scope.postEdit.alias})
+                    $state.go("main.blog.post", {"postAlias": $scope.postEdit.alias})
                 }
             });
         };

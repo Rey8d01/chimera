@@ -14,7 +14,7 @@
  */
 var chimera = {
     config: {
-        baseUrl: "http://api.chimera.rey/_", // baseApiUrl
+        baseUrl: "http://www.chimera.rey/_",
         baseWWWUrl: "http://www.chimera.rey",
         // baseUrl: "/system/responses/",
         auth: ["manual", "twitter", "github"],
