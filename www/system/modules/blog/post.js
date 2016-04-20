@@ -14,6 +14,10 @@ chimera.system.post.controller("PostController", ["$scope", "$state", "postServi
             $scope.post = response.content;
         });
 
+        $scope.editPost = function () {
+            $state.go("main.blog.postEdit", {postAlias: $state.params.postAlias})
+        }
+
         $scope.deletePost = function () {
             postService.delete({postAlias: $state.params.postAlias}).$promise.then(function (response) {
                 if (response.error.code == 0) {
@@ -27,46 +31,24 @@ chimera.system.post.controller("PostController", ["$scope", "$state", "postServi
 /**
  * PostEditHandler
  */
-chimera.system.post.controller("PostEditController", ["$scope", "$state", "postService", "catalogListService", "tagListService",
-    function ($scope, $state, postService, catalogListService, tagListService) {
+chimera.system.post.controller("PostEditController", ["$scope", "$state", "postService", "postEditService", "tagListService",
+    function ($scope, $state, postService, postEditService, tagListService) {
         var $typeaheadCatalogAlias = $('.post-edit__catalog-alias_view.typeahead'),
             $typeaheadTags = $('.post-edit__tags.typeahead'),
             tags = [];
 
-        $scope.postEdit = {};
-        $scope.postEdit.title = "";
-        $scope.postEdit.text = "";
-        $scope.postEdit.alias = "";
-        $scope.postEdit.catalogAlias = "";
-        $scope.postEdit.tags = [];
-
-        // Инициализация автокомплита для категорий.
-        $typeaheadCatalogAlias.typeahead({
-            /**
-             * Источником данных для выпадающего списка будет результат отправки запроса на получение всех каталогов.
-             */
-            source: function (s, cb) {
-                // todo передавать паттерн поиска в запрос и искать на сервере
-                catalogListService.get({}, function (response) {
-                    var matches = [],
-                        catalog = null;
-                    for (var item in response.content.catalogs) {
-                        catalog = response.content.catalogs[item];
-                        catalog.name = catalog.title;
-                        matches.push(catalog);
-                    }
-                    cb(matches);
-                });
-            },
-            minLength: 3,
-            /**
-             * При выборе каталога запоминаем его псевдоним.
-             */
-            afterSelect: function (item) {
-                $scope.postEdit.catalogAlias = item.alias;
-            },
-            autoSelect: true
-        });
+        if ($state.params.postAlias) {
+            postService.get({postAlias: $state.params.postAlias}, function (response) {
+                $scope.postEdit = response.content;
+            });
+        } else {
+            $scope.postEdit = {};
+            $scope.postEdit.title = "";
+            $scope.postEdit.text = "";
+            $scope.postEdit.alias = "";
+            $scope.postEdit.catalogAlias = "";
+            $scope.postEdit.tags = [];
+        }
 
         /**
          * Источником данных для выпадающего списка будет результат отправки запроса на получение всех тегов.
@@ -129,7 +111,7 @@ chimera.system.post.controller("PostEditController", ["$scope", "$state", "postS
          * Отправка запроса на создание поста.
          */
         $scope.sendPostEdit = function () {
-            postService.save($scope.postEdit).$promise.then(function (response) {
+            postEditService.save($scope.postEdit).$promise.then(function (response) {
                 if (response.error.code == 0) {
                     $state.go("main.blog.post", {"postAlias": $scope.postEdit.alias})
                 }
@@ -141,5 +123,13 @@ chimera.system.post.controller("PostEditController", ["$scope", "$state", "postS
 chimera.system.post.factory("postService", ["$resource",
     function ($resource) {
         return $resource("/post/:postAlias");
+    }
+]);
+
+chimera.system.post.factory("postEditService", ["$resource",
+    function ($resource) {
+        return $resource("/post-edit/:postAlias", {postAlias: null}, {
+            save: {method: "POST", params: {postAlias: null}}
+        });
     }
 ]);

@@ -45,16 +45,18 @@ handlers = [
     # Blog
     (r"/_/author/([\w-]+)/([\d+]+)", handlers.blog.author.AuthorHandler),
 
-    (r"/_/catalog", handlers.blog.catalog.CatalogEditHandler),
-    (r"/_/catalog/([\w-]+)/([\d+]+)", handlers.blog.catalog.CatalogItemHandler),
-    (r"/_/catalogs", handlers.blog.catalog.CatalogListMainHandler),
-    (r"/_/catalogs/([\w-]+)", handlers.blog.catalog.CatalogListChildrenHandler),
-
-    (r"/_/tag/([\w\-]+)/([\d+]+)", handlers.blog.tag.TagItemHandler),
-    (r"/_/tags", handlers.blog.tag.TagListHandler),
-
-    (r"/_/post", handlers.blog.post.PostEditHandler),
+    (r"/_/post-edit", handlers.blog.post.PostEditHandler),
+    (r"/_/post-edit/([\w-]+)", handlers.blog.post.PostEditHandler),
     (r"/_/post/([\w-]+)", handlers.blog.post.PostHandler),
+
+    (r"/_/tag-item/([\w\-]+)/([\d+]+)", handlers.blog.tag.TagItemHandler),
+    (r"/_/tag-list", handlers.blog.tag.TagListHandler),
+
+    (r"/_/catalog-edit", handlers.blog.catalog.CatalogEditHandler),
+    (r"/_/catalog-edit/([\w-]+)", handlers.blog.catalog.CatalogEditHandler),
+    (r"/_/catalog-item/([\w-]+)/([\d+]+)", handlers.blog.catalog.CatalogItemHandler),
+    (r"/_/catalog-list-main", handlers.blog.catalog.CatalogListMainHandler),
+    (r"/_/catalog-list-children/([\w-]+)", handlers.blog.catalog.CatalogListChildrenHandler),
 
     # Recommendation
     (r"/_/recommendation/harvest", handlers.recommendation.harvest.HarvestHandler),
@@ -79,6 +81,10 @@ DB_HOST = "melchior"
 DB_PORT = 27111
 DB_NAME = "chimera"
 
+# DB_HOST = "localhost"
+# DB_PORT = 27017
+# DB_NAME = "chimera"
+
 motorengine.connect(db=DB_NAME, host=DB_HOST, port=DB_PORT)
 
 # Настройки подключения к Redis
@@ -91,6 +97,9 @@ redis = tredis.RedisClient(host=REDIS_HOST, port=REDIS_PORT)
 settings = {
     "cookie_secret": "__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
     "login_url": "/login/",
+
+    "base_api_url": "http://www.chimera.rey/_",
+    "base_www_url": "http://www.chimera.rey",
 
     # Для тестирования можно подключиться к MongoDB через Motor напрямую
     # "db": motor.MotorClient(host=DB_HOST, port=DB_PORT)[DB_NAME]

@@ -178,10 +178,10 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                         templateUrl: "/system/templates/blog/index.html",
                         //controller: "CatalogLatestController"
                     },
-                    "catalogs@main.blog": {
-                        templateUrl: "/system/templates/blog/catalogs.html",
-                        controller: "CatalogListMainController"
-                    },
+//                    "catalogs@main.blog": {
+//                        templateUrl: "/system/templates/blog/catalogs.html",
+//                        controller: "CatalogListMainController"
+//                    },
                     "tags@main.blog": {
                         templateUrl: "/system/templates/blog/tags.html",
                         controller: "TagListMainController"
@@ -220,34 +220,34 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                     },
                 }
             })
-            /**
-             * Посты в каталоге.
-             */
-            .state("main.blog.catalog", {
-                url: "/catalog/:catalogAlias/:page",
-                params: {
-                    "catalogAlias": "latest",
-                    "page": "1"
-                },
-                views: {
-                    "content": {
-                        templateUrl: "/system/templates/blog/content/catalog.html",
-                        controller: "CatalogItemHandler"
-                    },
-                }
-            })
-            /**
-             * Редактирование поста.
-             */
-            .state("main.blog.catalogEdit", {
-                url: "/catalog",
-                views: {
-                    "content": {
-                        templateUrl: "/system/templates/blog/content/catalogEdit.html",
-                        controller: "CatalogEditController"
-                    }
-                }
-            })
+//            /**
+//             * Посты в каталоге.
+//             */
+//            .state("main.blog.catalog", {
+//                url: "/catalog/:catalogAlias/:page",
+//                params: {
+//                    "catalogAlias": "latest",
+//                    "page": "1"
+//                },
+//                views: {
+//                    "content": {
+//                        templateUrl: "/system/templates/blog/content/catalog.html",
+//                        controller: "CatalogItemHandler"
+//                    },
+//                }
+//            })
+//            /**
+//             * Редактирование поста.
+//             */
+//            .state("main.blog.catalogEdit", {
+//                url: "/catalog",
+//                views: {
+//                    "content": {
+//                        templateUrl: "/system/templates/blog/content/catalogEdit.html",
+//                        controller: "CatalogEditController"
+//                    }
+//                }
+//            })
             /**
              * Посты по определенному тегу.
              */
@@ -280,6 +280,9 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
              */
             .state("main.blog.postEdit", {
                 url: "/post",
+                params: {
+                    "postAlias": null
+                },
                 views: {
                     "content": {
                         templateUrl: "/system/templates/blog/content/postEdit.html",

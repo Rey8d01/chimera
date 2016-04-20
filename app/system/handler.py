@@ -101,13 +101,16 @@ class MainHandler(BaseHandler):
             raise system.utils.exceptions.UserNotAuth()
         user_data = self.escape.json_decode(user_data)
 
-        document_user = UserDocument()
-        users = await document_user.objects.filter({UserDocument.oauth.name: {"$elemMatch": {
+        collection_user = await UserDocument().objects.filter({UserDocument.oauth.name: {"$elemMatch": {
             UserOAuthDocument.type.name: user_data[UserOAuthDocument.type.name],
             UserOAuthDocument.id.name: user_data[UserOAuthDocument.id.name]
         }}}).find_all()
 
-        self.current_user = users[-1]
+        if not collection_user:
+            raise system.utils.exceptions.UserNotFound()
+        document_user = collection_user[-1]
+
+        self.current_user = document_user
 
 
 class PrivateIntroduceHandler(BaseHandler):
@@ -179,7 +182,7 @@ class IntroduceHandler(BaseHandler):
         raise system.utils.exceptions.Result(content={"auth": True})
 
 
-class LogoutHandler(MainHandler):
+class LogoutHandler(BaseHandler):
     """Класс для выхода из системы - очистка кук."""
 
     async def get(self):
