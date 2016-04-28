@@ -40,7 +40,7 @@ class UserMetaDocument(BaseDocument):
     :type dateLastActivity: str Дата последнего запроса к системе;
     """
     dateRegistration = DateTimeField(auto_now_on_insert=True)
-    dateLastActivity = DateTimeField()
+    dateLastActivity = DateTimeField(auto_now_on_insert=True)
 
 
 class UserDocument(BaseDocument):

@@ -12,7 +12,7 @@ import tornado.web
 import tornado.escape
 import system.utils.exceptions
 from json.decoder import JSONDecodeError
-from documents.user import UserDocument, UserOAuthDocument, UserMetaDocument
+from documents.user import UserDocument, UserOAuthDocument, UserMetaDocument, UserInfoDocument
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -56,7 +56,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def set_default_headers(self):
         """Перекрытый метод установки ряда стандартных заголовков необходимых для CORS."""
         # self.set_header('Content-Type', 'application/json; charset="utf-8"')
-        self.set_header('Access-Control-Allow-Origin', 'http://www.chimera.rey')  # * | http://www.chimera.rey
+        self.set_header('Access-Control-Allow-Origin', self.settings["host"])  # * | http://chimera.rey
         self.set_header('Access-Control-Allow-Headers', 'X-Requested-With')
         self.set_header('Access-Control-Allow-Credentials', 'true')
         self.set_header('Access-Control-Max-Age', '600')
@@ -115,13 +115,13 @@ class PrivateIntroduceHandler(BaseHandler):
 
     async def post(self):
         """Авторизация по парольной фразе."""
-        import bcrypt
+        import hashlib
 
-        hash = '$2a$15$jsDxfdO6tL1gVLoUVZh4AuyBRg92e.sjYY/kA2xKSGM.0MBU7smSq'  # passphrase
+        hash = hashlib.sha512(b"passphrase").hexdigest()  # passphrase
         passphrase = self.get_bytes_body_argument("passphrase")
 
         result = {"auth": False}
-        if bcrypt.hashpw(passphrase, hash) == hash:
+        if hashlib.sha512(passphrase.encode()).hexdigest() == hash:
             chimera_user = self.escape.json_encode({"type": "admin", "id": "-1"})
             result["auth"] = True
             self.set_secure_cookie("chimera_user", chimera_user, domain=".chimera.rey")
@@ -136,9 +136,11 @@ class IntroduceHandler(BaseHandler):
         """Сборка документа пользователя для его сохранения."""
         # todo Вынесли всякое добро в отдельный метод, может потом с изменением архитектуры удобнее это будет вообще держать подальше
         document_user = UserDocument()
+        document_user_info = UserInfoDocument()
         document_user_oauth = UserOAuthDocument()
         document_user_meta = UserMetaDocument()
         document_user.oauth = [document_user_oauth]
+        document_user.info = document_user_info
         document_user.meta = document_user_meta
 
         user_info_raw = {key: value for key, value in self.request.arguments.items() if
@@ -179,7 +181,7 @@ class IntroduceHandler(BaseHandler):
         raise system.utils.exceptions.Result(content={"auth": True})
 
 
-class LogoutHandler(MainHandler):
+class LogoutHandler(BaseHandler):
     """Класс для выхода из системы - очистка кук."""
 
     async def get(self):

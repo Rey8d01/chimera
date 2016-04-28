@@ -1,46 +1,31 @@
-    # storage
-    server {
-        listen 80;
-        charset utf-8;
-        root /dir/to/chimera/storage;
-        server_name storage.chimera.rey;
+# www
+server {
+    listen 80;
+    charset utf-8;
+    root /path/to/chimera/www;
+    server_name chimera.rey;
+    index index.html;
+    client_max_body_size 5M;
+
+    location / {
+        try_files $uri /index.html;
     }
 
-    # www
-    server {
-        listen 80;
-        charset utf-8;
-        root /dir/to/chimera/www/public;
-        server_name www.chimera.rey;
-        index index.html;
-        client_max_body_size 5M;
-
-        location / {
-            try_files $uri /index.html;
-        }
-
-        location ~ \.(js|css|ico|htm|html|json)$ {
-            try_files $uri =404;
-        }
+    location ~ \.(js|css|ico|htm|html|json)$ {
+        try_files $uri =404;
     }
 
-    # api
-    upstream backends {
-        server 127.0.0.1:8888;
+    location /_/ {
+        proxy_pass_header Server;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Scheme $scheme;
+        proxy_pass http://chimera_backends;
     }
+}
 
-    server {
-        listen 80;
-        client_max_body_size 50M;
-        charset utf-8;
-        server_name api.chimera.rey;
-
-        location / {
-            proxy_pass_header Server;
-            proxy_set_header Host $http_host;
-            proxy_redirect off;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Scheme $scheme;
-            proxy_pass http://backends;
-        }
-    }
+# apps
+upstream chimera_backends {
+    server host_app_server:8888;
+}

@@ -5,6 +5,8 @@
 todo реализовать проверки по наличию соединений с базой, кешем и др.
 
 """
+import json
+import ssl
 
 from tornado.options import define
 
@@ -14,6 +16,7 @@ import motorengine
 import tredis
 
 import system.handler
+
 
 import handlers.test
 import handlers.user
@@ -27,9 +30,15 @@ import handlers.recommendation.process
 import handlers.recommendation.fake.cpn
 import handlers.recommendation.fake.statistic
 
+try:
+    f = open("./local/settings.json")
+    settings = json.load(f)
+except Exception:
+    # В случае проблем с чтением настроек из файла, оставим пустые настройки.
+    settings = {}
+
 # Базовые настройки запуска системы
-SYSTEM_PORT = 8888
-define("port", default=SYSTEM_PORT, help="run on the given port", type=int)
+define("port", default=settings["system_port"], help="run on the given port", type=int)
 
 # Роутинг
 handlers = [
@@ -75,26 +84,24 @@ handlers = [
 ]
 
 # Настройки подключения к базе данных MongoDB
-DB_HOST = "melchior"
-DB_PORT = 27111
-DB_NAME = "chimera"
-
-motorengine.connect(db=DB_NAME, host=DB_HOST, port=DB_PORT)
+motorengine.connect(db=settings["db"]["name"], host=settings["db"]["host"], port=settings["db"]["port"])
 
 # Настройки подключения к Redis
-REDIS_HOST = "localhost"
-REDIS_PORT = 6379
+redis = tredis.RedisClient(host=settings["redis"]["host"], port=settings["redis"]["port"])
 
-redis = tredis.RedisClient(host=REDIS_HOST, port=REDIS_PORT)
+# Настройки SSL
+try:
+    ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    ssl_ctx.load_cert_chain(settings["ssl"]["certificates"][0], settings["ssl"]["certificates"][1])
+except KeyError:
+    ssl_ctx = None
 
 # Настройки приложения - доступны внутри хендлеров через self.settings
-settings = {
-    "cookie_secret": "__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
-    "login_url": "/login/",
-
+system_settings = {
     # Для тестирования можно подключиться к MongoDB через Motor напрямую
     # "db": motor.MotorClient(host=DB_HOST, port=DB_PORT)[DB_NAME]
     # "db": motorengine.connect(db=DB_NAME, host=DB_HOST, port=DB_PORT)
-
     "redis": redis,
 }
+
+settings.update(system_settings)

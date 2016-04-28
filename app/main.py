@@ -19,13 +19,14 @@ import tornado.ioloop  # основная петля ввода/вывода
 # import tornado.websocket  #
 import tornado.log
 from tornado.options import options
-import system.configuration
+import configuration
 
 if __name__ == "__main__":
     # Передача настроек, создание приложения и его запуск.
     options.parse_command_line()
-    application = tornado.web.Application(system.configuration.handlers, **system.configuration.settings)
-    http_server = tornado.httpserver.HTTPServer(application)
+    application = tornado.web.Application(configuration.handlers, **configuration.settings)
+
+    http_server = tornado.httpserver.HTTPServer(application, ssl_options=configuration.ssl_ctx)
     http_server.listen(options.port)
 
     tornado.ioloop.IOLoop.instance().start()
