@@ -117,8 +117,8 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
         // Перехват всех http запросов для определения ошибок и реакции на них.
         $httpProvider.interceptors.push("sessionRecover");
         // Отправка POST запросов в едином виде.
-        //$httpProvider.defaults.headers.post = {"Content-Type": "application/x-www-form-urlencoded"};
-        $httpProvider.defaults.headers.post = {"Content-Type": "multipart/form-data"};
+        $httpProvider.defaults.headers.post = {"Content-Type": "application/x-www-form-urlencoded"};
+//        $httpProvider.defaults.headers.post = {"Content-Type": "multipart/form-data"};
         // html5Mode - без # в урле
         $locationProvider.html5Mode({
             enabled: true,

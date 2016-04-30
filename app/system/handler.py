@@ -146,17 +146,15 @@ class IntroduceHandler(BaseHandler):
         document_user.info = document_user_info
         document_user.meta = document_user_meta
 
-        user_info_raw = {key: value for key, value in self.request.arguments.items() if
-                         key.startswith("user_info[raw]")}
+        user_info = self.get_bytes_body_source().get("user_info", {})
 
         document_user_oauth.type = auth_type
         document_user_oauth.id = user_id
-
-        document_user_oauth.name = self.get_bytes_body_argument("user_info[name]", "")
-        document_user_oauth.alias = self.get_bytes_body_argument("user_info[alias]", "")
-        document_user_oauth.avatar = self.get_bytes_body_argument("user_info[avatar]", "")
-        document_user_oauth.email = self.get_bytes_body_argument("user_info[email]", "")
-        document_user_oauth.raw = user_info_raw
+        document_user_oauth.name = user_info.get("name", "")
+        document_user_oauth.alias = user_info.get("alias", "")
+        document_user_oauth.avatar = user_info.get("avatar", "")
+        document_user_oauth.email = user_info.get("email", "")
+        document_user_oauth.raw = user_info.get("raw", "")
         document_user_oauth.main = True
 
         return document_user
