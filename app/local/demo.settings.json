@@ -1,0 +1,13 @@
+// rename this file to settings.json
+{
+  "cookie_secret": "__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
+  "login_url": "/login/",
+  "host": "https://chimera.rey",
+  "db": {
+    "host": "localhost",
+    "port": "27017",
+    "name": "chimera",
+    "user": "",
+    "pass": ""
+  }
+}
