@@ -54,16 +54,18 @@ handlers = [
     # Blog
     (r"/_/author/([\w-]+)/([\d+]+)", handlers.blog.author.AuthorHandler),
 
-    (r"/_/catalog", handlers.blog.catalog.CatalogEditHandler),
-    (r"/_/catalog/([\w-]+)/([\d+]+)", handlers.blog.catalog.CatalogItemHandler),
-    (r"/_/catalogs", handlers.blog.catalog.CatalogListMainHandler),
-    (r"/_/catalogs/([\w-]+)", handlers.blog.catalog.CatalogListChildrenHandler),
-
-    (r"/_/tag/([\w\-]+)/([\d+]+)", handlers.blog.tag.TagItemHandler),
-    (r"/_/tags", handlers.blog.tag.TagListHandler),
-
-    (r"/_/post", handlers.blog.post.PostEditHandler),
+    (r"/_/post-edit", handlers.blog.post.PostEditHandler),
+    (r"/_/post-edit/([\w-]+)", handlers.blog.post.PostEditHandler),
     (r"/_/post/([\w-]+)", handlers.blog.post.PostHandler),
+
+    (r"/_/tag-item/([\w\-]+)/([\d+]+)", handlers.blog.tag.TagItemHandler),
+    (r"/_/tag-list", handlers.blog.tag.TagListHandler),
+
+    (r"/_/catalog-edit", handlers.blog.catalog.CatalogEditHandler),
+    (r"/_/catalog-edit/([\w-]+)", handlers.blog.catalog.CatalogEditHandler),
+    (r"/_/catalog-item/([\w-]+)/([\d+]+)", handlers.blog.catalog.CatalogItemHandler),
+    (r"/_/catalog-list-main", handlers.blog.catalog.CatalogListMainHandler),
+    (r"/_/catalog-list-children/([\w-]+)", handlers.blog.catalog.CatalogListChildrenHandler),
 
     # Recommendation
     (r"/_/recommendation/harvest", handlers.recommendation.harvest.HarvestHandler),

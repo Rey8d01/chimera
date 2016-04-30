@@ -1,6 +1,11 @@
 <div class="post">
     <h2 class="post__title">{{post.title}}</h2>
 
+    <!-- editable -->
+    <div>
+        <span ng-click="editPost()"><i class="fa fa-edit"></i></span>
+    </div>
+
     <p class="post__meta">{{post.meta.dateCreate}} by <a href="#">{{post.meta.author}}</a></p>
 
     <div class="post__tags">

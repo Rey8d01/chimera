@@ -37,16 +37,16 @@ class PostDocument(BaseDocument):
     Относиться к каталогу, имеет сервисную информацию о себе, позволяет теггирование.
 
     :type alias: str Псевдоним поста для использования его в url для последующей идентификации;
-    :type catalogAlias: str Псеводним каталога к которому относится пост и который будет показываться в рамках этой категории;
+    # :type catalogAlias: str Псеводним каталога к которому относится пост и который будет показываться в рамках этой категории;
     :type title: str Человеческий заголовок для поста;
     :type tags: list Список названий тегов для последующего теггирования и выбора постов по одинаковым тегам;
-    :type meta: PostMetaDocument Сервсисная информация о посте - дате создания, авторе, и т.д.;
+    :type meta: PostMetaDocument Сервисная информация о посте - дате создания, авторе, и т.д.;
     :type text: str Текст поста;
     """
     __collection__ = "post"
 
     alias = StringField(required=True, unique=True)
-    catalogAlias = StringField(required=True)
+    # catalogAlias = StringField()
     title = StringField()
     tags = ListField(EmbeddedDocumentField(embedded_document_type=PostTagsDocument))
     meta = EmbeddedDocumentField(embedded_document_type=PostMetaDocument, default=PostMetaDocument())

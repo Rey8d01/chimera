@@ -27,7 +27,7 @@ class PostEditHandler(system.handler.MainHandler):
         document_user = self.current_user
         document_post.meta.author = document_user.get_main_oauth_document().name
         document_post.meta.user = document_user
-        # Пасринг тегов - предполагается что они идут пачкой под одной переменной.
+        # Парсинг тегов - предполагается что они идут пачкой под одной переменной.
         tags = self.get_bytes_body_argument(PostDocument.tags.name)
 
         document_post.tags = []
