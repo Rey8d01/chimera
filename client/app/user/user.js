@@ -1,8 +1,8 @@
-chimera.system.user = angular.module('auth', ['ngCookies']);
+chimera.system.user = angular.module('user', ['ngCookies']);
 
 // Внедрение компонента авторизации в систему
-chimera.system.user.controller("AuthController", ["$scope", "$q", "authService",
-    function($scope, $q, authService) {
+chimera.system.user.controller("AuthController", ["$scope", "authService",
+    function($scope, authService) {
         authService.initialize();
 
         //$scope.main = {

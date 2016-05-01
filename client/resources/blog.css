@@ -1,43 +1,16 @@
 .blog {}
 
-.catalog {}
-
-/* catalogEdit.html */
-.catalog-edit {
+.post-item {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: stretch;
 }
-.catalog-edit__header {}
-.catalog-edit__title {
-    margin: 0 0 10px 0;
-    padding: 5px;
-    border: 1px solid #cacaca;
-}
-.catalog-edit__alias {
-    margin: 0 0 10px 0;
-    padding: 5px;
-    border: 1px solid #cacaca;
-}
-.catalog-edit__parent-alias_view {
-    margin: 0 0 10px 0;
-    padding: 5px;
-    border: 1px solid #cacaca;
-}
-.catalog-edit__parent-alias_hide {}
-
-.post {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-}
-.post__title {}
-.post__meta {}
-.post__tags {}
-.post__tag {}
-.post__text {}
+.post-item__title {}
+.post-item__meta {}
+.post-item__tags {}
+.post-item__tag {}
+.post-item__text {}
 
 /* postEdit.html */
 .post-edit {

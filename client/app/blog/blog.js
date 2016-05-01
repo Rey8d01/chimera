@@ -1,5 +1,13 @@
 chimera.system.blog = angular.module("blog", ["ngResource", "ngSanitize"]);
 
+chimera.system.main.controller("BlogController", ["$scope",
+    function($scope) {
+        $scope.blog = {
+            "contentLoad": false,
+        };
+    }
+]);
+
 /**
  * AuthorHandler
  */

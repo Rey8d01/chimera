@@ -41,7 +41,6 @@ var chimera = {
     }
 };
 
-
 chimera.system.main = angular.module("main", [
     "ui.router",
 
@@ -180,7 +179,7 @@ chimera.system.main.config(["$stateProvider", "$urlRouterProvider", "$locationPr
                 views: {
                     "container@main": {
                         templateUrl: "/app/blog/blog.html",
-                        //controller: "CatalogLatestController"
+                        controller: "BlogController"
                     },
                     "tags@main.blog": {
                         templateUrl: "/app/blog/side/tag-list.html",
@@ -298,7 +297,6 @@ chimera.system.main.controller("ChimeraController", ["$scope", "$q", "authServic
         $scope.main = {
             "title": "Rey's-ysetm",
             "readMore": "ReadMe...",
-            "blogContentLoad": false,
             "foo": "BAAAAAR"
         };
         $scope.user = {
