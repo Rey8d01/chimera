@@ -1,0 +1,66 @@
+<style type="text/css"> 
+body {
+    padding-top: 40px;
+    padding-bottom: 40px;
+    background-color: #eee;
+}
+.form-signin {
+    max-width: 400px;
+    padding: 15px;
+    margin: 0 auto;
+}
+.form-signin .form-signin-heading, .form-signin .checkbox {
+    margin-bottom: 10px;
+}
+.form-signin .checkbox {
+    font-weight: normal;
+}
+.form-signin .form-control {
+    position: relative;
+    height: auto;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 10px;
+    font-size: 16px;
+}
+.form-signin .form-control:focus {
+    z-index: 2;
+}
+.form-signin input[type="email"] {
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+.form-signin input[type="password"] {
+    margin-bottom: 10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+</style>
+
+<div class="container">
+    <form class="form-signin" role="form">
+        <h2 class="form-signin-heading">Добро пожаловать!</h2>
+        <h4 class="form-signin-heading">Представьтесь, пожалуйста</h4>
+        <div>
+            <button ng-click="connect('twitter')" type="button" class="btn btn-primary sign-in-button"><i class="fa fa-twitter"></i> Twitter</button>
+            <button ng-click="connect('github')" type="button" class="btn btn-primary sign-in-button"><i class="fa fa-github"></i> GitHub</button>
+            <button ng-click="passphrase=true" type="button" class="btn btn-primary sign-in-button"><i class="fa fa-cog"></i></button>
+            <button ng-click="signOut()" type="button" class="btn btn-link sign-out-button" style="display:none;"><i class="fa fa-sign-out"></i> Выход</button>
+        </div>
+    </form>
+
+    <div ng-if="passphrase">
+        <div class="row">
+            <div class="col-md-offset-3 col-md-5">
+                <div class="input-group">
+                    <input ng-model="pass.word" type="text" class="form-control" placeholder="Passphrase" value="fluffy cloud">
+                    <span class="input-group-btn">
+                        <button ng-click="privateConnect()" class="btn btn-default" type="button"><i class="fa fa-cog"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

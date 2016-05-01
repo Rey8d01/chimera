@@ -2,7 +2,7 @@
 server {
     listen 80;
     charset utf-8;
-    root /path/to/chimera/www;
+    root /path/to/chimera/client;
     server_name chimera.rey;
     index index.html;
     client_max_body_size 5M;
