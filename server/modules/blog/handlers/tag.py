@@ -75,18 +75,21 @@ class TagListHandler(system.handler.MainHandler):
         """Вернет список всех тегов. Теги помещаются в кеш."""
         tags = await self.redis.get("tags")
 
-        tags = []
+        # todo поправить при обновлении aggregate в motorengine.
+        if tags is None:
+            collection_aggregate_tags = PostDocument() \
+                .objects \
+                .aggregate \
+                .unwind(PostDocument.tags) \
+                .group_by(PostDocument.tags)
 
-        # if tags is None:
-        #     collection_aggregate_tags = await PostDocument() \
-        #         .objects \
-        #         .aggregate \
-        #         .unwind(PostDocument.tags) \
-        #         .group_by(PostDocument.tags) \
-        #         .fetch()
-        #     tags = [item_aggregate_tags[PostDocument.tags.name] for item_aggregate_tags in collection_aggregate_tags]
-        #     await self.redis.set("tags", self.escape.json_encode(tags))
-        # else:
-        #     tags = self.escape.json_decode(self.escape.to_unicode(tags))
+            motor_collection = collection_aggregate_tags.queryset.coll()
+            tags = []
+            async for item_aggregate_tags in motor_collection.aggregate(collection_aggregate_tags.to_query()):
+                tags.append(item_aggregate_tags["_id"][PostDocument.tags.name])
+
+            await self.redis.set("tags", self.escape.json_encode(tags))
+        else:
+            tags = self.escape.json_decode(self.escape.to_unicode(tags))
 
         raise system.utils.exceptions.Result(content={"tags": tags})
