@@ -1,5 +1,4 @@
 <div>
     <h3>{{tag.title}}</h3>
-    <div class="alert alert-danger" role="alert" ng-if="tag.error">{{tag.error}}</div>
-    <div list-posts posts="tag.posts" pagination-data="tag.pageData" read-more="main.readMore" catalog-alias="tag.alias" state="main.blog.tag"></div>
+    <div post-list posts="tag.posts" pagination-data="tag.pageData" read-more="blog.readMore" alias="tag.alias" state="main.blog.tag"></div>
 </div>

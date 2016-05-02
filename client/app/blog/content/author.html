@@ -1,5 +1,4 @@
 <div>
     <h3>{{author.userName}}</h3>
-    <div class="alert alert-danger" role="alert" ng-if="author.error">{{author.error}}</div>
-    <div list-posts posts="author.posts" pagination-data="author.pageData" read-more="main.readMore" catalog-alias="author.userName" state="main.blog.author"></div>
+    <div post-list posts="author.posts" pagination-data="author.pageData" read-more="blog.readMore" alias="author.userName" state="main.blog.author"></div>
 </div>

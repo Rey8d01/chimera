@@ -1,10 +1,9 @@
 chimera.system.blog.controller("PostListController", ["$scope", "$state", "postListService",
-    function ($scope, $state, postItemService) {
+    function ($scope, $state, postListService) {
         $scope.blog.contentLoad = true;
-        postListService.get({catalogAlias: $state.params.catalogAlias, page: $state.params.page}, function (response) {
-            $scope.catalog = response.content;
-            //$scope.posts = response.content.posts;
-            //$scope.paging = response.content.pageData;
+        postListService.get({typeList: $state.params.typeList, page: $state.params.page}, function (response) {
+            $scope.latest = response.content;
+            $scope.latest.typeList = $state.params.typeList;
             $scope.blog.contentLoad = false;
         });
     }

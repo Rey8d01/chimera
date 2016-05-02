@@ -36,7 +36,8 @@ class BaseDocument(Document):
                 result = value
 
             if type(result) is list:
-                result = list(map(str, result))
+                # result = list(map(str, result))
+                pass
             elif type(result) is dict:
                 # result = list(map(str, result))
                 pass

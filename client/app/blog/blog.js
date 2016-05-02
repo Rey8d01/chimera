@@ -4,6 +4,8 @@ chimera.system.main.controller("BlogController", ["$scope",
     function($scope) {
         $scope.blog = {
             "contentLoad": false,
+            "error": "",
+            "readMore": "ReadMe...",
         };
     }
 ]);
@@ -33,7 +35,7 @@ chimera.system.blog.factory("postItemService", ["$resource",
  */
 chimera.system.blog.factory("postListService", ["$resource",
     function ($resource) {
-        return $resource("/post-list");
+        return $resource("/post-list/:typeList/:page", {page: "1"});
     }
 ]);
 

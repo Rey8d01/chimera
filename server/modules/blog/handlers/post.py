@@ -1,7 +1,7 @@
 """Обработчики записей в блоге.
 
 Организуют доступ для чтения и записи постов в каталогах.
-Посты идентифицируются по их псевдонимам, по ним очуществляется просмотр и редактирование.
+Посты идентифицируются по их псевдонимам, по ним осуществляется просмотр и редактирование.
 
 """
 import re
@@ -49,12 +49,12 @@ class PostItemHandler(system.handler.MainHandler):
         document_post.meta.user = document_user
 
         # Поиск хештегов в тексте.
-        raw_tags = re.findall("[^\\\]#[\w]+", document_post.text)
+        raw_tags = re.findall("[^\\\]#[\w-]+", document_post.text)
         document_post.tags = []
         for raw_tag in raw_tags:
             tag = raw_tag[raw_tag.find("#") + 1:].lower()
             alias = transliterate.slugify(tag) if transliterate.detect_language(tag) else tag
-            document_tag = PostTagsDocument(title=tag[PostTagsDocument.title.name], alias=alias)
+            document_tag = PostTagsDocument(title=tag, alias=alias)
             document_post.tags.append(document_tag)
 
         await document_post.save()
@@ -105,9 +105,10 @@ class PostListHandler(system.handler.BaseHandler):
     GET - Запрос информации по заданному псевдониму (с постраничной навигацией).
     """
 
-    async def get(self, current_page: int):
+    async def get(self, type_list: str, current_page: int):
         """Запрос на получение информации по содержимому определенного каталога.
 
+        :param type_list: todo;
         :param current_page: Номер страницы в списке постов;
         """
         current_page = int(current_page)
@@ -144,4 +145,3 @@ class PostListHandler(system.handler.BaseHandler):
         })
 
         raise system.utils.exceptions.Result(content=result)
-

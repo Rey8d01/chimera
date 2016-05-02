@@ -52,7 +52,7 @@ handlers = [
 
     (r"/_/post-item/([\w-]+)", modules.blog.handlers.post.PostItemHandler),
     (r"/_/post-item", modules.blog.handlers.post.PostItemHandler),
-    (r"/_/post-list", modules.blog.handlers.post.PostListHandler),
+    (r"/_/post-list/([\w-]+)/([\d+]+)", modules.blog.handlers.post.PostListHandler),
 
     (r"/_/tag-item/([\w\-]+)/([\d+]+)", modules.blog.handlers.tag.TagItemHandler),
     (r"/_/tag-list", modules.blog.handlers.tag.TagListHandler),

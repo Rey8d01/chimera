@@ -1,7 +1,8 @@
 <div class="row">
     <!-- content -->
     <div class="col-md-9">
-        <div progress-bar progress="main.blogContentLoad"></div>
+        <div progress-bar progress="blog.contentLoad"></div>
+        <div ng-if="error"><div class="alert alert-danger">{{blog.error}}</div></div>
         <div ui-view="content"></div>
     </div>
     <!-- end content -->

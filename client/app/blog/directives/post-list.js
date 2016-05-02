@@ -11,7 +11,7 @@ chimera.system.main.directive('postList', function () {
             paginationData: '=',
             readMore: '=',
             state: '@',
-            catalogAlias: '='
+            alias: '='
         },
         templateUrl: "/app/blog/directives/post-list.html"
     };
