@@ -3,7 +3,7 @@
 
     <!-- editable -->
     <div>
-        <span ng-click="editPost()"><i class="fa fa-edit"></i></span>
+        <button class="btn btn-default" ng-click="editPost(post.alias)" title="Редактировать пост"><i class="fa fa-edit"></i> Редактировать пост</button>
     </div>
 
     <p class="post-item__meta">{{post.meta.dateCreate}} by <a href="#">{{post.meta.author}}</a></p>
@@ -17,4 +17,4 @@
     <div class="post-item__text" ng-bind-html="post.text"></div>
 </div>
 
-<a ng-click="deletePost()" class="btn btn-default">Удалить</a>
+<a ng-click="deletePost()" class="btn btn-default"><i class="fa fa-trash"></i> Удалить</a>

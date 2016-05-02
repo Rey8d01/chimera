@@ -9,11 +9,6 @@
     <div class="col-md-10 col-md-9">
         <h3>{{post.title}}</h3>
 
-        <!-- editable -->
-        <div>
-            <button class="btn btn-default" ng-click="editPost(post.alias)" title="Редактировать пост"><i class="fa fa-edit"></i></button>
-        </div>
-
         <div ng-bind-html="post.text"></div>
         <p class="lead">
             <a class="btn btn-default" ui-sref="main.blog.post({postAlias: post.alias})">{{readMore}}</a>
