@@ -7,14 +7,14 @@ import re
 
 from bson.objectid import ObjectId
 
-import system.handler
-import system.utils.exceptions
+import components.handler
+import utils.exceptions
 from documents.user import UserDocument
 from modules.blog.documents.post import PostDocument, PostMetaDocument
-from system.utils.pagination import Pagination
+from utils.pagination import Pagination
 
 
-class AuthorHandler(system.handler.MainHandler):
+class AuthorHandler(components.handler.MainHandler):
     """Обработчик запросов для указанного каталога.
 
     GET - Запрос списка постов по заданному id автора.
@@ -32,7 +32,7 @@ class AuthorHandler(system.handler.MainHandler):
         # Запрос информации по пользователю.
         collection_users = await UserDocument().objects.filter({"_id": ObjectId(user_id)}).find_all()
         if not collection_users:
-            raise system.utils.exceptions.NotFound(error_message="Пользователь не найден")
+            raise utils.exceptions.NotFound(error_message="Пользователь не найден")
         document_user = collection_users[0]
 
         count_post = await PostDocument().objects.filter({PostDocument.meta.name + "." + PostMetaDocument.user.name: user_id}).count()
@@ -69,4 +69,4 @@ class AuthorHandler(system.handler.MainHandler):
             }
         }
 
-        raise system.utils.exceptions.Result(content=result)
+        raise utils.exceptions.Result(content=result)

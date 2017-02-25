@@ -9,14 +9,10 @@ import json
 import ssl
 
 from tornado.options import define
-# import motor
 import motorengine
-
 import tredis
 
-import system.handler
-
-import handlers.user
+import components.handler
 import handlers.test
 
 import modules.blog.handlers.author
@@ -40,9 +36,9 @@ define("port", default=settings["system_port"], help="run on the given port", ty
 handlers = [
     # Index
     # (r"/_/auth", system.handlers.AuthHandler),
-    (r"/_/introduce", system.handler.IntroduceHandler),
-    (r"/_/private", system.handler.PrivateIntroduceHandler),
-    (r"/_/logout", system.handler.LogoutHandler),
+    (r"/_/introduce", components.handler.IntroduceHandler),
+    (r"/_/private", components.handler.PrivateIntroduceHandler),
+    (r"/_/logout", components.handler.LogoutHandler),
 
     (r"/_/me", handlers.user.MeHandler),
     (r"/_/test", handlers.test.TestHandler),
@@ -76,7 +72,10 @@ handlers = [
 ]
 
 # Настройки подключения к базе данных MongoDB
-motorengine.connect(db=settings["db"]["name"], host=settings["db"]["host"], port=settings["db"]["port"])
+
+settings_db = settings.get("db", {})
+for connection_name, setting_db in settings_db.items():
+    database = motorengine.connect(db=setting_db["name"], host=setting_db["host"], port=setting_db["port"], alias=connection_name)
 
 # Настройки подключения к Redis
 redis = tredis.RedisClient(host=settings["redis"]["host"], port=settings["redis"]["port"])

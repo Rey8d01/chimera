@@ -1,8 +1,9 @@
 """Набор документов для формирования поста."""
 
-from system.document import BaseDocument
-from documents.user import UserDocument
 from motorengine import EmbeddedDocumentField, StringField, ListField, DateTimeField, ReferenceField
+
+from components.document import BaseDocument
+from documents.user import UserDocument
 
 
 class PostTagsDocument(BaseDocument):
@@ -51,3 +52,6 @@ class PostDocument(BaseDocument):
     tags = ListField(EmbeddedDocumentField(embedded_document_type=PostTagsDocument))
     meta = EmbeddedDocumentField(embedded_document_type=PostMetaDocument, default=PostMetaDocument())
     text = StringField()
+
+    async def check_authorship(self, document_user: UserDocument):
+        return self.meta.user == document_user._id

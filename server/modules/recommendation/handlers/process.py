@@ -12,15 +12,14 @@ movie = "tt0407887"
 """
 import random
 
-import system.utils.exceptions
-from system.handler import BaseHandler
-
-# from documents.user import UserDocument
-from modules.recommendation.recommendation.cpn import KohonenClusterExtractor, GrossbergOutStarExtractor  # , UserItemExtractor
-from modules.recommendation.recommendation import FakeUserItemExtractor as UserItemExtractor, FakeUserDocument as UserDocument
-from system.components.recommendations.cpn import Kohonen, GrossbergOutStar, CPN, top250
-from system.components.recommendations.statistic import Recommendations, Similarity
 from bson.objectid import ObjectId
+from modules.recommendation.recommendation import FakeUserItemExtractor as UserItemExtractor, FakeUserDocument as UserDocument
+from modules.recommendation.recommendation.cpn import KohonenClusterExtractor, GrossbergOutStarExtractor  # , UserItemExtractor
+from components.recommendations.cpn import Kohonen, GrossbergOutStar, CPN, top250
+from components.recommendations.statistic import Recommendations, Similarity
+
+import utils.exceptions
+from components.handler import BaseHandler
 
 
 class MetricsHandler(BaseHandler):
@@ -49,7 +48,7 @@ class MetricsHandler(BaseHandler):
             "pearson": Similarity.pearson(critic_x, critic_y),
         }
 
-        raise system.utils.exceptions.Result(content=result)
+        raise utils.exceptions.Result(content=result)
 
 
 class StatisticForUserHandler(BaseHandler):
@@ -74,7 +73,7 @@ class StatisticForUserHandler(BaseHandler):
             "recommendations": Recommendations.get_recommendations_by_person_for_person(source=list_critic, person=user_x),
         }
 
-        raise system.utils.exceptions.Result(content=result)
+        raise utils.exceptions.Result(content=result)
 
 
 class StatisticForItemsHandler(BaseHandler):
@@ -101,7 +100,7 @@ class StatisticForItemsHandler(BaseHandler):
                                                                                        source_similar_items=source_similar_items),
             # "recommendations_item": Recommendations.get_recommendations_by_items_for_item(transformed_source=list_items, item=item),
         }
-        raise system.utils.exceptions.Result(content=result)
+        raise utils.exceptions.Result(content=result)
 
 
 class UtilsStatisticHandler(BaseHandler):
@@ -115,7 +114,7 @@ class UtilsStatisticHandler(BaseHandler):
 
         await self.redis.set("recommendation_source_similar_items", source_similar_items)
 
-        raise system.utils.exceptions.Result(content={"result": True})
+        raise utils.exceptions.Result(content={"result": True})
 
 
 class UserCPNHandler(BaseHandler):
@@ -127,9 +126,9 @@ class UserCPNHandler(BaseHandler):
 
         collection_user = await UserDocument().objects.filter({"_id": ObjectId(user)}).find_all()
         if not collection_user:
-            raise system.utils.exceptions.NotFound(error_message="Пользователь не найден")
+            raise utils.exceptions.NotFound(error_message="Пользователь не найден")
         document_user = collection_user[-1]
-        raise system.utils.exceptions.Result(content={"": document_user.get_user_name()})
+        raise utils.exceptions.Result(content={"": document_user.get_user_name()})
 
     async def post(self):
         """Выработка персональных рекомендаций.
@@ -155,7 +154,7 @@ class UserCPNHandler(BaseHandler):
         # Этап 1.
         collection_user = await UserItemExtractor().objects.filter({"_id": ObjectId(user)}).find_all()
         if not collection_user:
-            raise system.utils.exceptions.NotFound(error_message="Пользователь не найден")
+            raise utils.exceptions.NotFound(error_message="Пользователь не найден")
         document_user = collection_user[-1]
         """ :type: UserItemExtractor """
 
@@ -233,7 +232,7 @@ class UserCPNHandler(BaseHandler):
             "outStarRecommendations": sort_out_star_vector_filtered,
             "infoClusters": result_aggregation,
         }
-        raise system.utils.exceptions.Result(content=result)
+        raise utils.exceptions.Result(content=result)
 
 
 class UtilsCPNHandler(BaseHandler):

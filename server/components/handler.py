@@ -8,10 +8,12 @@ POST — создание;
 PUT — обновление;
 DELETE — удаление;
 """
-import tornado.web
-import tornado.escape
-import system.utils.exceptions
 from json.decoder import JSONDecodeError
+
+import tornado.escape
+import tornado.web
+
+import utils.exceptions
 from documents.user import UserDocument, UserOAuthDocument, UserMetaDocument, UserInfoDocument
 
 
@@ -64,7 +66,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     async def options(self, *args, **kwargs):
         """Обработчик запроса по методу OPTIONS."""
-        raise system.utils.exceptions.Result(content={"hello": "world"})
+        raise utils.exceptions.Result(content={"hello": "world"})
 
     def get_bytes_body_argument(self, name, default=None) -> str:
         """Вернет значение переданного параметра от клиента.
@@ -98,7 +100,7 @@ class MainHandler(BaseHandler):
         """Перекрытие срабатывает перед вызовом обработчиков и в случае отсутствия данных по пользователю возбуждает исключение."""
         user_data = self.get_secure_cookie("chimera_user")
         if not user_data:
-            raise system.utils.exceptions.UserNotAuth()
+            raise utils.exceptions.UserNotAuth()
         user_data = self.escape.json_decode(user_data)
 
         collection_user = await UserDocument().objects.filter({UserDocument.oauth.name: {"$elemMatch": {
@@ -107,7 +109,7 @@ class MainHandler(BaseHandler):
         }}}).find_all()
 
         if not collection_user:
-            raise system.utils.exceptions.UserNotFound()
+            raise utils.exceptions.UserNotFound()
         document_user = collection_user[-1]
 
         self.current_user = document_user
@@ -129,7 +131,7 @@ class PrivateIntroduceHandler(BaseHandler):
             result["auth"] = True
             self.set_secure_cookie("chimera_user", chimera_user, domain=".chimera.rey")
 
-        raise system.utils.exceptions.Result(content=result)
+        raise utils.exceptions.Result(content=result)
 
 
 class IntroduceHandler(BaseHandler):
@@ -179,7 +181,7 @@ class IntroduceHandler(BaseHandler):
         chimera_user = self.escape.json_encode({"type": auth_type, "id": user_id})
         self.set_secure_cookie("chimera_user", chimera_user, domain=".chimera.rey")
 
-        raise system.utils.exceptions.Result(content={"auth": True})
+        raise utils.exceptions.Result(content={"auth": True})
 
 
 class LogoutHandler(BaseHandler):

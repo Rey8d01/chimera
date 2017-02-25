@@ -1,8 +1,9 @@
 import random
 
-import system.utils.exceptions
-from modules.recommendation.recommendation import FakeUserDocument
-from system.handler import BaseHandler
+from modules.recommendation.documents.fake import FakeUserDocument
+
+import utils.exceptions
+from components.handler import BaseHandler
 
 
 class FakeStatisticHandler(BaseHandler):
@@ -17,7 +18,7 @@ class FakeStatisticHandler(BaseHandler):
         for document_critic in collection_critic[:10]:
             fake_user_list[str(document_critic._id)] = document_critic.info.name
 
-        raise system.utils.exceptions.Result(content={"fakeUserList": fake_user_list})
+        raise utils.exceptions.Result(content={"fakeUserList": fake_user_list})
 
     async def post(self):
         """Расчет статистики.
@@ -84,7 +85,7 @@ class FakeStatisticHandler(BaseHandler):
                 "recommendations": instance_recommendations.get_recommendations_by_person_for_person(user1),
             }
 
-        raise system.utils.exceptions.Result(content=result)
+        raise utils.exceptions.Result(content=result)
 
         # print(
         #     'Люди:', user1, 'и', user2, '\n',

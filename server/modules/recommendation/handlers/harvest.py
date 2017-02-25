@@ -6,8 +6,9 @@
 
 """
 import random
-import system.utils.exceptions
-from system.handler import BaseHandler
+
+import utils.exceptions
+from components.handler import BaseHandler
 from documents.user import UserDocument
 
 
@@ -32,7 +33,7 @@ class ListRatedItemsHandler(BaseHandler):
         if document_user.critic is not None:
             result = dict(list(document_user.critic.items())[-count:])
 
-        raise system.utils.exceptions.Result(content=result)
+        raise utils.exceptions.Result(content=result)
 
 
 class ListUsersHandler(BaseHandler):
@@ -52,7 +53,7 @@ class ListUsersHandler(BaseHandler):
         random.shuffle(collection_user)
         user_list = {str(document_user._id): document_user.get_user_name() for document_user in collection_user[:count]}
 
-        raise system.utils.exceptions.Result(content={"userList": user_list})
+        raise utils.exceptions.Result(content={"userList": user_list})
 
 
 class HarvestHandler(BaseHandler):
@@ -75,4 +76,4 @@ class HarvestHandler(BaseHandler):
             document_user.critic[imdb] = int(rate)
 
         await document_user.save()
-        raise system.utils.exceptions.Result(content={"imdb": imdb, "rate": rate})
+        raise utils.exceptions.Result(content={"imdb": imdb, "rate": rate})

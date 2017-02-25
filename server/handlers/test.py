@@ -1,7 +1,6 @@
 """Тестовый обработчик основных запросов."""
-import json
-import system.utils.exceptions
-from system.handler import BaseHandler
+import utils.exceptions
+from components.handler import BaseHandler
 
 
 class TestHandler(BaseHandler):
@@ -15,35 +14,28 @@ class TestHandler(BaseHandler):
 
     async def get(self):
         """Обработчик запроса по методу GET."""
-        print("get")
-        self.write(json.dumps({"hello": "world"}))
+        raise utils.exceptions.Result(content={"hello": "world", "method": "GET"})
 
     async def post(self):
         """Обработчик запроса по методу POST."""
-        print("post")
-        self.write(json.dumps({"hello": "world"}))
+        raise utils.exceptions.Result(content={"hello": "world", "method": "POST"})
 
     async def put(self):
         """Обработчик запроса по методу PUT."""
-        print("put")
-        self.write(json.dumps({"hello": "world"}))
+        raise utils.exceptions.Result(content={"hello": "world", "method": "PUT"})
 
     async def delete(self):
         """Обработчик запроса по методу DELETE."""
-        print("delete")
-        self.write(json.dumps({"hello": "world"}))
+        raise utils.exceptions.Result(content={"hello": "world", "method": "DELETE"})
 
     async def head(self):
         """.Обработчик запроса по методу HEAD."""
-        print("head")
-        self.write(json.dumps({"hello": "world"}))
+        raise utils.exceptions.Result(content={"hello": "world", "method": "HEAD"})
 
     async def options(self):
         """Обработчик запроса по методу OPTIONS."""
-        print("options")
-        self.write(json.dumps({"hello": "world"}))
+        raise utils.exceptions.Result(content={"hello": "world", "method": "OPTIONS"})
 
     async def patch(self):
         """Обработчик запроса по методу PATCH."""
-        print("patch")
-        self.write(json.dumps({"hello": "world"}))
+        raise utils.exceptions.Result(content={"hello": "world", "method": "PATCH"})

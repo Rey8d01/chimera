@@ -1,9 +1,9 @@
 """Обработка запросов пользователей по собственной информации."""
-import system.handler
-import system.utils.exceptions
+import components.handler
+import utils.exceptions
 
 
-class MeHandler(system.handler.MainHandler):
+class MeHandler(components.handler.MainHandler):
     """Обработчик запросов для авторизованного пользователя.
 
     GET - Запрос собственных данных из базы.
@@ -18,4 +18,4 @@ class MeHandler(system.handler.MainHandler):
             "id": str(document_user._id)
         }
 
-        raise system.utils.exceptions.Result(content=result)
+        raise utils.exceptions.Result(content=result)

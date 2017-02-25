@@ -1,7 +1,8 @@
 """Набор классов для организации доступа к хранилищу информации нейронной сети."""
-from system.document import BaseDocument
 from motorengine import StringField, BaseField
-from system.components.recommendations.cpn import ItemExtractor, ClusterExtractor, OutStarExtractor
+
+from components.document import BaseDocument
+from components.recommendations.cpn import ItemExtractor, ClusterExtractor, OutStarExtractor
 from documents.user import UserDocument
 
 

@@ -5,13 +5,13 @@
 """
 import re
 
-import system.handler
-import system.utils.exceptions
+import components.handler
+import utils.exceptions
 from modules.blog.documents.post import PostDocument, PostMetaDocument, PostTagsDocument
-from system.utils.pagination import Pagination
+from utils.pagination import Pagination
 
 
-class TagItemHandler(system.handler.MainHandler):
+class TagItemHandler(components.handler.MainHandler):
     """Обработчик запросов для указанного тега.
 
     GET - Запрос списка постов по заданному тегу (с постраничной навигацией).
@@ -61,10 +61,10 @@ class TagItemHandler(system.handler.MainHandler):
                 "total": pagination.count_all_items,
             }})
 
-        raise system.utils.exceptions.Result(content=result)
+        raise utils.exceptions.Result(content=result)
 
 
-class TagListHandler(system.handler.MainHandler):
+class TagListHandler(components.handler.MainHandler):
     """Обработчик запросов для работы со списком каталогов у которых нет родительского каталога (корень).
 
     GET - Запрос списка всех тегов.
@@ -92,4 +92,4 @@ class TagListHandler(system.handler.MainHandler):
         else:
             tags = self.escape.json_decode(self.escape.to_unicode(tags))
 
-        raise system.utils.exceptions.Result(content={"tags": tags})
+        raise utils.exceptions.Result(content={"tags": tags})

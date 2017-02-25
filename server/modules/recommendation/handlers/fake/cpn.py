@@ -3,12 +3,12 @@ import random
 
 from bson.objectid import ObjectId
 from documents.recommendation.fake import FakeUserItemExtractor, FakeUserDocument
-
-import system.utils.exceptions
 from modules.recommendation.recommendation.cpn import KohonenClusterExtractor, GrossbergOutStarExtractor
-from system.components.recommendations.cpn import Kohonen, GrossbergOutStar, CPN, top250
-from system.components.recommendations.statistic import Recommendations, Similarity
-from system.handler import BaseHandler
+from components.recommendations.cpn import Kohonen, GrossbergOutStar, CPN, top250
+from components.recommendations.statistic import Recommendations, Similarity
+
+import utils.exceptions
+from components.handler import BaseHandler
 
 
 class FakeCPNHandler(BaseHandler):
@@ -91,7 +91,7 @@ class FakeCPNHandler(BaseHandler):
 
             result = {"fakeUserList": fake_user_list}
 
-        raise system.utils.exceptions.Result(content=result)
+        raise utils.exceptions.Result(content=result)
 
     async def post(self):
         """Выработка персональных рекомендаций."""
@@ -170,4 +170,4 @@ class FakeCPNHandler(BaseHandler):
             "outStarRecommendations": sort_out_star_vector_filtered,
             "infoClusters": result_aggregation,
         }
-        raise system.utils.exceptions.Result(content=result)
+        raise utils.exceptions.Result(content=result)

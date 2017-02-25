@@ -8,13 +8,13 @@ import re
 
 import transliterate
 
-import system.handler
-import system.utils.exceptions
+import components.handler
+import utils.exceptions
 from modules.blog.documents.post import PostDocument, PostTagsDocument, PostMetaDocument
-from system.utils.pagination import Pagination
+from utils.pagination import Pagination
 
 
-class PostItemHandler(system.handler.MainHandler):
+class PostItemHandler(components.handler.MainHandler):
     """Обработчик запросов для редактирования информации по постам.
 
     POST - Создание нового поста возможно при отсутствии заданного псевдонима в базе данных.
@@ -34,10 +34,10 @@ class PostItemHandler(system.handler.MainHandler):
             .find_all()
 
         if not collection_post:
-            raise system.utils.exceptions.NotFound(error_message="Пост не найден")
+            raise utils.exceptions.NotFound(error_message="Пост не найден")
         document_post = collection_post[-1]
 
-        raise system.utils.exceptions.Result(content=document_post.to_json())
+        raise utils.exceptions.Result(content=document_post.to_json())
 
     async def post(self):
         """Создание нового поста и занесение в базу актуальной по нему информации."""
@@ -59,7 +59,7 @@ class PostItemHandler(system.handler.MainHandler):
 
         await document_post.save()
 
-        raise system.utils.exceptions.Result(content=document_post.to_json())
+        raise utils.exceptions.Result(content=document_post.to_json())
 
     async def put(self):
         """Изменение существующего поста."""
@@ -73,13 +73,13 @@ class PostItemHandler(system.handler.MainHandler):
             .limit(1) \
             .find_all()
         if not collection_post:
-            raise system.utils.exceptions.NotFound(error_message="Запись не найдена")
+            raise utils.exceptions.NotFound(error_message="Запись не найдена")
         document_post = collection_post[-1]
 
         document_post.fill_document_from_dict(self.request.arguments)
         await document_post.save()
 
-        raise system.utils.exceptions.Result(content=document_post.to_json())
+        raise utils.exceptions.Result(content=document_post.to_json())
 
     async def delete(self, alias: str):
         """Удаление существующего поста."""
@@ -91,15 +91,15 @@ class PostItemHandler(system.handler.MainHandler):
             .filter({PostDocument.alias.name: alias, PostDocument.meta.name + "." + PostMetaDocument.user.name: str(document_user._id)}) \
             .find_all()
         if not collection_post:
-            raise system.utils.exceptions.NotFound(error_message="Запись не найдена")
+            raise utils.exceptions.NotFound(error_message="Запись не найдена")
         document_post = collection_post[-1]
 
         await document_post.delete()
 
-        raise system.utils.exceptions.Result()
+        raise utils.exceptions.Result()
 
 
-class PostListHandler(system.handler.BaseHandler):
+class PostListHandler(components.handler.BaseHandler):
     """Обработчик запросов для указанного каталога.
 
     GET - Запрос информации по заданному псевдониму (с постраничной навигацией).
@@ -144,4 +144,4 @@ class PostListHandler(system.handler.BaseHandler):
             }
         })
 
-        raise system.utils.exceptions.Result(content=result)
+        raise utils.exceptions.Result(content=result)
