@@ -1,7 +1,7 @@
 """Документы для хранения информации пользователей."""
 from motorengine import EmbeddedDocumentField, StringField, ListField, JsonField, DateTimeField, BaseField, BooleanField
 
-from components.document import BaseDocument
+from utils.document import BaseDocument
 
 
 class UserOAuthDocument(BaseDocument):

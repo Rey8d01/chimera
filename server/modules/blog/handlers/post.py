@@ -8,13 +8,13 @@ import re
 
 import transliterate
 
-import components.handler
 import utils.exceptions
+import utils.handler
 from modules.blog.documents.post import PostDocument, PostTagsDocument, PostMetaDocument
 from utils.pagination import Pagination
 
 
-class PostItemHandler(components.handler.MainHandler):
+class PostItemHandler(utils.handler.MainHandler):
     """Обработчик запросов для редактирования информации по постам.
 
     POST - Создание нового поста возможно при отсутствии заданного псевдонима в базе данных.
@@ -99,7 +99,7 @@ class PostItemHandler(components.handler.MainHandler):
         raise utils.exceptions.Result()
 
 
-class PostListHandler(components.handler.BaseHandler):
+class PostListHandler(utils.handler.BaseHandler):
     """Обработчик запросов для указанного каталога.
 
     GET - Запрос информации по заданному псевдониму (с постраничной навигацией).

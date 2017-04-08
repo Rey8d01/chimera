@@ -8,8 +8,8 @@
 import random
 
 import utils.exceptions
-from components.handler import BaseHandler
 from documents.user import UserDocument
+from utils.handler import BaseHandler
 
 
 class ListRatedItemsHandler(BaseHandler):

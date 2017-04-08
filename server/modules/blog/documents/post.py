@@ -2,8 +2,8 @@
 
 from motorengine import EmbeddedDocumentField, StringField, ListField, DateTimeField, ReferenceField
 
-from components.document import BaseDocument
 from documents.user import UserDocument
+from utils.document import BaseDocument
 
 
 class PostTagsDocument(BaseDocument):

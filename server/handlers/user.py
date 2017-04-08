@@ -1,9 +1,9 @@
 """Обработка запросов пользователей по собственной информации."""
-import components.handler
 import utils.exceptions
+import utils.handler
 
 
-class MeHandler(components.handler.MainHandler):
+class MeHandler(utils.handler.MainHandler):
     """Обработчик запросов для авторизованного пользователя.
 
     GET - Запрос собственных данных из базы.

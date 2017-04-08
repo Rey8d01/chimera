@@ -13,13 +13,15 @@ movie = "tt0407887"
 import random
 
 from bson.objectid import ObjectId
-from modules.recommendation.recommendation import FakeUserItemExtractor as UserItemExtractor, FakeUserDocument as UserDocument
-from modules.recommendation.recommendation.cpn import KohonenClusterExtractor, GrossbergOutStarExtractor  # , UserItemExtractor
-from components.recommendations.cpn import Kohonen, GrossbergOutStar, CPN, top250
-from components.recommendations.statistic import Recommendations, Similarity
+from components.lib.statistic import Recommendations, Similarity
+from modules.recommendation.recommendation import FakeUserItemExtractor as UserItemExtractor, \
+    FakeUserDocument as UserDocument
+from modules.recommendation.recommendation.cpn import KohonenClusterExtractor, \
+    GrossbergOutStarExtractor  # , UserItemExtractor
 
 import utils.exceptions
-from components.handler import BaseHandler
+from modules.recommendation.lib.cpn import Kohonen, GrossbergOutStar, CPN, top250
+from utils.handler import BaseHandler
 
 
 class MetricsHandler(BaseHandler):
@@ -60,7 +62,7 @@ class StatisticForUserHandler(BaseHandler):
         Долгий расчет поскольку каждый раз выбирается вся база пользователей и их оценки.
 
         * matches - Ранжированный список критиков.
-        * recommendations - Выработка рекомендации.
+        * lib - Выработка рекомендации.
 
         :param user_x: id первого пользователя;
         :param user_y: id второго пользователя;
@@ -70,7 +72,7 @@ class StatisticForUserHandler(BaseHandler):
 
         result = {
             "matches": Recommendations.top_matches(source=list_critic, person=user_x, n=2, get_similarity=Similarity.pearson),
-            "recommendations": Recommendations.get_recommendations_by_person_for_person(source=list_critic, person=user_x),
+            "lib": Recommendations.get_recommendations_by_person_for_person(source=list_critic, person=user_x),
         }
 
         raise utils.exceptions.Result(content=result)
@@ -83,7 +85,7 @@ class StatisticForItemsHandler(BaseHandler):
         """Коллаборативная фильтрация по схожести образцов.
 
         * matches - Ранжированный список критиков.
-        * recommendations - Выработка рекомендации.
+        * lib - Выработка рекомендации.
 
         :param user: id пользователя;
         :param item: id образца;
@@ -96,7 +98,7 @@ class StatisticForItemsHandler(BaseHandler):
 
         result = {
             # "matches": Recommendations.top_matches(source=list_items, person=item, n=3, get_similarity=Similarity.pearson),
-            "recommendations": Recommendations.get_recommendations_by_items_for_person(person=user,
+            "lib": Recommendations.get_recommendations_by_items_for_person(person=user,
                                                                                        source_similar_items=source_similar_items),
             # "recommendations_item": Recommendations.get_recommendations_by_items_for_item(transformed_source=list_items, item=item),
         }

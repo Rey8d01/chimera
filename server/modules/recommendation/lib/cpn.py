@@ -2,7 +2,7 @@
 import time
 from abc import abstractmethod
 
-from components.recommendations.statistic import Similarity
+from modules.recommendation.lib import Similarity
 
 
 class ItemExtractor:

@@ -2,13 +2,13 @@
 import random
 
 from bson.objectid import ObjectId
+from components.lib.statistic import Recommendations, Similarity
 from documents.recommendation.fake import FakeUserItemExtractor, FakeUserDocument
 from modules.recommendation.recommendation.cpn import KohonenClusterExtractor, GrossbergOutStarExtractor
-from components.recommendations.cpn import Kohonen, GrossbergOutStar, CPN, top250
-from components.recommendations.statistic import Recommendations, Similarity
 
 import utils.exceptions
-from components.handler import BaseHandler
+from modules.recommendation.lib.cpn import Kohonen, GrossbergOutStar, CPN, top250
+from utils.handler import BaseHandler
 
 
 class FakeCPNHandler(BaseHandler):

@@ -21,11 +21,13 @@ class BaseHandler(tornado.web.RequestHandler):
     """BaseHandler - основной перекрытый обработчик от которого наследовать все остальные."""
     escape = None
     redis = None
+    db = None
 
     def initialize(self):
         """Инициализация базового обработчика запросов."""
         self.escape = tornado.escape
-        self.redis = self.settings["redis"]
+        self.redis = self.settings.get("redis", None)
+        self.db = self.settings.get("db", None)
 
     def on_finish(self):
         """Завершение обработки запроса.
@@ -68,7 +70,7 @@ class BaseHandler(tornado.web.RequestHandler):
         """Обработчик запроса по методу OPTIONS."""
         raise utils.exceptions.Result(content={"hello": "world"})
 
-    def get_bytes_body_argument(self, name, default=None) -> str:
+    def get_bytes_body_argument(self, name: str, default=None) -> str:
         """Вернет значение переданного параметра от клиента.
 
         Тестовый хак для обработки данных приходящих с приложения angular

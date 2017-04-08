@@ -1,9 +1,8 @@
 import random
 
-from modules.recommendation.documents.fake import FakeUserDocument
-
 import utils.exceptions
-from components.handler import BaseHandler
+from modules.recommendation.documents.fake import FakeUserDocument
+from utils.handler import BaseHandler
 
 
 class FakeStatisticHandler(BaseHandler):
@@ -57,7 +56,7 @@ class FakeStatisticHandler(BaseHandler):
                 "matches": instance_recommendations.top_matches(instance_recommendations.TYPE_TRANSFORMS, movie, 3,
                                                                 instance_recommendations.pearson),
                 # Кто еще не смотрел фильм
-                "recommendations": instance_recommendations.get_recommendations_by_items_for_item(movie),
+                "lib": instance_recommendations.get_recommendations_by_items_for_item(movie),
                 # Похожие фильмы
                 #"similarItems": instance_recommendations.similar_items,
                 # Выработка рекомендации по образцам
@@ -82,7 +81,7 @@ class FakeStatisticHandler(BaseHandler):
                 "matches": instance_recommendations.top_matches(instance_recommendations.TYPE_SOURCE, user1, 2,
                                                                 instance_recommendations.pearson),
                 # Выработка рекомендации
-                "recommendations": instance_recommendations.get_recommendations_by_person_for_person(user1),
+                "lib": instance_recommendations.get_recommendations_by_person_for_person(user1),
             }
 
         raise utils.exceptions.Result(content=result)
