@@ -13,7 +13,7 @@ routes = [
     (r"/_/private", utils.handler.PrivateIntroduceHandler),
     (r"/_/logout", utils.handler.LogoutHandler),
 
-    (r"/_/me", handlers.user.MeHandler),
+    # (r"/_/me", handlers.user.MeHandler),
     (r"/_/test-rest", handlers.test.TestRestHandler),
     (r"/_/test-graphql", handlers.test.TestGraphQLHandler),
 

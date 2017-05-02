@@ -1,7 +1,6 @@
 """Blog handlers."""
 
 from graphql.execution.executors.asyncio import AsyncioExecutor
-
 from utils.exceptions import Response
 from utils.handler import BaseHandler
 from .schema import schema_blog
@@ -22,6 +21,11 @@ class BlogHandler(BaseHandler):
 
         """
         query = self.get_argument(name="query")
+
+        # result = schema_blog.execute(
+        #     request_string=query,
+        #     executor=AsyncioExecutor(),
+        # )
 
         result = await schema_blog.execute(
             request_string=query,

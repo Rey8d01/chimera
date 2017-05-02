@@ -56,17 +56,6 @@ class ResponseTest(Finish):
         super().__init__({"data": content if content is not None else {}})
 
 
-import graphql.execution.base
-
-
-class Response(Finish):
-    def __init__(self, result: graphql.execution.base.ExecutionResult):
-        if result.invalid:
-            super().__init__({"errors": [error.message for error in result.errors]})
-        else:
-            super().__init__({"data": result.data})
-
-
 class ErrorResult(Result):
     """Ошибка при работе обработчиков."""
     _error_code = 1
@@ -101,3 +90,15 @@ class NotFound(ContentError):
     """Запрошенного контента в системе не найдено."""
     _error_code = 21
     _error_message = "Запрошенного контента в системе не найдено"
+
+
+import graphql.execution.base
+
+
+class Response(Finish):
+    def __init__(self, result: graphql.execution.base.ExecutionResult):
+        # todo errors not always invalid
+        if result.errors or result.invalid:
+            super().__init__({"errors": [error.message for error in result.errors]})
+        else:
+            super().__init__({"data": result.data})
