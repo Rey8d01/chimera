@@ -22,11 +22,6 @@ class BlogHandler(BaseHandler):
         """
         query = self.get_argument(name="query")
 
-        # result = schema_blog.execute(
-        #     request_string=query,
-        #     executor=AsyncioExecutor(),
-        # )
-
         result = await schema_blog.execute(
             request_string=query,
             executor=AsyncioExecutor(),
