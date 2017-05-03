@@ -14,18 +14,18 @@ class PostRepository:
 
     __collection_name = "post"
 
-    _entries = None
-
-    def __init__(self, entries: list = None):
-        self._entries = []
-
-        if entries:
-            self._entries.extend(entries)
+    # _entries = None
+    #
+    # def __init__(self, entries: list = None):
+    #     self._entries = []
+    #
+    #     if entries:
+    #         self._entries.extend(entries)
 
     async def get_item_post(self, filters: dict = None) -> Union[Post, None]:
         """Вернет один экземпляр поста, по переданным фильтрам."""
-        if not filters:
-            return self._entries[-1] if self._entries else None
+        # if not filters:
+        #     return self._entries[-1] if self._entries else None
 
         collection = database[self.__collection_name]
         document = await collection.find_one(filters)
@@ -67,3 +67,31 @@ class PostRepository:
         post_id = await collection.insert(post.to_dict())
         actual_post = await self.get_item_post(filters={"_id": post_id})
         return actual_post
+
+    async def update_post(self, post: Post = None) -> bool:
+        """Обновит в коллекции пост и вернет его обновленный экземпляр."""
+        if not post:
+            return False
+
+        collection = database[self.__collection_name]
+
+        check_exists_post = await self.get_item_post(filters={"alias": post.alias})
+        if not check_exists_post:
+            return False
+
+        result = await collection.replace_one({"alias": post.alias}, post.to_dict())
+        return bool(result)
+
+    async def delete_post(self, alias: str) -> bool:
+        """Обновит в коллекции пост и вернет его обновленный экземпляр."""
+        if not alias:
+            return False
+
+        collection = database[self.__collection_name]
+
+        check_exists_post = await self.get_item_post(filters={"alias": alias})
+        if not check_exists_post:
+            return False
+
+        result = await collection.delete_one({"alias": alias})
+        return bool(result)

@@ -53,12 +53,6 @@ class CreatePostRequest(RequestToUseCase):
         # self.user = document.get("user", "")
 
     def to_post(self):
-        # list_tags = []
-        # for raw_tag in self.tags:
-        #     tag = raw_tag[raw_tag.find("#") + 1:].lower()
-        #     alias = transliterate.slugify(tag) if transliterate.detect_language(tag) else tag
-        #     list_tags.append(domains.PostTag(alias=alias, title=tag))
-
         # Поиск хештегов в тексте.
         raw_tags = re.findall("[^\\\]#[\w-]+", self.text)
         list_tags = []
@@ -87,12 +81,14 @@ class UpdatePostRequest(CreatePostRequest):
 class DeletePostRequest(RequestToUseCase):
     """Класс запросов на удаление поста."""
 
-    doc = None
+    __slots__ = ("alias", )
 
     def __init__(self, request_data: dict):
         super().__init__()
 
-        self.doc = request_data
-
+        document = request_data
         if not isinstance(request_data, dict):
             self.add_error("request_data", "Is not dict")
+            document = {}
+
+        self.alias = document.get("alias", "")
