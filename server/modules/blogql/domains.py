@@ -12,10 +12,6 @@
 """
 
 from typing import List, Dict
-# from collections import namedtuple
-# Post = namedtuple("Post", ("alias", "title", "text", "list_tags", "meta_info"))
-# PostMetaInfo = namedtuple("PostMetaInfo", ("user", "date_create", "date_update"))
-# PostTag = namedtuple("PostTag", ("alias", "title"))
 
 
 class PostMetaInfo:

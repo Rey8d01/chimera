@@ -47,7 +47,8 @@ class BaseHandler(tornado.web.RequestHandler):
         exception = exc_info[1]
         traceback = exc_info[0]
 
-        # Исключение которое было возбуждено феймворком - попытка отработать его корректно для клиента и привести к строковому виду.
+        # Исключение которое было возбуждено феймворком - попытка отработать его корректно
+        # для клиента и привести к строковому виду.
         result = {
             "error": {
                 "message": str(exception),
@@ -64,11 +65,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header('Access-Control-Allow-Headers', 'X-Requested-With')
         self.set_header('Access-Control-Allow-Credentials', 'true')
         self.set_header('Access-Control-Max-Age', '600')
-        self.set_header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS')
-
-    async def options(self, *args, **kwargs):
-        """Обработчик запроса по методу OPTIONS."""
-        raise utils.exceptions.Result(content={"hello": "world"})
+        self.set_header('Access-Control-Allow-Methods', 'POST, GET')
 
     def get_bytes_body_argument(self, name: str, default=None) -> str:
         """Вернет значение переданного параметра от клиента.
@@ -93,6 +90,9 @@ class BaseHandler(tornado.web.RequestHandler):
             return tornado.escape.json_decode(body_arguments)
         except (TypeError, JSONDecodeError):
             return {}
+
+    def data_received(self, chunk):
+        super().data_received(chunk)
 
 
 class MainHandler(BaseHandler):

@@ -16,18 +16,9 @@ class PostObjectType(ObjectType):
     title = String()
     text = String()
 
-    # user = String()
-    # author = String()
-    # dateCreate = String()
-    # dateUpdate = String()
-    # tags = List(Episode)
-
-    # def resolve_friends(self, args, *_):
-    #     # The character friends is a list of strings
-    #     return [get_character(f) for f in self.friends]
-
 
 class ListPostsObjectType(ObjectType):
+    """Список документов Post."""
     items = List(PostObjectType)
 
 
