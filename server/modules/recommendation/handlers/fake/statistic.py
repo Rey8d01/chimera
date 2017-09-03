@@ -1,8 +1,8 @@
 import random
 
 import utils.exceptions
+from modules.handler import BaseHandler
 from modules.recommendation.documents.fake import FakeUserDocument
-from utils.handler import BaseHandler
 
 
 class FakeStatisticHandler(BaseHandler):

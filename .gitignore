@@ -5,3 +5,4 @@
 /dump/
 *.log
 devnote.md
+/.python-version

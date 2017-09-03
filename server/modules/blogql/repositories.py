@@ -4,40 +4,32 @@ DataMapper
 
 """
 
-from typing import Union, List
-from settings import database
+from typing import List, Union
+
+from motor.motor_tornado import MotorClient
+
 from .domains import Post
 
 
 class PostRepository:
     """Репозиторий для работы с коллекцией постов в БД."""
 
-    __collection_name = "post"
-
-    # _entries = None
-    #
-    # def __init__(self, entries: list = None):
-    #     self._entries = []
-    #
-    #     if entries:
-    #         self._entries.extend(entries)
+    def __init__(self, client_motor: MotorClient):
+        self.__client_motor = client_motor
+        self.__collection_name = "post"
 
     async def get_item_post(self, filters: dict = None) -> Union[Post, None]:
         """Вернет один экземпляр поста, по переданным фильтрам."""
-        # if not filters:
-        #     return self._entries[-1] if self._entries else None
 
-        collection = database[self.__collection_name]
+        collection = self.__client_motor[self.__collection_name]
         document = await collection.find_one(filters)
 
         return Post(**document) if document else None
 
     async def get_list_posts(self, alias_tag: str = "", user_id: str = "") -> List[Post]:
         """Вернет список постов по зададнным фильтрам."""
-        # if not filters:
-        #     return self._entries[-1] if self._entries else None
 
-        collection = database[self.__collection_name]
+        collection = self.__client_motor[self.__collection_name]
         # todo
         find_filter = {}
         if alias_tag:
@@ -58,7 +50,7 @@ class PostRepository:
         if not post:
             return None
 
-        collection = database[self.__collection_name]
+        collection = self.__client_motor[self.__collection_name]
 
         check_exists_post = await self.get_item_post(filters={"alias": post.alias})
         if check_exists_post:
@@ -73,7 +65,7 @@ class PostRepository:
         if not post:
             return False
 
-        collection = database[self.__collection_name]
+        collection = self.__client_motor[self.__collection_name]
 
         check_exists_post = await self.get_item_post(filters={"alias": post.alias})
         if not check_exists_post:
@@ -87,7 +79,7 @@ class PostRepository:
         if not alias:
             return False
 
-        collection = database[self.__collection_name]
+        collection = self.__client_motor[self.__collection_name]
 
         check_exists_post = await self.get_item_post(filters={"alias": alias})
         if not check_exists_post:

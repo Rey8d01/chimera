@@ -7,14 +7,14 @@ import re
 
 from bson.objectid import ObjectId
 
+import modules.handler
 import utils.exceptions
-import utils.handler
 from documents.user import UserDocument
 from modules.blog.documents.post import PostDocument, PostMetaDocument
 from utils.pagination import Pagination
 
 
-class AuthorHandler(utils.handler.MainHandler):
+class AuthorHandler(modules.handler.MainHandler):
     """Обработчик запросов для указанного каталога.
 
     GET - Запрос списка постов по заданному id автора.

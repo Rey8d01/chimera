@@ -9,7 +9,7 @@ import random
 
 import utils.exceptions
 from documents.user import UserDocument
-from utils.handler import BaseHandler
+from modules.handler import BaseHandler
 
 
 class ListRatedItemsHandler(BaseHandler):

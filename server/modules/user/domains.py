@@ -1,8 +1,9 @@
 """Документы для хранения информации пользователей."""
 from typing import List, Dict, Union
+from datetime import datetime
 
 
-class OAuthInfo():
+class OAuthInfo:
     """Данные по авторизации через соцсети.
 
     :type oauth_type: str Тип социальной сети (уникальное имя);
@@ -66,7 +67,7 @@ class MetaInfo:
 
     __slots__ = ("date_registration", "date_last_activity", "user", "password")
 
-    def __init__(self, date_registration: str = None, date_last_activity: str = None, user: str = None, password: str = None, *args, **kwargs):
+    def __init__(self, date_registration: datetime = None, date_last_activity: datetime = None, user: str = None, password: str = None, *args, **kwargs):
         self.date_registration = date_registration
         self.date_last_activity = date_last_activity
         self.user = user

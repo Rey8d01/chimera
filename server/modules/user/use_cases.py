@@ -1,11 +1,14 @@
 """User use cases."""
 
-from utils.ca import UseCase, SuccessResponse, ErrorResponse, ResponseFromUseCase
-from .gateways import SignUpRequest, SignInRequest
+from utils.ca import ErrorResponse, ResponseFromUseCase, SuccessResponse, UseCase
+from utils.token import encode_token
+from .gateways import SignInRequest, SignUpRequest
 from .repositories import UserRepository
 
 
 class SignUpUseCase(UseCase):
+    """Сценарий регистрации."""
+
     def __init__(self, repository: UserRepository):
         self.repository = repository
 
@@ -17,6 +20,8 @@ class SignUpUseCase(UseCase):
 
 
 class SignInUseCase(UseCase):
+    """Сценарий авторизации."""
+
     def __init__(self, repository: UserRepository):
         self.repository = repository
 
@@ -24,4 +29,6 @@ class SignInUseCase(UseCase):
         user = await self.repository.check_user(user=request_object.user, password=request_object.password)
         if not user:
             return ErrorResponse("error user")
-        return SuccessResponse(user)
+
+        token = encode_token(claims={"who": user.meta_info.user})
+        return SuccessResponse(token)

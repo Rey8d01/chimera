@@ -1,25 +1,30 @@
 """User repositories."""
 
-from typing import Union, List
-from settings import database
-from .domains import User, OAuthInfo, MetaInfo, DetailInfo
-from datetime import datetime
 import hashlib
+from datetime import datetime
+from typing import Union
+
+from motor.motor_tornado import MotorClient
+
+from .domains import DetailInfo, MetaInfo, User
 
 
 class UserRepository:
     """Репозиторий для работы с коллекцией постов в БД."""
 
-    __collection_name = "user"
+    def __init__(self, client_motor: MotorClient):
+        self.__client_motor = client_motor
+        self.__collection_name = "user"
 
     async def get_user(self, filters: dict = None) -> Union[User, None]:
-        collection = database[self.__collection_name]
+        collection = self.__client_motor[self.__collection_name]
         document = await collection.find_one(filters)
 
         return User(**document) if document else None
 
     async def create_user(self, user: str, password: str) -> Union[User, None]:
-        collection = database[self.__collection_name]
+        """Создание нового пользователя."""
+        collection = self.__client_motor[self.__collection_name]
 
         check_exists_user = await self.get_user(filters={"meta_info.user": user})
         if check_exists_user:
@@ -40,7 +45,8 @@ class UserRepository:
         return actual_user
 
     async def check_user(self, user: str, password: str) -> Union[User, None]:
-        collection = database[self.__collection_name]
+        """Проверка авторизационных данных пользователя."""
+        collection = self.__client_motor[self.__collection_name]
 
         actual_user = await self.get_user(filters={"meta_info.user": user})
         if not actual_user:

@@ -1,6 +1,9 @@
 """Тестовый обработчик основных запросов."""
+import graphene
+from graphql.execution.executors.asyncio import AsyncioExecutor
+
 import utils.exceptions
-from utils.handler import BaseHandler
+from modules.handler import BaseHandler
 
 
 class TestRestHandler(BaseHandler):
@@ -35,41 +38,16 @@ class TestRestHandler(BaseHandler):
         raise utils.exceptions.Result(content={"hello": "world", "method": "PATCH"})
 
 
-import graphene
-from graphql.execution.executors.asyncio import AsyncioExecutor
-
 class Query(graphene.ObjectType):
     hello = graphene.String()
-    halo = graphene.String()
     name = graphene.String()
-    hashtags = graphene.List(graphene.String, l=graphene.Int(), text=graphene.String())
 
     async def resolve_hello(self, args, context, info):
         return 'World'
 
-    def resolve_halo(self, args, context, info):
-        return 'wars II'
-
     def resolve_name(self, args, context, info):
         return context.get('name')
 
-    def resolve_hashtags(self, args, context, info):
-        print(args, context, info)
-        l = args.get("l")
-        text = args.get("text")
-        # 1
-        import re
-        import transliterate
-        raw_tags = re.findall("[^\\\]#[\w-]+", text)
-        tags = []
-        for raw_tag in raw_tags:
-            tag = raw_tag[raw_tag.find("#") + 1:].lower()
-            alias = transliterate.slugify(tag) if transliterate.detect_language(tag) else tag
-            document_tag = dict(title=tag, alias=alias)
-            tags.append(document_tag)
-        # 2
-        # print(tags)
-        return tags[:l]
 
 schema = graphene.Schema(query=Query)
 
@@ -80,15 +58,26 @@ class TestGraphQLHandler(BaseHandler):
     async def get(self):
         """Обработчик запроса по методу GET."""
         graphql = self.get_argument(name="graphql")
-        result = schema.execute(graphql, executor=AsyncioExecutor())
+        # result = schema.execute(graphql, executor=AsyncioExecutor())
+        result = await schema.execute(
+            request_string=graphql,
+            executor=AsyncioExecutor(),
+            return_promise=True
+        )
         raise utils.exceptions.Response(result)
 
     async def post(self):
         """Обработчик запроса по методу POST."""
-        # result = schema.execute('{ name }', context_value={'name': 'Syrus'})
         request = self.get_bytes_body_source()
         query = request.get("query", "")
         operation_name = request.get("operationName", "")
         variables = request.get("variables", {})
-        result = schema.execute(request_string=query, operation_name=operation_name, variable_values=variables)
+        # result = schema.execute(request_string=query, operation_name=operation_name, variable_values=variables)
+        result = await schema.execute(
+            request_string=query,
+            operation_name=operation_name,
+            variable_values=variables,
+            executor=AsyncioExecutor(),
+            return_promise=True
+        )
         raise utils.exceptions.Response(result)

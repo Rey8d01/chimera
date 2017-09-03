@@ -5,13 +5,13 @@
 """
 import re
 
+import modules.handler
 import utils.exceptions
-import utils.handler
 from modules.blog.documents.post import PostDocument, PostMetaDocument, PostTagsDocument
 from utils.pagination import Pagination
 
 
-class TagItemHandler(utils.handler.MainHandler):
+class TagItemHandler(modules.handler.MainHandler):
     """Обработчик запросов для указанного тега.
 
     GET - Запрос списка постов по заданному тегу (с постраничной навигацией).
@@ -64,7 +64,7 @@ class TagItemHandler(utils.handler.MainHandler):
         raise utils.exceptions.Result(content=result)
 
 
-class TagListHandler(utils.handler.MainHandler):
+class TagListHandler(modules.handler.MainHandler):
     """Обработчик запросов для работы со списком каталогов у которых нет родительского каталога (корень).
 
     GET - Запрос списка всех тегов.

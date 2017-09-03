@@ -7,8 +7,8 @@ from documents.recommendation.fake import FakeUserItemExtractor, FakeUserDocumen
 from modules.recommendation.recommendation.cpn import KohonenClusterExtractor, GrossbergOutStarExtractor
 
 import utils.exceptions
+from modules.handler import BaseHandler
 from modules.recommendation.lib.cpn import Kohonen, GrossbergOutStar, CPN, top250
-from utils.handler import BaseHandler
 
 
 class FakeCPNHandler(BaseHandler):

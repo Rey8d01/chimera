@@ -1,12 +1,11 @@
 """User gateways to use cases."""
 
-import re
-import transliterate
 from utils.ca import RequestToUseCase
-from . import domains
 
 
 class SignUpRequest(RequestToUseCase):
+    """Схема запроса для регистрации пользователя."""
+
     __slots__ = ("user", "password")
 
     def __init__(self, request_data: dict):
@@ -22,6 +21,7 @@ class SignUpRequest(RequestToUseCase):
 
 
 class SignInRequest(RequestToUseCase):
+    """Схема запроса для авторизации пользователя."""
 
     __slots__ = ("user", "password")
 
