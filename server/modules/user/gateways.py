@@ -8,11 +8,11 @@ class SignUpRequest(RequestToUseCase):
 
     __slots__ = ("user", "password")
 
-    def __init__(self, request_data: dict):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        document = request_data
-        if not isinstance(request_data, dict):
+        document = kwargs
+        if not isinstance(document, dict):
             self.add_error("request_data", "Is not dict")
             document = {}
 
@@ -25,11 +25,11 @@ class SignInRequest(RequestToUseCase):
 
     __slots__ = ("user", "password")
 
-    def __init__(self, request_data: dict):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        document = request_data
-        if not isinstance(request_data, dict):
+        document = kwargs
+        if not isinstance(document, dict):
             self.add_error("request_data", "Is not dict")
             document = {}
 

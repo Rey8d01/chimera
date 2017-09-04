@@ -12,6 +12,9 @@
 """
 
 from typing import List, Dict
+from datetime import datetime
+
+from modules.user.domains import User
 
 
 class PostMetaInfo:
@@ -19,14 +22,14 @@ class PostMetaInfo:
 
     __slots__ = ("user", "date_create", "date_update")
 
-    def __init__(self, user: str = "", date_create: str = "", date_update: str = "", *args, **kwargs):
+    def __init__(self, user: User = None, date_create: datetime = None, date_update: datetime = None, *args, **kwargs):
         self.user = user
         self.date_create = date_create
         self.date_update = date_update
 
     def to_dict(self):
         return {
-            "user": self.user,
+            "user": str(self.user),
             "date_create": self.date_create,
             "date_update": self.date_update,
         }

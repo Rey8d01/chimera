@@ -11,7 +11,7 @@ class RequestToUseCase:
 
     errors = None
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__()
         self.errors = []
 

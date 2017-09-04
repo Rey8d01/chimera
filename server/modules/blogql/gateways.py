@@ -1,7 +1,11 @@
 """Blog gateways to use cases."""
 
 import re
+from datetime import datetime
+
 import transliterate
+
+from modules.user.domains import User
 from utils.ca import RequestToUseCase
 from . import domains
 
@@ -11,12 +15,12 @@ class ItemPostRequest(RequestToUseCase):
 
     filters = None
 
-    def __init__(self, request_data: dict):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        self.filters = request_data
+        self.filters = kwargs
 
-        if not isinstance(request_data, dict):
+        if not isinstance(self.filters, dict):
             self.add_error("request_data", "Is not dict")
 
 
@@ -25,12 +29,13 @@ class ListPostsRequest(RequestToUseCase):
 
     filters = None
 
-    def __init__(self, request_data: dict):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        # Номер страницы в списке постов. # id пользователя в базе. # Имя псевдонима тега.
+        super().__init__(*args, **kwargs)
 
-        self.filters = request_data
+        self.filters = kwargs
 
-        if not isinstance(request_data, dict):
+        if not isinstance(self.filters, dict):
             self.add_error("request_data", "Is not dict")
 
 
@@ -39,20 +44,16 @@ class CreatePostRequest(RequestToUseCase):
 
     __slots__ = ("alias", "title", "text", "user",)
 
-    def __init__(self, request_data: dict):
-        super().__init__()
+    def __init__(self, alias: str, title: str, text: str, user: User, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        document = request_data
-        if not isinstance(request_data, dict):
-            self.add_error("request_data", "Is not dict")
-            document = {}
+        self.alias = alias
+        self.title = title
+        self.text = text
+        self.user = user
 
-        self.alias = document.get("alias", "")
-        self.title = document.get("title", "")
-        self.text = document.get("text", "")
-        # self.user = document.get("user", "")
-
-    def to_post(self):
+    def to_post(self) -> domains.Post:
+        """Приведение запроса к модели поста."""
         # Поиск хештегов в тексте.
         raw_tags = re.findall("[^\\\]#[\w-]+", self.text)
         list_tags = []
@@ -62,13 +63,18 @@ class CreatePostRequest(RequestToUseCase):
             document_tag = domains.PostTag(title=tag, alias=alias)
             list_tags.append(document_tag)
 
-        # meta_info = domains.PostMetaInfo(user=self.user)
+        meta_info = domains.PostMetaInfo(
+            user=self.user,
+            date_create=datetime.utcnow(),
+            date_update=datetime.utcnow(),
+        )
+
         post = domains.Post(
             text=self.text,
             title=self.title,
             alias=self.alias,
             list_tags=list_tags,
-            # meta_info=meta_info
+            meta_info=meta_info
         )
 
         return post
@@ -81,14 +87,10 @@ class UpdatePostRequest(CreatePostRequest):
 class DeletePostRequest(RequestToUseCase):
     """Класс запросов на удаление поста."""
 
-    __slots__ = ("alias", )
+    __slots__ = ("alias", "user")
 
-    def __init__(self, request_data: dict):
-        super().__init__()
+    def __init__(self, alias: str, user: User, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        document = request_data
-        if not isinstance(request_data, dict):
-            self.add_error("request_data", "Is not dict")
-            document = {}
-
-        self.alias = document.get("alias", "")
+        self.alias = alias
+        self.alias = user

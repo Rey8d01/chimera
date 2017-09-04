@@ -2,8 +2,6 @@
 
 Содержит настройки подключения к внешним ресурсам, роутинг и настройки работы системы.
 
-todo реализовать проверки по наличию соединений с базой, кешем и др.
-
 """
 
 import json
@@ -24,11 +22,12 @@ except Exception:
 define("port", default=settings["system_port"], help="run on the given port", type=int)
 
 # Настройки подключения к базе данных MongoDB
-client_motor = None
+client_motor = db_motor = None
 settings_db = settings.get("db", {})
 for connection_name, setting_db in settings_db.items():
-    # database = motorengine.connect(db=setting_db["name"], host=setting_db["host"], port=setting_db["port"], alias=connection_name)
-    client_motor = MotorClient(setting_db["host"], setting_db["port"])[setting_db["name"]]
+    client_motor = MotorClient(setting_db["host"], setting_db["port"])
+    # todo Разрулить с доступами к базам
+    db_motor = client_motor[setting_db["name"]]
 
 # Настройки подключения к Redis
 client_redis = tredis.RedisClient(host=settings["redis"]["host"], port=settings["redis"]["port"])
@@ -42,10 +41,7 @@ except KeyError:
 
 # Настройки приложения - доступны внутри хендлеров через self.settings
 system_settings = {
-    # Для тестирования можно подключиться к MongoDB через Motor напрямую
-    # "db": motor.MotorClient(host=DB_HOST, port=DB_PORT)[DB_NAME]
-    # "db": motorengine.connect(db=DB_NAME, host=DB_HOST, port=DB_PORT)
-    "client_motor": client_motor,
+    "client_motor": db_motor,
     "client_redis": client_redis,
 }
 

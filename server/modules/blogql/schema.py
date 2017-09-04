@@ -9,6 +9,7 @@ from .gateways import CreatePostRequest, DeletePostRequest, ItemPostRequest, Lis
 from .repositories import PostRepository
 from .use_cases import CreatePostUseCase, DeletePostUseCase, ItemPostUseCase, ListPostsUseCase, UpdatePostUseCase
 
+
 class PostObjectType(ObjectType):
     """Схема документа Post для генерации ответов."""
 
@@ -35,7 +36,7 @@ class BlogQuery(ObjectType):
 
     async def resolve_post(self, args, context, info) -> PostObjectType:
         """Запрос поста по его псевдониму."""
-        request_item_post = ItemPostRequest(request_data={"alias": args.get("alias")})
+        request_item_post = ItemPostRequest(**args)
         repository_post = PostRepository(client_motor=context["client_motor"])
         use_case_item_post = ItemPostUseCase(repository_post)
         response_from_use_case = await to_asyncio_future(use_case_item_post.execute(request_object=request_item_post))
@@ -50,19 +51,8 @@ class BlogQuery(ObjectType):
         )
 
     async def resolve_list_posts_by_tag(self, args, context, info) -> ListPostsObjectType:
-        """
-        Запрос на получение информации по содержимому определенного тега;
-
-        :param alias_tag: Имя псевдонима тега;
-        :param current_page: Номер страницы в списке постов;
-        :return: 
-        """
-
-        request_data = {
-            "alias_tag": args.get("alias_tag"),
-            "current_page": args.get("current_page")
-        }
-        request_list_posts = ListPostsRequest(request_data=request_data)
+        """Запрос на получение информации по содержимому определенного тега."""
+        request_list_posts = ListPostsRequest(**args)
         repository_post = PostRepository(client_motor=context["client_motor"])
         use_case_list_posts = ListPostsUseCase(repository_post)
         response_from_use_case = await to_asyncio_future(use_case_list_posts.execute(request_object=request_list_posts))
@@ -73,19 +63,8 @@ class BlogQuery(ObjectType):
         return ListPostsObjectType(items=response_from_use_case.data)
 
     async def resolve_list_posts_by_user(self, args, context, info) -> ListPostsObjectType:
-        """
-        Запрос на получение информации по постам от определенного автора;
-
-        :param user_id: id пользователя в базе;
-        :param current_page: Номер страницы в списке постов;
-        :return: 
-        """
-
-        request_data = {
-            "user_id": args.get("user_id"),
-            "current_page": args.get("current_page")
-        }
-        request_list_posts = ListPostsRequest(request_data=request_data)
+        """Запрос на получение информации по постам от определенного автора."""
+        request_list_posts = ListPostsRequest(**args)
         repository_post = PostRepository(client_motor=context["client_motor"])
         use_case_list_posts = ListPostsUseCase(repository_post)
         response_from_use_case = await to_asyncio_future(use_case_list_posts.execute(request_object=request_list_posts))
@@ -98,7 +77,7 @@ class BlogQuery(ObjectType):
     @need_auth
     async def resolve_create_post(self, args, context, info) -> PostObjectType:
         """Сохранение нового поста."""
-        request_create_post = CreatePostRequest(request_data=args)
+        request_create_post = CreatePostRequest(user=context["current_user"], **args)
         repository_post = PostRepository(client_motor=context["client_motor"])
         use_case_create_post = CreatePostUseCase(repository_post)
         response_from_use_case = await to_asyncio_future(use_case_create_post.execute(request_object=request_create_post))
@@ -115,7 +94,7 @@ class BlogQuery(ObjectType):
     @need_auth
     async def resolve_update_post(self, args, context, info) -> Boolean:
         """Обновление существующего поста."""
-        request_update_post = UpdatePostRequest(request_data=args)
+        request_update_post = UpdatePostRequest(user=context["current_user"], **args)
         repository_post = PostRepository(client_motor=context["client_motor"])
         use_case_update_post = UpdatePostUseCase(repository_post)
         response_from_use_case = await to_asyncio_future(use_case_update_post.execute(request_object=request_update_post))
@@ -128,7 +107,7 @@ class BlogQuery(ObjectType):
     @need_auth
     async def resolve_delete_post(self, args, context, info) -> Boolean:
         """Удаление существующего поста."""
-        request_delete_post = DeletePostRequest(request_data=args)
+        request_delete_post = DeletePostRequest(user=context["current_user"], **args)
         repository_post = PostRepository(client_motor=context["client_motor"])
         use_case_delete_post = DeletePostUseCase(repository_post)
         response_from_use_case = await to_asyncio_future(use_case_delete_post.execute(request_object=request_delete_post))

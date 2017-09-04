@@ -9,7 +9,7 @@ from graphql.execution.executors.asyncio import AsyncioExecutor
 
 from modules.schema import main_schema
 from utils.exceptions import Response
-from utils.token import decode_token
+from utils.token import decode_token, JWT_NAME_HEADER
 
 
 class AuthorizationMiddleware:
@@ -162,121 +162,20 @@ class PrivateHandler(PublicHandler):
 
     async def prepare(self):
         """Срабатывает перед методами get/post/... проверка токена, что был передан в заголовке с имененем 'token'."""
-        token = self.request.headers.get("token")
+        token = self.request.headers.get(JWT_NAME_HEADER)
         claims = None
         if token:
             claims = decode_token(token=token)
 
         if not claims:
-            raise Response(ExecutionResult(errors=("Пользователь не авторизован",)))
+            raise Response(ExecutionResult(errors=("Пользователь не авторизован 1",)))
 
         # todo завернуть более красиво
         from modules.user.repositories import UserRepository
         repository_user = UserRepository(client_motor=self.settings.get("client_motor", None))
 
-        check_exists_user = await repository_user.get_user(filters={"meta_info.user": claims["who"]})
-        if check_exists_user:
-            raise Response(ExecutionResult(errors=("Пользователь не авторизован",)))
+        current_user = await repository_user.get_user(filters={"meta_info.user": claims["who"]})
+        if not current_user:
+            raise Response(ExecutionResult(errors=("Пользователь не авторизован 2",)))
 
-        self.current_user = claims["who"]
-
-# -----
-
-
-# class MainHandler(BaseHandler):
-#     """Главный обработчик наследники которого требуют авторизацию со стороны пользователя для своих действий."""
-#
-#     async def prepare(self):
-#         """Перекрытие срабатывает перед вызовом обработчиков и в случае отсутствия данных по пользователю возбуждает исключение."""
-#         user_data = self.get_secure_cookie("chimera_user")
-#         if not user_data:
-#             raise utils.exceptions.UserNotAuth()
-#         user_data = self.escape.json_decode(user_data)
-#
-#         collection_user = await UserDocument().objects.filter({UserDocument.oauth.name: {"$elemMatch": {
-#             UserOAuthDocument.type.name: user_data[UserOAuthDocument.type.name],
-#             UserOAuthDocument.id.name: user_data[UserOAuthDocument.id.name]
-#         }}}).find_all()
-#
-#         if not collection_user:
-#             raise utils.exceptions.UserNotFound()
-#         document_user = collection_user[-1]
-#
-#         self.current_user = document_user
-#
-#
-# class PrivateIntroduceHandler(BaseHandler):
-#     """Вход по парольной фразе для привелегированного пользователя."""
-#
-#     async def post(self):
-#         """Авторизация по парольной фразе."""
-#         import hashlib
-#
-#         hash = hashlib.sha512(b"passphrase").hexdigest()  # passphrase
-#         passphrase = self.get_bytes_body_argument("passphrase")
-#
-#         result = {"auth": False}
-#         if hashlib.sha512(passphrase.encode()).hexdigest() == hash:
-#             chimera_user = self.escape.json_encode({"type": "admin", "id": "-1"})
-#             result["auth"] = True
-#             self.set_secure_cookie("chimera_user", chimera_user, domain=".chimera.rey")
-#
-#         raise utils.exceptions.Result(content=result)
-#
-#
-# class IntroduceHandler(BaseHandler):
-#     """Класс через который будет проводится представление пользователя системе, прошедшего авторизацию."""
-#
-#     def _load_user_from_post(self, auth_type, user_id):
-#         """Сборка документа пользователя для его сохранения."""
-#         # todo Вынесли всякое добро в отдельный метод, может потом с изменением архитектуры удобнее это будет вообще держать подальше
-#         document_user = UserDocument()
-#         document_user_info = UserInfoDocument()
-#         document_user_oauth = UserOAuthDocument()
-#         document_user_meta = UserMetaDocument()
-#         document_user.oauth = [document_user_oauth]
-#         document_user.info = document_user_info
-#         document_user.meta = document_user_meta
-#
-#         user_info = self.get_bytes_body_source().get("user_info", {})
-#
-#         document_user_oauth.type = auth_type
-#         document_user_oauth.id = user_id
-#         document_user_oauth.name = user_info.get("name", "")
-#         document_user_oauth.alias = user_info.get("alias", "")
-#         document_user_oauth.avatar = user_info.get("avatar", "")
-#         document_user_oauth.email = user_info.get("email", "")
-#         document_user_oauth.raw = user_info.get("raw", "")
-#         document_user_oauth.main = True
-#
-#         return document_user
-#
-#     async def post(self):
-#         """Авторизация."""
-#         # Основные данные это тип соцсети и ид в ней
-#         auth_type = self.get_bytes_body_argument("auth_type")
-#         user_id = self.get_bytes_body_argument("user_id")
-#
-#         # Документ пользователя при поиске опирается на ид и тип соцсети
-#         document_user = UserDocument()
-#         users = await document_user.objects.filter({UserDocument.oauth.name: {"$elemMatch": {
-#             UserOAuthDocument.type.name: auth_type,
-#             UserOAuthDocument.id.name: user_id
-#         }}}).find_all()
-#
-#         if len(users) == 0:
-#             document_user = self._load_user_from_post(auth_type, user_id)
-#             await document_user.save()
-#
-#         chimera_user = self.escape.json_encode({"type": auth_type, "id": user_id})
-#         self.set_secure_cookie("chimera_user", chimera_user, domain=".chimera.rey")
-#
-#         raise utils.exceptions.Result(content={"auth": True})
-#
-#
-# class LogoutHandler(BaseHandler):
-#     """Класс для выхода из системы - очистка кук."""
-#
-#     async def get(self):
-#         """Сброс авторизации."""
-#         self.clear_cookie("chimera_user")
+        self.current_user = current_user

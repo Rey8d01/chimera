@@ -30,7 +30,7 @@ class UserQuery(ObjectType):
 
     async def resolve_sign_up(self, args, context, info) -> UserObjectType:
         """Регистрация."""
-        request_sign_up = SignUpRequest(request_data=args)
+        request_sign_up = SignUpRequest(**args)
         repository_user = UserRepository(client_motor=context["client_motor"])
         use_case_sign_up = SignUpUseCase(repository_user)
         response_from_use_case = await to_asyncio_future(use_case_sign_up.execute(request_object=request_sign_up))
@@ -43,7 +43,7 @@ class UserQuery(ObjectType):
 
     async def resolve_sign_in(self, args, context, info) -> TokenObjectType:
         """Авторизация."""
-        request_sign_in = SignInRequest(request_data=args)
+        request_sign_in = SignInRequest(**args)
         repository_user = UserRepository(client_motor=context["client_motor"])
         use_case_sign_in = SignInUseCase(repository_user)
         response_from_use_case = await to_asyncio_future(use_case_sign_in.execute(request_object=request_sign_in))

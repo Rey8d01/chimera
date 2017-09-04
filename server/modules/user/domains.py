@@ -105,6 +105,9 @@ class User:
             "list_oauth_info": [oauth_info.to_dict() for oauth_info in self.list_oauth_info],
         }
 
+    def __str__(self):
+        return self.meta_info.user
+
     # critic = BaseField()
 
     # def get_main_oauth_document(self) -> UserOAuthDocument:
