@@ -1,8 +1,8 @@
-tornado >= 4.3     # web server + framework;
+tornado
 motor
-# motorengine >= 0.9 # MongoDB ODT;
-tredis >= 0.4
-transliterate >= 1.7.6
+# motorengine >= 0.9
+tredis
+transliterate
 graphene
 graphql
 python-jose

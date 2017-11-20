@@ -1,6 +1,7 @@
 """User gateways to use cases."""
 
 from utils.ca import RequestToUseCase
+from modules.user.domains import User
 
 
 class SignUpRequest(RequestToUseCase):
@@ -35,3 +36,14 @@ class SignInRequest(RequestToUseCase):
 
         self.user = document.get("user", "")
         self.password = document.get("password", "")
+
+
+class RefreshRequest(RequestToUseCase):
+    """Схема запроса для обновления токена."""
+
+    __slots__ = ("user", )
+
+    def __init__(self, user: User, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.user = user

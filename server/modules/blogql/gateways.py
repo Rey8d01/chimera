@@ -93,4 +93,4 @@ class DeletePostRequest(RequestToUseCase):
         super().__init__(*args, **kwargs)
 
         self.alias = alias
-        self.alias = user
+        self.user = user

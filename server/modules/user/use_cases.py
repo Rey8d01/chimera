@@ -1,8 +1,8 @@
 """User use cases."""
 
 from utils.ca import ErrorResponse, ResponseFromUseCase, SuccessResponse, UseCase
-from utils.token import encode_token
-from .gateways import SignInRequest, SignUpRequest
+from utils.token import Token
+from .gateways import SignInRequest, SignUpRequest, RefreshRequest
 from .repositories import UserRepository
 
 
@@ -30,5 +30,16 @@ class SignInUseCase(UseCase):
         if not user:
             return ErrorResponse("error user")
 
-        token = encode_token(claims={"who": user.meta_info.user})
-        return SuccessResponse(token)
+        token = Token(repository_user=self.repository, username=user.meta_info.user)
+        return SuccessResponse(token.encode())
+
+
+class RefreshUseCase(UseCase):
+    """Сценарий обновления токена."""
+
+    def __init__(self, repository: UserRepository):
+        self.repository = repository
+
+    async def process_request(self, request_object: RefreshRequest) -> ResponseFromUseCase:
+        token = Token(repository_user=self.repository, username=request_object.user.meta_info.user)
+        return SuccessResponse(token.encode())

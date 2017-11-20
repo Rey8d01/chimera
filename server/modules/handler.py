@@ -9,7 +9,7 @@ from graphql.execution.executors.asyncio import AsyncioExecutor
 
 from modules.schema import main_schema
 from utils.exceptions import Response
-from utils.token import decode_token, JWT_NAME_HEADER
+from utils.token import JWT_NAME_HEADER, JWTError, Token
 
 
 class AuthorizationMiddleware:
@@ -161,21 +161,23 @@ class PrivateHandler(PublicHandler):
     """
 
     async def prepare(self):
-        """Срабатывает перед методами get/post/... проверка токена, что был передан в заголовке с имененем 'token'."""
-        token = self.request.headers.get(JWT_NAME_HEADER)
-        claims = None
-        if token:
-            claims = decode_token(token=token)
+        """Метод вернет объект пользователя исходя из информации токена, что был передан в заголовке с имененем 'token', в объекте request.
 
-        if not claims:
-            raise Response(ExecutionResult(errors=("Пользователь не авторизован 1",)))
+        Срабатывает перед методами get/post/...
 
-        # todo завернуть более красиво
+        """
         from modules.user.repositories import UserRepository
         repository_user = UserRepository(client_motor=self.settings.get("client_motor", None))
+        current_user = None
+        try:
+            token = Token.decode_from_str(repository_user, self.request.headers.get(JWT_NAME_HEADER, ""))
+            is_valid = await token.is_valid()
+            if is_valid:
+                current_user = await token.get_user()
+        except JWTError as _:
+            pass
 
-        current_user = await repository_user.get_user(filters={"meta_info.user": claims["who"]})
         if not current_user:
-            raise Response(ExecutionResult(errors=("Пользователь не авторизован 2",)))
+            raise Response(ExecutionResult(errors=("Пользователь не авторизован",)))
 
         self.current_user = current_user

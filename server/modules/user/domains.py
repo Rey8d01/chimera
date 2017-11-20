@@ -65,13 +65,14 @@ class MetaInfo:
     :type date_last_activity: str Дата последнего запроса к системе;
     """
 
-    __slots__ = ("date_registration", "date_last_activity", "user", "password")
+    __slots__ = ("date_registration", "date_last_activity", "user", "password", "is_active")
 
-    def __init__(self, date_registration: datetime = None, date_last_activity: datetime = None, user: str = None, password: str = None, *args, **kwargs):
+    def __init__(self, date_registration: datetime = None, date_last_activity: datetime = None, user: str = None, password: str = None, is_active: bool = None, *args, **kwargs):
         self.date_registration = date_registration
         self.date_last_activity = date_last_activity
         self.user = user
         self.password = password
+        self.is_active = is_active or True
 
     def to_dict(self):
         return {
@@ -79,6 +80,7 @@ class MetaInfo:
             "date_last_activity": self.date_last_activity,
             "user": self.user,
             "password": self.password,
+            "is_active": self.is_active,
         }
 
 

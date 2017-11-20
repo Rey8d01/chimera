@@ -5,9 +5,11 @@ from tornado.platform.asyncio import to_asyncio_future
 
 from utils.ca import ErrorResponse
 from .domains import User
-from .gateways import SignInRequest, SignUpRequest
+from .gateways import SignInRequest, SignUpRequest, RefreshRequest
 from .repositories import UserRepository
-from .use_cases import SignInUseCase, SignUpUseCase
+from .use_cases import SignInUseCase, SignUpUseCase, RefreshUseCase
+from utils.ql import need_auth
+from utils.token import Token
 
 
 class UserObjectType(ObjectType):
@@ -27,6 +29,7 @@ class UserQuery(ObjectType):
 
     sign_up = Field(UserObjectType, user=String(), password=String())
     sign_in = Field(TokenObjectType, user=String(), password=String())
+    refresh = Field(TokenObjectType)
 
     async def resolve_sign_up(self, args, context, info) -> UserObjectType:
         """Регистрация."""
@@ -51,5 +54,19 @@ class UserQuery(ObjectType):
         if isinstance(response_from_use_case, ErrorResponse):
             raise Exception(str(response_from_use_case))
 
-        token: User = response_from_use_case.data
+        token: Token = response_from_use_case.data
+        return TokenObjectType(token)
+
+    @need_auth
+    async def resolve_refresh(self, args, context, info) -> TokenObjectType:
+        """Обновление токена."""
+        request_sign_in = RefreshRequest(user=context["current_user"], **args)
+        repository_user = UserRepository(client_motor=context["client_motor"])
+        use_case_refresh = RefreshUseCase(repository_user)
+        response_from_use_case = await to_asyncio_future(use_case_refresh.execute(request_object=request_sign_in))
+
+        if isinstance(response_from_use_case, ErrorResponse):
+            raise Exception(str(response_from_use_case))
+
+        token: Token = response_from_use_case.data
         return TokenObjectType(token)
