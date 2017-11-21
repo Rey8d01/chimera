@@ -1,13 +1,27 @@
 """Blog schema GraphQL."""
 
+import typing
+
 from graphene import Boolean, Field, Int, List, ObjectType, Schema, String
 from tornado.platform.asyncio import to_asyncio_future
 
-from utils.ca import ErrorResponse
+from utils.ca import ErrorResponse, RequestToUseCase, SuccessResponse, UseCase
 from utils.ql import need_auth
 from .gateways import CreatePostRequest, DeletePostRequest, ItemPostRequest, ListPostsRequest, UpdatePostRequest
 from .repositories import PostRepository
 from .use_cases import CreatePostUseCase, DeletePostUseCase, ItemPostUseCase, ListPostsUseCase, UpdatePostUseCase
+
+
+async def _simple_resolver(info, class_request: typing.Type[RequestToUseCase], class_use_case: typing.Type[UseCase], *args, **kwargs) -> SuccessResponse:
+    """Типичный резолвер."""
+    request = class_request(current_user=info.context.get("current_user"), **kwargs)
+    repository = PostRepository(client_motor=info.context.get("client_motor"))
+    use_case = class_use_case(repository)
+    response = await to_asyncio_future(use_case.execute(request=request))
+
+    if isinstance(response, ErrorResponse):
+        raise Exception(str(response))
+    return response
 
 
 class PostObjectType(ObjectType):
@@ -34,88 +48,46 @@ class BlogQuery(ObjectType):
     update_post = Field(Boolean, alias=String(), title=String(), text=String())
     delete_post = Field(Boolean, alias=String(), title=String(), text=String())
 
-    async def resolve_post(self, args, context, info) -> PostObjectType:
+    async def resolve_post(self, info, *args, **kwargs) -> PostObjectType:
         """Запрос поста по его псевдониму."""
-        request_item_post = ItemPostRequest(**args)
-        repository_post = PostRepository(client_motor=context["client_motor"])
-        use_case_item_post = ItemPostUseCase(repository_post)
-        response_from_use_case = await to_asyncio_future(use_case_item_post.execute(request_object=request_item_post))
-
-        if isinstance(response_from_use_case, ErrorResponse):
-            raise Exception(str(response_from_use_case))
-
+        response = await _simple_resolver(info, ItemPostRequest, ItemPostUseCase, *args, **kwargs)
         return PostObjectType(
-            alias=response_from_use_case.data.alias,
-            title=response_from_use_case.data.title,
-            text=response_from_use_case.data.text,
+            alias=response.data.alias,
+            title=response.data.title,
+            text=response.data.text,
         )
 
-    async def resolve_list_posts_by_tag(self, args, context, info) -> ListPostsObjectType:
+    async def resolve_list_posts_by_tag(self, info, *args, **kwargs) -> ListPostsObjectType:
         """Запрос на получение информации по содержимому определенного тега."""
-        request_list_posts = ListPostsRequest(**args)
-        repository_post = PostRepository(client_motor=context["client_motor"])
-        use_case_list_posts = ListPostsUseCase(repository_post)
-        response_from_use_case = await to_asyncio_future(use_case_list_posts.execute(request_object=request_list_posts))
+        response = await _simple_resolver(info, ListPostsRequest, ListPostsUseCase, *args, **kwargs)
+        return ListPostsObjectType(items=response.data)
 
-        if isinstance(response_from_use_case, ErrorResponse):
-            raise Exception(str(response_from_use_case))
-
-        return ListPostsObjectType(items=response_from_use_case.data)
-
-    async def resolve_list_posts_by_user(self, args, context, info) -> ListPostsObjectType:
+    async def resolve_list_posts_by_user(self, info, *args, **kwargs) -> ListPostsObjectType:
         """Запрос на получение информации по постам от определенного автора."""
-        request_list_posts = ListPostsRequest(**args)
-        repository_post = PostRepository(client_motor=context["client_motor"])
-        use_case_list_posts = ListPostsUseCase(repository_post)
-        response_from_use_case = await to_asyncio_future(use_case_list_posts.execute(request_object=request_list_posts))
-
-        if isinstance(response_from_use_case, ErrorResponse):
-            raise Exception(str(response_from_use_case))
-
-        return ListPostsObjectType(items=response_from_use_case.data)
+        response = await _simple_resolver(info, ListPostsRequest, ListPostsUseCase, *args, **kwargs)
+        return ListPostsObjectType(items=response.data)
 
     @need_auth
-    async def resolve_create_post(self, args, context, info) -> PostObjectType:
+    async def resolve_create_post(self, info, *args, **kwargs) -> PostObjectType:
         """Сохранение нового поста."""
-        request_create_post = CreatePostRequest(user=context["current_user"], **args)
-        repository_post = PostRepository(client_motor=context["client_motor"])
-        use_case_create_post = CreatePostUseCase(repository_post)
-        response_from_use_case = await to_asyncio_future(use_case_create_post.execute(request_object=request_create_post))
-
-        if isinstance(response_from_use_case, ErrorResponse):
-            raise Exception(str(response_from_use_case))
-
+        response = await _simple_resolver(info, CreatePostRequest, CreatePostUseCase, *args, **kwargs)
         return PostObjectType(
-            alias=response_from_use_case.data.alias,
-            title=response_from_use_case.data.title,
-            text=response_from_use_case.data.text,
+            alias=response.data.alias,
+            title=response.data.title,
+            text=response.data.text,
         )
 
     @need_auth
-    async def resolve_update_post(self, args, context, info) -> Boolean:
+    async def resolve_update_post(self, info, *args, **kwargs) -> Boolean:
         """Обновление существующего поста."""
-        request_update_post = UpdatePostRequest(user=context["current_user"], **args)
-        repository_post = PostRepository(client_motor=context["client_motor"])
-        use_case_update_post = UpdatePostUseCase(repository_post)
-        response_from_use_case = await to_asyncio_future(use_case_update_post.execute(request_object=request_update_post))
-
-        if isinstance(response_from_use_case, ErrorResponse):
-            raise Exception(str(response_from_use_case))
-
-        return Boolean(response_from_use_case.data)
+        response = await _simple_resolver(info, UpdatePostRequest, UpdatePostUseCase, *args, **kwargs)
+        return Boolean(response.data)
 
     @need_auth
-    async def resolve_delete_post(self, args, context, info) -> Boolean:
+    async def resolve_delete_post(self, info, *args, **kwargs) -> Boolean:
         """Удаление существующего поста."""
-        request_delete_post = DeletePostRequest(user=context["current_user"], **args)
-        repository_post = PostRepository(client_motor=context["client_motor"])
-        use_case_delete_post = DeletePostUseCase(repository_post)
-        response_from_use_case = await to_asyncio_future(use_case_delete_post.execute(request_object=request_delete_post))
-
-        if isinstance(response_from_use_case, ErrorResponse):
-            raise Exception(str(response_from_use_case))
-
-        return Boolean(response_from_use_case.data)
+        response = await _simple_resolver(info, DeletePostRequest, DeletePostUseCase, *args, **kwargs)
+        return Boolean(response.data)
 
 
 schema_blog = Schema(query=BlogQuery)

@@ -12,8 +12,8 @@ class SignUpUseCase(UseCase):
     def __init__(self, repository: UserRepository):
         self.repository = repository
 
-    async def process_request(self, request_object: SignUpRequest) -> ResponseFromUseCase:
-        user = await self.repository.create_user(user=request_object.user, password=request_object.password)
+    async def process_request(self, request: SignUpRequest) -> ResponseFromUseCase:
+        user = await self.repository.create_user(user=request.user, password=request.password)
         if not user:
             return ErrorResponse("error create")
         return SuccessResponse(user)
@@ -25,8 +25,8 @@ class SignInUseCase(UseCase):
     def __init__(self, repository: UserRepository):
         self.repository = repository
 
-    async def process_request(self, request_object: SignInRequest) -> ResponseFromUseCase:
-        user = await self.repository.check_user(user=request_object.user, password=request_object.password)
+    async def process_request(self, request: SignInRequest) -> ResponseFromUseCase:
+        user = await self.repository.check_user(user=request.user, password=request.password)
         if not user:
             return ErrorResponse("error user")
 
@@ -40,6 +40,6 @@ class RefreshUseCase(UseCase):
     def __init__(self, repository: UserRepository):
         self.repository = repository
 
-    async def process_request(self, request_object: RefreshRequest) -> ResponseFromUseCase:
-        token = Token(repository_user=self.repository, username=request_object.user.meta_info.user)
+    async def process_request(self, request: RefreshRequest) -> ResponseFromUseCase:
+        token = Token(repository_user=self.repository, username=request.current_user.meta_info.user)
         return SuccessResponse(token.encode())

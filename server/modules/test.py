@@ -42,11 +42,11 @@ class Query(graphene.ObjectType):
     hello = graphene.String()
     name = graphene.String()
 
-    async def resolve_hello(self, args, context, info):
+    async def resolve_hello(self, info):
         return 'World'
 
-    def resolve_name(self, args, context, info):
-        return context.get('name')
+    def resolve_name(self, info):
+        return info.context.get('name')
 
 
 schema = graphene.Schema(query=Query)

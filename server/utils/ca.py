@@ -9,9 +9,12 @@ class RequestToUseCase:
 
     """
 
+    __slots__ = ("errors", "current_user")
+
     def __init__(self, *args, **kwargs):
         super().__init__()
         self.errors = []
+        self.current_user = kwargs.get("current_user")
 
     def __bool__(self):
         return not self.has_errors()
@@ -28,7 +31,7 @@ class RequestToUseCase:
 
 
 class ResponseFromUseCase:
-    pass
+    __slots__ = tuple()
 
 
 class SuccessResponse(ResponseFromUseCase):
@@ -45,6 +48,8 @@ class SuccessResponse(ResponseFromUseCase):
 
 class ErrorResponse(ResponseFromUseCase):
     """Класс результата работы сценария при возникновении ошибки."""
+
+    __slots__ = ("errors",)
 
     def __init__(self, errors: str):
         self.errors = errors
@@ -63,7 +68,7 @@ class ErrorResponse(ResponseFromUseCase):
     def build_from_invalid_request(cls, invalid_request: RequestToUseCase):
         message = ""
         if invalid_request.has_errors():
-            list_errors = ["{0}: {1}".format(error['parameter'], error['message']) for error in invalid_request.errors]
+            list_errors = [f"{error['parameter']}: {error['message']}" for error in invalid_request.errors]
             message = "\n".join(list_errors)
         return cls(message)
 
@@ -79,18 +84,16 @@ class UseCase:
 
     """
 
-    async def process_request(self, request_object: RequestToUseCase) -> ResponseFromUseCase:
+    async def process_request(self, request: RequestToUseCase) -> ResponseFromUseCase:
         """Обработка запроса для конкретного сценария, требует перекрытия."""
-        raise NotImplementedError(
-            "process_request() not implemented by UseCase class {}".format(self.__class__.__name__)
-        )
+        raise NotImplementedError(f"process_request() not implemented by UseCase class {self.__class__.__name__}")
 
-    async def execute(self, request_object: RequestToUseCase) -> ResponseFromUseCase:
+    async def execute(self, request: RequestToUseCase) -> ResponseFromUseCase:
         """Общий метод вызывающий работу сценария и перехватывающий его исключения."""
-        if not request_object:
-            return ErrorResponse.build_from_invalid_request(request_object)
+        if not request:
+            return ErrorResponse.build_from_invalid_request(request)
 
         try:
-            return await self.process_request(request_object)
+            return await self.process_request(request)
         except Exception as e:
-            return ErrorResponse.build_system_error("{0}: {1}".format(e.__class__.__name__, str(e)))
+            return ErrorResponse.build_system_error(f"{e.__class__.__name__}: {e}")

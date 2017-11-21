@@ -9,7 +9,7 @@ from graphql.execution.executors.asyncio import AsyncioExecutor
 
 from modules.schema import main_schema
 from utils.exceptions import Response
-from utils.token import JWT_NAME_HEADER, JWTError, Token
+from utils.token import JWTError, JWT_NAME_HEADER, Token
 
 
 class AuthorizationMiddleware:

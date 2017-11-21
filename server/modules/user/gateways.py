@@ -41,9 +41,10 @@ class SignInRequest(RequestToUseCase):
 class RefreshRequest(RequestToUseCase):
     """Схема запроса для обновления токена."""
 
-    __slots__ = ("user", )
+    __slots__ = tuple()
 
-    def __init__(self, user: User, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.user = user
+        if self.current_user is None:
+            self.add_error("current_user", "Is None")

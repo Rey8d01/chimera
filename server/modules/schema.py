@@ -12,11 +12,11 @@ class MainQuery(ObjectType):
     user = Field(UserQuery)
     blog = Field(BlogQuery)
 
-    async def resolve_user(self, args, context, info):
+    async def resolve_user(self, info, *args, **kwargs):
         """Resolver UserQuery."""
         return UserQuery()
 
-    async def resolve_blog(self, args, context, info):
+    async def resolve_blog(self, info, *args, **kwargs):
         """Resolver BlogQuery."""
         return BlogQuery()
 
