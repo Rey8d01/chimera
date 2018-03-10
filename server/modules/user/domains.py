@@ -1,5 +1,5 @@
 """Документы для хранения информации пользователей."""
-from typing import List, Dict, Union
+import typing
 from datetime import datetime
 
 
@@ -18,7 +18,8 @@ class OAuthInfo:
 
     __slots__ = ("oauth_type", "oauth_id", "name", "alias", "avatar", "email", "raw", "main")
 
-    def __init__(self, oauth_type: str, oauth_id: str, name: str, alias: str, avatar: str, email: str, raw: str, main: bool, *args, **kwargs):
+    def __init__(self, oauth_type: str, oauth_id: str, name: str, alias: str, avatar: str, email: str, raw: str, main: bool, *args,
+                 **kwargs):
         self.oauth_type = oauth_type
         self.oauth_id = oauth_id
         self.name = name
@@ -47,7 +48,7 @@ class DetailInfo:
     :type data: dict Неформализованная информация по пользователю;
     """
 
-    __slots__ = ("data", )
+    __slots__ = ("data",)
 
     def __init__(self, data: dict = None, *args, **kwargs):
         self.data = data or {}
@@ -65,12 +66,13 @@ class MetaInfo:
     :type date_last_activity: str Дата последнего запроса к системе;
     """
 
-    __slots__ = ("date_registration", "date_last_activity", "user", "password", "is_active")
+    __slots__ = ("date_registration", "date_last_activity", "login", "password", "is_active")
 
-    def __init__(self, date_registration: datetime = None, date_last_activity: datetime = None, user: str = None, password: str = None, is_active: bool = None, *args, **kwargs):
+    def __init__(self, date_registration: datetime = None, date_last_activity: datetime = None, login: str = None, password: str = None,
+                 is_active: bool = None, *args, **kwargs):
         self.date_registration = date_registration
         self.date_last_activity = date_last_activity
-        self.user = user
+        self.login = login
         self.password = password
         self.is_active = is_active or True
 
@@ -78,7 +80,7 @@ class MetaInfo:
         return {
             "date_registration": self.date_registration,
             "date_last_activity": self.date_last_activity,
-            "user": self.user,
+            "login": self.login,
             "password": self.password,
             "is_active": self.is_active,
         }
@@ -89,13 +91,15 @@ class User:
 
     :type detail_info: DetailInfo Информация по пользователю;
     :type meta_info: MetaInfo Служебная информация;
-    :type list_oauth_info: List[OAuthInfo] Список идентификаций через социальные сети данного пользователя;
+    :type list_oauth_info: typing.List[OAuthInfo] Список идентификаций через социальные сети данного пользователя;
     # :type critic: dict Данные критики пользователя для работы нс;
     """
 
     __slots__ = ("detail_info", "meta_info", "list_oauth_info")
 
-    def __init__(self, detail_info: Union[DetailInfo, dict], meta_info: Union[MetaInfo, dict], list_oauth_info: List[OAuthInfo], *args, **kwargs):
+    def __init__(self, detail_info: typing.Union[DetailInfo, dict], meta_info: typing.Union[MetaInfo, dict],
+                 list_oauth_info: typing.List[OAuthInfo], *args,
+                 **kwargs):
         self.detail_info = DetailInfo(**detail_info) if isinstance(detail_info, dict) else detail_info
         self.meta_info = MetaInfo(**meta_info) if isinstance(meta_info, dict) else meta_info
         self.list_oauth_info = list_oauth_info or []
@@ -108,7 +112,7 @@ class User:
         }
 
     def __str__(self):
-        return self.meta_info.user
+        return self.meta_info.login
 
     # critic = BaseField()
 

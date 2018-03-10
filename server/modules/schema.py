@@ -1,16 +1,16 @@
 """Main schema GraphQL."""
 
-from graphene import Field, ObjectType, Schema
+import graphene
 
-from .blogql.schema import BlogQuery
-from .user.schema import UserQuery
+from .blog.schema import BlogQuery, BlogMutation
+from .user.schema import UserQuery, UserMutation
 
 
-class MainQuery(ObjectType):
+class MainQuery(graphene.ObjectType):
     """Обработка всех запросов GraphQL к модулям."""
 
-    user = Field(UserQuery)
-    blog = Field(BlogQuery)
+    # user = graphene.Field(UserQuery)
+    blog = graphene.Field(BlogQuery)
 
     async def resolve_user(self, info, *args, **kwargs):
         """Resolver UserQuery."""
@@ -21,4 +21,19 @@ class MainQuery(ObjectType):
         return BlogQuery()
 
 
-main_schema = Schema(query=MainQuery)
+class MainMutation(graphene.ObjectType):
+    """Обработка всех запросов GraphQL к модулям."""
+
+    blog = graphene.Field(BlogMutation)
+    user = graphene.Field(UserMutation)
+
+    async def resolve_user(self, info, *args, **kwargs):
+        """Resolver UserQuery."""
+        return UserMutation()
+
+    async def resolve_blog(self, info, *args, **kwargs):
+        """Resolver BlogQuery."""
+        return BlogQuery()
+
+
+main_schema = graphene.Schema(query=MainQuery, mutation=MainMutation)

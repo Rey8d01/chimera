@@ -17,11 +17,11 @@ JWT_EXP_TIMEDELTA = timedelta(days=1)
 class Token:
     """Класс токена для авторизации клиента."""
 
-    __slots__ = ["repository", "username", "exp"]
+    __slots__ = ("repository", "login", "exp")
 
-    def __init__(self, repository_user: UserRepository, username: str, exp: float = None):
+    def __init__(self, repository_user: UserRepository, login: str, exp: float = None):
         self.repository = repository_user
-        self.username = username
+        self.login = login
         self.exp = (datetime.now() + JWT_EXP_TIMEDELTA).timestamp() if exp is None else float(exp)
 
     def __str__(self):
@@ -30,7 +30,7 @@ class Token:
     def as_claims(self) -> dict:
         """Данные токена в виде словаря."""
         return {
-            "username": self.username,
+            "login": self.login,
             "exp": self.exp
         }
 
@@ -47,7 +47,7 @@ class Token:
 
     async def get_user(self) -> User:
         """Вернет модель пользователя закрепленного за токеном."""
-        user = await self.repository.get_user(filters={"meta_info.user": self.username})
+        user = await self.repository.get_user(filters={"metaInfo.login": self.login})
         return user
 
     def encode(self) -> str:

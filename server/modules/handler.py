@@ -99,8 +99,8 @@ class PublicHandler(BaseHandler):
         http://graphql.org/learn/queries/#arguments
 
         """
-        client_redis = self.settings.get("client_redis", None)
-        client_motor = self.settings.get("client_motor", None)
+        client_redis = self.settings.get("client_redis")
+        client_motor = self.settings.get("client_motor")
         query = self.get_argument(name="query")
 
         result = main_schema.execute(
@@ -126,8 +126,8 @@ class PublicHandler(BaseHandler):
         http://graphql.org/learn/queries/#variables
 
         """
-        client_redis = self.settings.get("client_redis", None)
-        client_motor = self.settings.get("client_motor", None)
+        client_redis = self.settings.get("client_redis")
+        client_motor = self.settings.get("client_motor")
         request = self.get_bytes_body_source()
         query = request.get("query", "")
         operation_name = request.get("operationName", "")
@@ -167,7 +167,7 @@ class PrivateHandler(PublicHandler):
 
         """
         from modules.user.repositories import UserRepository
-        repository_user = UserRepository(client_motor=self.settings.get("client_motor", None))
+        repository_user = UserRepository(client_motor=self.settings.get("client_motor"))
         current_user = None
         try:
             token = Token.decode_from_str(repository_user, self.request.headers.get(JWT_NAME_HEADER, ""))

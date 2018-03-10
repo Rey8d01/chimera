@@ -1,65 +1,74 @@
-"""User schema GraphQL."""
+"""Схема запросов пользовательской информации."""
+import graphene
+from graphene.types.inputobjecttype import InputObjectType
 
-import typing
-
-from graphene import Field, ObjectType, String
-from tornado.platform.asyncio import to_asyncio_future
-
-from utils.ca import ErrorResponse, RequestToUseCase, SuccessResponse, UseCase
 from utils.ql import need_auth
 from utils.token import Token
 from .domains import User
-from .gateways import RefreshRequest, SignInRequest, SignUpRequest
 from .repositories import UserRepository
-from .use_cases import RefreshUseCase, SignInUseCase, SignUpUseCase
 
 
-async def _simple_resolver(info, class_request: typing.Type[RequestToUseCase], class_use_case: typing.Type[UseCase], *args, **kwargs) -> SuccessResponse:
-    """Типичный резолвер."""
-    request = class_request(current_user=info.context.get("current_user"), **kwargs)
-    repository = UserRepository(client_motor=info.context.get("client_motor"))
-    use_case = class_use_case(repository)
-    response = await to_asyncio_future(use_case.execute(request=request))
-
-    if isinstance(response, ErrorResponse):
-        raise Exception(str(response))
-    return response
-
-
-class UserObjectType(ObjectType):
+class UserObjectType(graphene.ObjectType):
     """Схема документа User."""
-
-    alias = String()
-
-
-class TokenObjectType(ObjectType):
-    """Схема токена."""
-
-    token = String()
+    alias = graphene.String()
 
 
-class UserQuery(ObjectType):
+class UserQuery(graphene.ObjectType):
     """Обработка запросов о пользователях."""
+    # not use
 
-    sign_up = Field(UserObjectType, user=String(), password=String())
-    sign_in = Field(TokenObjectType, user=String(), password=String())
-    refresh = Field(TokenObjectType)
 
-    async def resolve_sign_up(self, info, *args, **kwargs) -> UserObjectType:
-        """Регистрация."""
-        response = await _simple_resolver(info, SignUpRequest, SignUpUseCase, *args, **kwargs)
-        user: User = response.data
-        return UserObjectType(user.meta_info.user)
+class UserPasswordInput(InputObjectType):
+    login = graphene.String(required=True)
+    password = graphene.String(required=True)
 
-    async def resolve_sign_in(self, info, *args, **kwargs) -> TokenObjectType:
-        """Авторизация."""
-        response = await _simple_resolver(info, SignInRequest, SignInUseCase, *args, **kwargs)
-        token: Token = response.data
-        return TokenObjectType(token)
+
+class SignUp(graphene.Mutation):
+    """Регистрация."""
+
+    class Arguments:
+        user_password_input = UserPasswordInput(required=True)
+
+    user = graphene.Field(UserObjectType)
+
+    async def mutate(self, info, user_password_input: UserPasswordInput):
+        repository = UserRepository(info.context.get("client_motor"))
+        user = await repository.create_user(login=user_password_input.login, password=user_password_input.password)
+        if not user:
+            raise Exception("Ошибка при регистрации пользователя.")
+        return SignUp(user=UserObjectType(alias=user.meta_info.login))
+
+
+class SignIn(graphene.Mutation):
+    """Авторизация."""
+
+    class Arguments:
+        user_password_input = UserPasswordInput(required=True)
+
+    token = graphene.String()
+
+    async def mutate(self, info, user_password_input: UserPasswordInput):
+        repository = UserRepository(info.context.get("client_motor"))
+        user = await repository.check_user(login=user_password_input.login, password=user_password_input.password)
+        if not user:
+            raise Exception("Ошибка при авторизации пользователя.")
+        token = Token(repository_user=repository, login=user.meta_info.login)
+        return SignIn(token=token.encode())
+
+
+class Refresh(graphene.Mutation):
+    """Обновление токена."""
+    token = graphene.String()
 
     @need_auth
-    async def resolve_refresh(self, info, *args, **kwargs) -> TokenObjectType:
-        """Обновление токена."""
-        response = await _simple_resolver(info, RefreshRequest, RefreshUseCase, *args, **kwargs)
-        token: Token = response.data
-        return TokenObjectType(token)
+    async def mutate(self, info):
+        user: User = info.context.get("current_user")
+        repository = UserRepository(info.context.get("client_motor"))
+        token = Token(repository_user=repository, login=user.meta_info.login)
+        return Refresh(token=token.encode())
+
+
+class UserMutation(graphene.ObjectType):
+    sign_up = SignUp.Field()
+    sign_in = SignIn.Field()
+    refresh = Refresh.Field()
