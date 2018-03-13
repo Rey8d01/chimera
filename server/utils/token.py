@@ -1,7 +1,7 @@
 """Утилиты для работы с токенами."""
 
+import typing
 from datetime import datetime, timedelta
-from typing import Union
 from jose import jwt
 from jose.exceptions import JWTError
 from modules.user.repositories import UserRepository
@@ -39,16 +39,13 @@ class Token:
         user = await self.get_user()
         if user is None:
             return False
-        if not user.meta_info.is_active:
-            return False
         if self.exp < datetime.now().timestamp():
             return False
         return True
 
-    async def get_user(self) -> User:
+    async def get_user(self) -> typing.Optional[User]:
         """Вернет модель пользователя закрепленного за токеном."""
-        user = await self.repository.get_user(filters={"metaInfo.login": self.login})
-        return user
+        return await self.repository.get_user_for_auth(self.login)
 
     def encode(self) -> str:
         """Общий механизм шифрования полезной информации в токен."""

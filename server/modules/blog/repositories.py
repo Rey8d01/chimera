@@ -3,11 +3,12 @@ import typing
 
 from motor.motor_tornado import MotorClient
 
-import utils.naming
+from utils.db import Repository
 from .domains import Post
+from ..user.domains import User
 
 
-class PostRepository:
+class PostRepository(Repository):
     """Репозиторий для работы с коллекцией постов в БД."""
 
     def __init__(self, client_motor: MotorClient):
@@ -20,7 +21,7 @@ class PostRepository:
         collection = self.__client_motor[self.__collection_name]
         document = await collection.find_one(filters)
 
-        return Post(**utils.naming.change_dict_naming_convention(document, utils.naming.camel_2_under)) if document else None
+        return Post.from_document(document) if document else None
 
     async def get_list_posts(self, alias_tag: str = "", user_id: str = "") -> typing.List[Post]:
         """Вернет список постов по зададнным фильтрам."""
@@ -37,7 +38,7 @@ class PostRepository:
         if find_filter:
             cursor = collection.find(find_filter)
             for document in (await cursor.to_list(length=100)):
-                list_posts.append(Post(**utils.naming.change_dict_naming_convention(document, utils.naming.camel_2_under)))
+                list_posts.append(Post.from_document(document))
 
         return list_posts
 
@@ -52,8 +53,7 @@ class PostRepository:
         if check_exists_post:
             return None
 
-        document = utils.naming.change_dict_naming_convention(post.to_dict(), utils.naming.under_2_camel)
-        post_id = await collection.insert(document)
+        post_id = await collection.insert(self.for_insert(post))
         actual_post = await self.get_item_post(filters={"_id": post_id})
         return actual_post
 
@@ -68,11 +68,10 @@ class PostRepository:
         if not check_exists_post:
             return False
 
-        document = utils.naming.change_dict_naming_convention(post.to_dict(), utils.naming.under_2_camel)
-        result = await collection.replace_one({"alias": post.alias}, document)
+        result = await collection.replace_one({"alias": post.alias}, post.to_document())
         return bool(result)
 
-    async def delete_post(self, alias: str) -> bool:
+    async def delete_post(self, alias: str, user: User) -> bool:
         """Обновит в коллекции пост и вернет его обновленный экземпляр."""
         if not alias:
             return False

@@ -5,11 +5,11 @@ from datetime import datetime
 
 from motor.motor_tornado import MotorClient
 
-import utils.naming
 from .domains import DetailInfo, MetaInfo, User
+from utils.db import Repository
 
 
-class UserRepository:
+class UserRepository(Repository):
     """Репозиторий для работы с коллекцией постов в БД."""
 
     def __init__(self, client_motor: MotorClient):
@@ -21,7 +21,14 @@ class UserRepository:
         collection = self.__client_motor[self.__collection_name]
         document = await collection.find_one(filters)
 
-        return User(**utils.naming.change_dict_naming_convention(document, utils.naming.camel_2_under)) if document else None
+        return User.from_document(document) if document else None
+
+    async def get_user_for_auth(self, login) -> typing.Optional[User]:
+        filters = {
+            "metaInfo.login": login,
+            "metaInfo.isActive": True,
+        }
+        return await self.get_user(filters=filters)
 
     async def create_user(self, login: str, password: str) -> typing.Optional[User]:
         """Создание нового пользователя."""
@@ -41,8 +48,7 @@ class UserRepository:
 
         user = User(detail_info=detail_info, meta_info=meta_info, list_oauth_info=[])
 
-        document = utils.naming.change_dict_naming_convention(user.to_dict(), utils.naming.under_2_camel)
-        user_id = await collection.insert(document)
+        user_id = await collection.insert(self.for_insert(user))
         actual_user = await self.get_user(filters={"_id": user_id})
         return actual_user
 
@@ -50,7 +56,7 @@ class UserRepository:
         """Проверка авторизационных данных пользователя."""
         collection = self.__client_motor[self.__collection_name]
 
-        actual_user = await self.get_user(filters={"metaInfo.login": login})
+        actual_user = await self.get_user_for_auth(login)
         if not actual_user:
             return None
 
@@ -59,6 +65,5 @@ class UserRepository:
 
         actual_user.meta_info.date_last_activity = datetime.utcnow()
 
-        document = utils.naming.change_dict_naming_convention(actual_user.to_dict(), utils.naming.under_2_camel)
-        result = await collection.replace_one({"metaInfo.login": login}, document)
+        result = await collection.replace_one({"metaInfo.login": login}, actual_user.to_document())
         return actual_user

@@ -2,8 +2,12 @@
 import typing
 from datetime import datetime
 
+from bson.objectid import ObjectId
 
-class OAuthInfo:
+from utils.db import DocumentDomain
+
+
+class OAuthInfo(DocumentDomain):
     """Данные по авторизации через соцсети.
 
     :type oauth_type: str Тип социальной сети (уникальное имя);
@@ -29,10 +33,10 @@ class OAuthInfo:
         self.raw = raw
         self.main = main
 
-    def to_dict(self):
+    def to_document(self):
         return {
-            "oauth_type": self.oauth_type,
-            "oauth_id": self.oauth_id,
+            "oauthType": self.oauth_type,
+            "oauthId": self.oauth_id,
             "name": self.name,
             "alias": self.alias,
             "avatar": self.avatar,
@@ -41,8 +45,21 @@ class OAuthInfo:
             "main": self.main,
         }
 
+    @classmethod
+    def from_document(cls, document):
+        return cls(
+            oauth_type=document["oauthType"],
+            oauth_id=document["oauthId"],
+            name=document["name"],
+            alias=document["alias"],
+            avatar=document["avatar"],
+            email=document["email"],
+            raw=document["raw"],
+            main=document["main"],
+        )
 
-class DetailInfo:
+
+class DetailInfo(DocumentDomain):
     """Некие информационные поля.
 
     :type data: dict Неформализованная информация по пользователю;
@@ -53,13 +70,19 @@ class DetailInfo:
     def __init__(self, data: dict = None, *args, **kwargs):
         self.data = data or {}
 
-    def to_dict(self):
+    def to_document(self):
         return {
             "data": self.data,
         }
 
+    @classmethod
+    def from_document(cls, document):
+        return cls(
+            data=document["data"],
+        )
 
-class MetaInfo:
+
+class MetaInfo(DocumentDomain):
     """Всякая сервисная информация.
 
     :type date_registration: str Дата регистрации;
@@ -76,17 +99,27 @@ class MetaInfo:
         self.password = password
         self.is_active = is_active or True
 
-    def to_dict(self):
+    def to_document(self):
         return {
-            "date_registration": self.date_registration,
-            "date_last_activity": self.date_last_activity,
+            "dateRegistration": self.date_registration,
+            "dateLastActivity": self.date_last_activity,
             "login": self.login,
             "password": self.password,
-            "is_active": self.is_active,
+            "isActive": self.is_active,
         }
 
+    @classmethod
+    def from_document(cls, document):
+        return cls(
+            date_registration=document["dateRegistration"],
+            date_last_activity=document["dateLastActivity"],
+            login=document["login"],
+            password=document["password"],
+            is_active=document["isActive"],
+        )
 
-class User:
+
+class User(DocumentDomain):
     """Основной документ.
 
     :type detail_info: DetailInfo Информация по пользователю;
@@ -95,24 +128,34 @@ class User:
     # :type critic: dict Данные критики пользователя для работы нс;
     """
 
-    __slots__ = ("detail_info", "meta_info", "list_oauth_info")
+    __slots__ = ("_id", "detail_info", "meta_info", "list_oauth_info")
 
     def __init__(self, detail_info: typing.Union[DetailInfo, dict], meta_info: typing.Union[MetaInfo, dict],
-                 list_oauth_info: typing.List[OAuthInfo], *args,
-                 **kwargs):
+                 list_oauth_info: typing.List[OAuthInfo], _id: typing.Optional[ObjectId] = None, *args, **kwargs):
+        self._id = _id
         self.detail_info = DetailInfo(**detail_info) if isinstance(detail_info, dict) else detail_info
         self.meta_info = MetaInfo(**meta_info) if isinstance(meta_info, dict) else meta_info
         self.list_oauth_info = list_oauth_info or []
 
-    def to_dict(self):
-        return {
-            "detail_info": self.detail_info.to_dict(),
-            "meta_info": self.meta_info.to_dict(),
-            "list_oauth_info": [oauth_info.to_dict() for oauth_info in self.list_oauth_info],
-        }
-
     def __str__(self):
         return self.meta_info.login
+
+    def to_document(self):
+        return {
+            "_id": self._id,
+            "detailInfo": self.detail_info.to_document(),
+            "metaInfo": self.meta_info.to_document(),
+            "listOauthInfo": [oauth_info.to_document() for oauth_info in self.list_oauth_info],
+        }
+
+    @classmethod
+    def from_document(cls, document):
+        return cls(
+            _id=document["_id"],
+            detail_info=document["detailInfo"],
+            meta_info=document["metaInfo"],
+            list_oauth_info=document["listOauthInfo"],
+        )
 
     # critic = BaseField()
 

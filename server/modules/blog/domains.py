@@ -13,10 +13,14 @@
 import typing
 from datetime import datetime
 
+from bson.dbref import DBRef
+from bson.objectid import ObjectId
+
 from modules.user.domains import User
+from utils.db import DocumentDomain
 
 
-class PostMetaInfo:
+class PostMetaInfo(DocumentDomain):
     """Класс для сбора служебной информации поста."""
 
     __slots__ = ("user", "datetime_create", "datetime_update")
@@ -26,15 +30,23 @@ class PostMetaInfo:
         self.datetime_create = datetime_create
         self.datetime_update = datetime_update
 
-    def to_dict(self):
+    def to_document(self):
         return {
-            "user": str(self.user),
-            "datetime_create": self.datetime_create,
-            "datetime_update": self.datetime_update,
+            "user_id": DBRef(collection="user", id=self.user._id),
+            "datetimeCreate": self.datetime_create,
+            "datetimeUpdate": self.datetime_update,
         }
 
+    @classmethod
+    def from_document(cls, document):
+        return cls(
+            user=document["user_id"],
+            datetime_create=document["datetimeCreate"],
+            datetime_update=document["datetimeUpdate"],
+        )
 
-class PostTag:
+
+class PostTag(DocumentDomain):
     """Сущность экземпляра тега."""
 
     __slots__ = ("alias", "title")
@@ -43,31 +55,50 @@ class PostTag:
         self.alias = alias
         self.title = title
 
-    def to_dict(self):
+    def to_document(self):
         return {
             "alias": self.alias,
             "title": self.title,
         }
 
+    @classmethod
+    def from_document(cls, document):
+        return cls(
+            alias=document["alias"],
+            title=document["title"],
+        )
 
-class Post:
+
+class Post(DocumentDomain):
     """Документ записи в блоге (пост)."""
 
-    __slots__ = ("alias", "title", "text", "list_tags", "meta_info")
+    __slots__ = ("alias", "title", "text", "tags", "meta_info")
 
-    def __init__(self, alias: str, title: str, text: str, list_tags: typing.List[PostTag] = None, meta_info: PostMetaInfo = None, *args,
-                 **kwargs):
+    def __init__(self, alias: str, title: str, text: str, tags: typing.List[PostTag] = None, meta_info: PostMetaInfo = None,
+                 _id: typing.Optional[ObjectId] = None, *args, **kwargs):
+        self._id = _id
         self.alias = alias
         self.title = title
         self.text = text
-        self.list_tags = list_tags or []
+        self.tags = tags or []
         self.meta_info = meta_info or PostMetaInfo()
 
-    def to_dict(self):
+    def to_document(self):
         return {
             "alias": self.alias,
             "title": self.title,
             "text": self.text,
-            "list_tags": [tag.to_dict() for tag in self.list_tags],
-            "meta_info": self.meta_info.to_dict(),
+            "tags": tuple(tag.to_document() for tag in self.tags),
+            "metaInfo": self.meta_info.to_document(),
         }
+
+    @classmethod
+    def from_document(cls, document):
+        return cls(
+            _id=document["_id"],
+            alias=document["alias"],
+            text=document["text"],
+            title=document["title"],
+            tags=document["tags"],
+            meta_info=document["metaInfo"],
+        )

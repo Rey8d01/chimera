@@ -61,12 +61,12 @@ class PostInput(graphene.InputObjectType):
     def build_post(self, user: User):
         # Поиск хештегов в тексте.
         raw_tags = re.findall("[^\\\]#[\w-]+", self.text)
-        list_tags = []
+        clear_tags = []
         for raw_tag in raw_tags:
             tag = raw_tag[raw_tag.find("#") + 1:].lower()
             alias = transliterate.slugify(tag) if transliterate.detect_language(tag) else tag
             document_tag = domains.PostTag(title=tag, alias=alias)
-            list_tags.append(document_tag)
+            clear_tags.append(document_tag)
 
         meta_info = domains.PostMetaInfo(
             user=user,
@@ -78,7 +78,7 @@ class PostInput(graphene.InputObjectType):
             text=self.text,
             title=self.title,
             alias=self.alias,
-            list_tags=list_tags,
+            tags=clear_tags,
             meta_info=meta_info
         )
 
@@ -118,14 +118,14 @@ class UpdatePost(graphene.Mutation):
 
 class DeletePost(graphene.Mutation):
     class Arguments:
-        post_input = PostInput(required=True)
+        alias = graphene.String(required=True)
 
     result = graphene.Boolean()
 
-    async def mutate(self, info, post_input: PostInput = None):
+    async def mutate(self, info, alias: str = None):
         repository = PostRepository(info.context.get("client_motor"))
         user = info.context.get("current_user")
-        result = await repository.delete_post(alias=post_input.build_post(user).alias)
+        result = await repository.delete_post(alias, user)
         return DeletePost(result=result)
 
 
