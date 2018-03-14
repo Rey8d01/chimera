@@ -6,10 +6,10 @@ from datetime import datetime
 import graphene
 import transliterate
 
+from modules.user.domains import User
 from utils.ql import need_auth
 from . import domains
 from .repositories import PostRepository
-from modules.user.domains import User
 
 
 class PostObjectType(graphene.ObjectType):
@@ -32,7 +32,6 @@ class BlogQuery(graphene.ObjectType):
     post = graphene.Field(PostObjectType, alias=graphene.String())
     list_posts_by_tag = graphene.Field(ListPostsObjectType, alias_tag=graphene.String(), current_page=graphene.Int())
     list_posts_by_user = graphene.Field(ListPostsObjectType, user_id=graphene.String(), current_page=graphene.Int())
-    create_post = graphene.Field(PostObjectType, alias=graphene.String(), title=graphene.String(), text=graphene.String())
 
     async def resolve_post(self, info, alias) -> PostObjectType:
         """Запрос поста по его псевдониму."""
@@ -86,6 +85,8 @@ class PostInput(graphene.InputObjectType):
 
 
 class CreatePost(graphene.Mutation):
+    """Создание нового поста."""
+
     class Arguments:
         post_input = PostInput(required=True)
 
@@ -103,6 +104,8 @@ class CreatePost(graphene.Mutation):
 
 
 class UpdatePost(graphene.Mutation):
+    """Изменение существующего поста."""
+
     class Arguments:
         post_input = PostInput(required=True)
 
@@ -117,11 +120,14 @@ class UpdatePost(graphene.Mutation):
 
 
 class DeletePost(graphene.Mutation):
+    """Удаление существующего поста."""
+
     class Arguments:
         alias = graphene.String(required=True)
 
     result = graphene.Boolean()
 
+    @need_auth
     async def mutate(self, info, alias: str = None):
         repository = PostRepository(info.context.get("client_motor"))
         user = info.context.get("current_user")

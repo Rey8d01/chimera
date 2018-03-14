@@ -19,9 +19,14 @@ class PostRepository(Repository):
         """Вернет один экземпляр поста, по переданным фильтрам."""
 
         collection = self.__client_motor[self.__collection_name]
-        document = await collection.find_one(filters)
+        document_post = await collection.find_one(filters)
+        if document_post is None:
+            return None
 
-        return Post.from_document(document) if document else None
+        document_user = await self.__client_motor.dereference(document_post["metaInfo"]["user"])
+        document_post["metaInfo"]["user"] = User.from_document(document_user)
+
+        return Post.from_document(document_post) if document_post else None
 
     async def get_list_posts(self, alias_tag: str = "", user_id: str = "") -> typing.List[Post]:
         """Вернет список постов по зададнным фильтрам."""
@@ -64,7 +69,11 @@ class PostRepository(Repository):
 
         collection = self.__client_motor[self.__collection_name]
 
-        check_exists_post = await self.get_item_post(filters={"alias": post.alias})
+        filters = {
+            "alias": post.alias,
+            "metaInfo.user.$id": post.meta_info.user._id,
+        }
+        check_exists_post = await self.get_item_post(filters=filters)
         if not check_exists_post:
             return False
 
@@ -78,7 +87,11 @@ class PostRepository(Repository):
 
         collection = self.__client_motor[self.__collection_name]
 
-        check_exists_post = await self.get_item_post(filters={"alias": alias})
+        filters = {
+            "alias": alias,
+            "metaInfo.user.$id": user._id,
+        }
+        check_exists_post = await self.get_item_post(filters=filters)
         if not check_exists_post:
             return False
 

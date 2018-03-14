@@ -32,7 +32,7 @@ class PostMetaInfo(DocumentDomain):
 
     def to_document(self):
         return {
-            "user_id": DBRef(collection="user", id=self.user._id),
+            "user": DBRef(collection="user", id=self.user._id),
             "datetimeCreate": self.datetime_create,
             "datetimeUpdate": self.datetime_update,
         }
@@ -40,7 +40,7 @@ class PostMetaInfo(DocumentDomain):
     @classmethod
     def from_document(cls, document):
         return cls(
-            user=document["user_id"],
+            user=document["user"],
             datetime_create=document["datetimeCreate"],
             datetime_update=document["datetimeUpdate"],
         )
