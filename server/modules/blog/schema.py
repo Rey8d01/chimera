@@ -29,23 +29,23 @@ class ListPostsObjectType(graphene.ObjectType):
 class BlogQuery(graphene.ObjectType):
     """Обработка запросов блога с использованием GraphQL."""
 
-    post = graphene.Field(PostObjectType, alias=graphene.String())
-    list_posts_by_tag = graphene.Field(ListPostsObjectType, alias_tag=graphene.String(), current_page=graphene.Int())
-    list_posts_by_user = graphene.Field(ListPostsObjectType, user_id=graphene.String(), current_page=graphene.Int())
+    post = graphene.Field(PostObjectType, alias=graphene.String(required=True))
+    list_posts_by_tag = graphene.Field(ListPostsObjectType, alias_tag=graphene.String(required=True), current_page=graphene.Int())
+    list_posts_by_user = graphene.Field(ListPostsObjectType, user_id=graphene.String(required=True), current_page=graphene.Int())
 
     async def resolve_post(self, info, alias) -> PostObjectType:
         """Запрос поста по его псевдониму."""
         repository = PostRepository(info.context.get("client_motor"))
-        post = await repository.get_item_post(filters={"alias": alias})
+        post = await repository.get_item_post_by_alias(alias)
         return PostObjectType(alias=post.alias, title=post.title, text=post.text)
 
-    async def resolve_list_posts_by_tag(self, info, alias_tag, current_page) -> ListPostsObjectType:
+    async def resolve_list_posts_by_tag(self, info, alias_tag, current_page = 0) -> ListPostsObjectType:
         """Запрос на получение информации по содержимому определенного тега."""
         repository = PostRepository(info.context.get("client_motor"))
         list_posts = await repository.get_list_posts(alias_tag=alias_tag)
         return ListPostsObjectType(items=list_posts)
 
-    async def resolve_list_posts_by_user(self, info, user_id, current_page) -> ListPostsObjectType:
+    async def resolve_list_posts_by_user(self, info, user_id, current_page = 0) -> ListPostsObjectType:
         """Запрос на получение информации по постам от определенного автора."""
         repository = PostRepository(info.context.get("client_motor"))
         list_posts = await repository.get_list_posts(user_id=user_id)

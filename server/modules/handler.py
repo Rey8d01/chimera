@@ -101,10 +101,15 @@ class PublicHandler(BaseHandler):
         """
         client_redis = self.settings.get("client_redis")
         client_motor = self.settings.get("client_motor")
-        query = self.get_argument(name="query")
+        request = self.get_bytes_body_source()
+        query = request.get("query", "")
+        operation_name = request.get("operationName", "")
+        variables = request.get("variables", {})
 
         result = main_schema.execute(
             request_string=query,
+            operation_name=operation_name,
+            variable_values=variables,
             executor=AsyncioExecutor(),
             return_promise=True,
             context_value={

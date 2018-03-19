@@ -1,6 +1,7 @@
 """Репозитории запросов для блога."""
 import typing
 
+from bson.objectid import ObjectId
 from motor.motor_tornado import MotorClient
 
 from utils.db import Repository
@@ -17,7 +18,6 @@ class PostRepository(Repository):
 
     async def get_item_post(self, filters: dict = None) -> typing.Optional[Post]:
         """Вернет один экземпляр поста, по переданным фильтрам."""
-
         collection = self.__client_motor[self.__collection_name]
         document_post = await collection.find_one(filters)
         if document_post is None:
@@ -28,16 +28,20 @@ class PostRepository(Repository):
 
         return Post.from_document(document_post) if document_post else None
 
+    async def get_item_post_by_alias(self, alias: str):
+        """Вернет экземпляр поста по заданному псевдониму."""
+        post = await self.get_item_post(filters={"alias": alias})
+        return post
+
     async def get_list_posts(self, alias_tag: str = "", user_id: str = "") -> typing.List[Post]:
         """Вернет список постов по зададнным фильтрам."""
-
         collection = self.__client_motor[self.__collection_name]
-        # todo
+
         find_filter = {}
         if alias_tag:
-            find_filter = {"alias": alias_tag}
+            find_filter = {"tags": {"$elemMatch": {"alias": alias_tag}}}
         if user_id:
-            find_filter = {"title": user_id}
+            find_filter = {"metaInfo.user.$id": ObjectId(user_id)}
 
         list_posts = []
         if find_filter:

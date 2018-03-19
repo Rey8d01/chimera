@@ -33,7 +33,7 @@ class MainMutation(graphene.ObjectType):
 
     async def resolve_blog(self, info, *args, **kwargs):
         """Resolver BlogQuery."""
-        return BlogQuery()
+        return BlogMutation()
 
 
 main_schema = graphene.Schema(query=MainQuery, mutation=MainMutation)
