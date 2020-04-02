@@ -2,7 +2,7 @@ tornado==6.0.4
 motor==2.1.0
 # motorengine >= 0.9
 tredis==0.8.0
-transliterate
+transliterate==1.10.2
 graphene
 graphql
 python-jose
