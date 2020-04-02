@@ -1,4 +1,4 @@
-tornado
+tornado==6.0.4
 motor
 # motorengine >= 0.9
 tredis
