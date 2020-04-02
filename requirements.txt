@@ -3,6 +3,6 @@ motor==2.1.0
 # motorengine >= 0.9
 tredis==0.8.0
 transliterate==1.10.2
-graphene
+graphene==2.1.8
 graphql
 python-jose
