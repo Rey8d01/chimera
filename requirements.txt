@@ -4,5 +4,5 @@ motor
 tredis
 transliterate
 graphene
-graphql
+graphql==0.0.4
 python-jose
