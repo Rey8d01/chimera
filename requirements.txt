@@ -1,5 +1,5 @@
 tornado
-motor
+motor==3.7.1
 # motorengine >= 0.9
 tredis
 transliterate
