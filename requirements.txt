@@ -5,4 +5,4 @@ tredis
 transliterate
 graphene
 graphql
-python-jose
+python-jose==3.5.0
