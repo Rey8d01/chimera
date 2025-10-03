@@ -1,0 +1,86 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# C extensions
+*.so
+
+# Packaging / build artifacts
+.Python
+build/
+dist/
+sdist/
+wheels/
+downloads/
+.eggs/
+*.egg-info/
+*.egg
+pip-wheel-metadata/
+share/python-wheels/
+MANIFEST
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Testing / coverage
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.hypothesis/
+*.cover
+*.py,cover
+.cache/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# Linters / formatters
+.ruff_cache/
+
+# Virtual environments and env files
+.venv/
+venv/
+ENV/
+env/
+.env
+.env.*
+.python-version
+.pyenv
+
+# PEP 582 local packages
+__pypackages__/
+
+# SQLite databases
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# Editors / OS
+.vscode/
+.idea/
+.zed/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+*.tmp
+*.orig
+
+# Docker
+compose.override.yml
+volumes/
