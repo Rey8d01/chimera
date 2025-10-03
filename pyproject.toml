@@ -1,0 +1,107 @@
+[project]
+name = "chimera"
+version = "0.1.0"
+description = "Python pet project"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiosql>=13.4",
+    "aiosqlite>=0.21.0",
+    "fastapi[standard]>=0.115.14",
+    "orjson>=3.10.18",
+    "pydantic-extra-types>=2.10.5",
+    "pydantic-settings>=2.10.1",
+    "pyjwt>=2.10.1",
+    "typer>=0.16.0",
+]
+
+[dependency-groups]
+dev = [
+    "basedpyright>=1.29.4",
+    "mypy>=1.15.0",
+    "ruff>=0.9.9",
+    "ty>=0.0.1a21",
+]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+reportUnusedCallResult = false
+reportExplicitAny = false
+reportUnknownMemberType = false
+reportInvalidCast = false
+
+[tool.mypy]
+strict = true
+follow_imports = "silent"
+check_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+
+plugins = ['pydantic.mypy']
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+# init_typed = true
+warn_required_dynamic_aliases = true
+
+# [tool.bandit]
+# exclude_dirs = ["*/tests*"]
+
+[tool.ruff]
+unsafe-fixes = true
+extend-exclude = [".idea", ".zed", "*.ipynb"]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "B",    # flake8-bugbear.
+    "C4",   # flake8-comprehensions.
+    "C90",  # mccabe. Sometimes it's useful to see complexity.
+    "D",    # pydocstyle.
+    "E",    # pycodestyle.
+    "F",    # Pyflakes.
+    "FA",   # flake8-future-annotations.
+    "FURB", # refurb.
+    "I",    # isort.
+    "ISC",  # flake8-implicit-str-concat.
+    "W",    # pycodestyle.
+    "TC",   # flake8-type-checking. It's not so good with TYPE_CHECKING, so we use TC0 and TC1 in flake8.
+    "TID",  # flake8-tidy-imports.
+    # "T20",  # flake8-print.
+    "PIE",  # flake8-pie.
+    "PERF", # perflint.
+    "PL",   # pylint.
+    "PTH",  # flake8-pathlib.
+    "DTZ",  # flake8-datetimez.
+    "UP",   # pyupgrade.
+    "RUF",  # Ruff-specific rules.
+    "SIM",  # flake8-simplify.
+    "RET",  # flake8-return.
+]
+ignore = [
+    "E501",
+    "B904",
+    "D1",
+    "D401",
+    "UP047",
+    "RUF012", # Sometimes it's useful and need to off.
+    # "PLR6301", # Method could be a function or a staticmethod. Too much noise.
+]
+
+[tool.ruff.lint.flake8-type-checking]
+runtime-evaluated-base-classes = ["pydantic.BaseModel"]
+strict = true
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.ty.rules]
+index-out-of-bounds = "ignore"
+
+# [tool.pytest.ini_options]
+# testpaths = ["tests"]
