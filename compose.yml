@@ -1,0 +1,47 @@
+services:
+  web:
+    # Build the image from the Dockerfile in the current directory
+    build: .
+    environment:
+      # Set the environment variable for the FastAPI application
+      - ENV=production
+      - DEBUG=0
+      - PYTHONPATH=/
+
+    # Host the FastAPI application on port 8000
+    ports:
+      - "80:80"
+
+    # Volume to persist database data
+    volumes:
+      - ./volumes/db:/app/db/data
+
+    restart: on-failure:5
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 1024m
+
+    develop:
+      # Create a `watch` configuration to update the app
+      # https://docs.docker.com/compose/file-watch/#compose-watch-versus-bind-mounts
+      watch:
+        # Sync the working directory with the `/app` directory in the container
+        - action: sync
+          path: .
+          target: /app
+          # Exclude the project virtual environment — it could be for a
+          # different platform in the container
+          ignore:
+            - .venv/
+
+        # Rebuild the image if dependencies change by checking uv.lock
+        - action: rebuild
+          path: ./uv.lock
+        - action: rebuild
+          path: ./compose.yml
+        - action: rebuild
+          path: ./compose.override.yml
+
+    command: web
