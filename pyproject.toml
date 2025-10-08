@@ -19,6 +19,9 @@ dependencies = [
 dev = [
     "basedpyright>=1.29.4",
     "mypy>=1.15.0",
+    "pre-commit>=4.3.0",
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.2.0",
     "ruff>=0.9.9",
     "ty>=0.0.1a21",
 ]
@@ -103,5 +106,7 @@ convention = "pep257"
 [tool.ty.rules]
 index-out-of-bounds = "ignore"
 
-# [tool.pytest.ini_options]
-# testpaths = ["tests"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+pythonpath = ["src"]
