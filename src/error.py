@@ -7,11 +7,11 @@ from src.auth.error import AuthFailed, UserAlreadyExists
 
 def install_handlers(app: FastAPI) -> None:
     @app.exception_handler(UserAlreadyExists)
-    async def exists(_request: Request, _exc: UserAlreadyExists) -> JSONResponse:  # noqa: RUF029
+    def exists(_request: Request, _exc: UserAlreadyExists) -> JSONResponse:
         return JSONResponse({"detail": "Email already exists"}, status_code=409)
 
     @app.exception_handler(AuthFailed)
-    async def auth(_request: Request, _exc: AuthFailed) -> JSONResponse:  # noqa: RUF029
+    def auth(_request: Request, _exc: AuthFailed) -> JSONResponse:
         return JSONResponse({"detail": "Invalid credentials"}, status_code=401)
 
 

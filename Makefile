@@ -1,4 +1,7 @@
 PYTHON_SRC = .
+PYTEST = pytest
+PYTEST_ARGS =
+TESTS =
 
 .PHONY: lint
 lint:
@@ -19,6 +22,11 @@ type-check:
 
 .PHONY: all
 all: lint format type-check
+
+.PHONY: test
+test:
+	@echo "Running pytest..."
+	$(PYTEST) $(PYTEST_ARGS) $(TESTS)
 
 .PHONY: clean
 clean:
