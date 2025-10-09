@@ -55,6 +55,7 @@ ENV/
 env/
 .env
 .env.*
+!.env.example
 .python-version
 .pyenv
 

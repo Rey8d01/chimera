@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict()
 
     debug: bool = False
+    demo_env: str = "From config.py"
     app_name: str = "chimera"
     app_description: str = "Python project example in docker"
 
