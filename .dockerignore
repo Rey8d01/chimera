@@ -6,12 +6,39 @@ __pycache__
 *.pyd
 
 # Ignore environment-specific files
-.env
-*.env
-.venv
+.venv/
 venv/
 virtualenv/
-ENV/
+
+# Ignore build artifacts
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Ignore other miscellaneous files
+.github/
+.env.example
+.pre-commit-config.yaml
+AGENTS.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+LICENSE
+Makefile
+README.md
+
+# Ignore Git specific files and directories
+.git/
+.gitignore
+
+# Ignore Docker related files
+Dockerfile
+.dockerignore
+compose.yml
+compose.override.yml
+
+# Ignore any other file or directory that is not necessary for the build process
+*.log
+*.tmp
 
 # Ignore IDE and editor specific files
 .vscode/
@@ -19,33 +46,3 @@ ENV/
 *.swp
 *.swo
 .zed/
-
-# Ignore Docker related files
-Dockerfile
-docker-compose.yml
-.dockerignore
-
-# Ignore build artifacts
-build/
-dist/
-*.egg-info/
-.mypy_cache/
-.ruff_cache/
-
-# Ignore documentation related files
-docs/
-mkdocs.yml
-
-# Ignore other miscellaneous files
-README.md
-LICENSE
-CHANGELOG.md
-Makefile
-
-# Ignore Git specific files and directories
-.git/
-.gitignore
-
-# Ignore any other file or directory that is not necessary for the build process
-*.log
-*.tmp
