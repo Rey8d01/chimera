@@ -10,6 +10,26 @@ Chimera is a web application designed to provide a user-friendly interface for m
 
 To run chimera in development mode, you can use the following command:
 
+#### Docker Compose
+
+Make compose.override.yml file and override the environment variables as needed. Example:
+
+```yaml
+services:
+  web:
+    environment:
+      - ENV=dev
+      - DEBUG=1
+```
+
+Then run:
+
+```bash
+docker compose up --build --watch
+# or to just run without rebuilding
+docker compose watch
+```
+
 #### Local
 
 ```bash
@@ -21,14 +41,6 @@ fastapi dev --host 0.0.0.0 --port 80 ./src/main.py
 ```bash
 docker build -t local:chimera .
 docker run --rm -v ./src:/app/src -p 80:80 --name chimera local:chimera
-```
-
-#### Docker Compose
-
-```bash
-docker compose up --build --watch
-# or to just run without rebuilding
-docker compose watch
 ```
 
 ### Production Mode
@@ -50,13 +62,6 @@ docker compose exec web python ./cli.py --help
 
 ## Migrations
 Database migrations are managed using the `migrate_sqlite.py` script. To apply migrations, use the following command:
-
-```bash
-python ./db/migrate_sqlite.py up
-python ./db/migrate_sqlite.py down 1
-```
-
-or inside the Docker container:
 
 ```bash
 docker compose exec web python ./db/migrate_sqlite.py up

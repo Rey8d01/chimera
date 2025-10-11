@@ -14,15 +14,11 @@ if TYPE_CHECKING:
 load_dotenv()
 
 DB_DIR = pathlib.Path(__file__).resolve().parent
-DB_PATH = pathlib.Path(DB_DIR / "data" / "app.sqlite")
+DEFAULT_DB_PATH = pathlib.Path(DB_DIR / "data" / "app.sqlite")
 MIGR_DIR = DB_DIR / "migrations"
 
 UP_MARK = "-- +migrate Up"
 DOWN_MARK = "-- +migrate Down"
-
-
-def ensure_db_dir() -> None:
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
 async def ensure_meta(conn: aiosqlite.Connection) -> None:
@@ -82,10 +78,14 @@ async def apply_one(conn: aiosqlite.Connection, fname: str, sql_body: str, direc
         raise RuntimeError(f"Failed to apply {direction} {fname}: {e}") from e
 
 
-async def migrate(direction: UP_DOWN = "up", steps: int | None = None) -> None:
-    ensure_db_dir()
+async def migrate(
+    direction: UP_DOWN = "up",
+    steps: int | None = None,
+    db_path: str | pathlib.Path | None = None,
+) -> None:
+    target_path = pathlib.Path(db_path) if db_path is not None else DEFAULT_DB_PATH
 
-    async with aiosqlite.connect(DB_PATH) as conn:
+    async with aiosqlite.connect(str(target_path)) as conn:
         await ensure_meta(conn)
         applied = await get_applied(conn)
 
