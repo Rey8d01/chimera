@@ -47,3 +47,18 @@ Chimera provides a command-line interface (CLI) for various administrative tasks
 ```bash
 docker compose exec web python ./cli.py --help
 ```
+
+## Migrations
+Database migrations are managed using the `migrate_sqlite.py` script. To apply migrations, use the following command:
+
+```bash
+python ./db/migrate_sqlite.py up
+python ./db/migrate_sqlite.py down 1
+```
+
+or inside the Docker container:
+
+```bash
+docker compose exec web python ./db/migrate_sqlite.py up
+docker compose exec web python ./db/migrate_sqlite.py down 1
+```

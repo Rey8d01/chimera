@@ -4,10 +4,10 @@ services:
     build: .
     environment:
       # Set the environment variable for the FastAPI application
+      - PYTHONPATH=/
       - ENV=production
       - DEBUG=0
       - DEMO_ENV="From complose.yml"
-      - PYTHONPATH=/
 
     # Host the FastAPI application on port 8000
     ports:

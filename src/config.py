@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     debug: bool = False
     demo_env: str = "From config.py"
     app_name: str = "chimera"
-    app_description: str = "Python project example in docker"
+    app_description: str = "Pet project, powered by Python"
 
     sqlite_path: str = "/app/db/data/app.sqlite"
     jwt_algo: str = "HS256"

@@ -35,6 +35,7 @@ Dockerfile
 .dockerignore
 compose.yml
 compose.override.yml
+volumes/
 
 # Ignore any other file or directory that is not necessary for the build process
 *.log

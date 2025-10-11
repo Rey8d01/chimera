@@ -13,9 +13,9 @@ if TYPE_CHECKING:
 
 load_dotenv()
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
-DB_PATH = pathlib.Path(ROOT / "db" / "data" / "app.sqlite")
-MIGR_DIR = ROOT / "db" / "migrations"
+DB_DIR = pathlib.Path(__file__).resolve().parent
+DB_PATH = pathlib.Path(DB_DIR / "data" / "app.sqlite")
+MIGR_DIR = DB_DIR / "migrations"
 
 UP_MARK = "-- +migrate Up"
 DOWN_MARK = "-- +migrate Down"
