@@ -49,8 +49,8 @@ init_forbid_extra = true
 # init_typed = true
 warn_required_dynamic_aliases = true
 
-# [tool.bandit]
-# exclude_dirs = ["*/tests*"]
+[tool.bandit]
+exclude_dirs = ["tests"]
 
 [tool.ruff]
 unsafe-fixes = true
