@@ -38,5 +38,5 @@ jobs:
       - name: Type check
         run: uv run make type-check
 
-      # - name: Run tests
-      #   run: uv run make test
+      - name: Run tests
+        run: uv run make test
