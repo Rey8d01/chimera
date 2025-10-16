@@ -1,0 +1,8 @@
+services:
+  tests:
+    build:
+      context: ..
+      dockerfile: tests/Dockerfile
+    environment:
+      - ENV=test
+      - DEBUG=0
