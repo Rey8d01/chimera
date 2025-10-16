@@ -28,6 +28,16 @@ test:
 	@echo "Running pytest..."
 	$(PYTEST) $(PYTEST_ARGS) $(TESTS)
 
+.PHONY: test-docker
+test-docker:
+	@echo "Running pytest inside Docker (fresh build)..."
+	docker compose -f tests/compose.yml run --rm --build tests $(PYTEST) $(PYTEST_ARGS) $(TESTS)
+
+.PHONY: test-docker-fast
+test-docker-fast:
+	@echo "Running pytest inside Docker..."
+	docker compose -f tests/compose.yml run --rm tests $(PYTEST) $(PYTEST_ARGS) $(TESTS)
+
 .PHONY: clean
 clean:
 	@echo "Cleaning up pycache files..."
