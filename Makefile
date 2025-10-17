@@ -2,6 +2,7 @@ PYTHON_SRC = .
 PYTEST = pytest
 PYTEST_ARGS =
 TESTS =
+COVERAGE_FLAGS = --cov=src --cov-report=term-missing
 
 .PHONY: lint
 lint:
@@ -26,17 +27,17 @@ all: lint format type-check
 .PHONY: test
 test:
 	@echo "Running pytest..."
-	$(PYTEST) $(PYTEST_ARGS) $(TESTS)
+	$(PYTEST) $(COVERAGE_FLAGS) $(PYTEST_ARGS) $(TESTS)
 
 .PHONY: test-docker
 test-docker:
 	@echo "Running pytest inside Docker (fresh build)..."
-	docker compose -f tests/compose.yml run --rm --build tests $(PYTEST) $(PYTEST_ARGS) $(TESTS)
+	docker compose -f tests/compose.yml run --rm --build tests $(PYTEST) $(COVERAGE_FLAGS) $(PYTEST_ARGS) $(TESTS)
 
 .PHONY: test-docker-fast
 test-docker-fast:
 	@echo "Running pytest inside Docker..."
-	docker compose -f tests/compose.yml run --rm tests $(PYTEST) $(PYTEST_ARGS) $(TESTS)
+	docker compose -f tests/compose.yml run --rm tests $(PYTEST) $(COVERAGE_FLAGS) $(PYTEST_ARGS) $(TESTS)
 
 .PHONY: clean
 clean:

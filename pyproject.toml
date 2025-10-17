@@ -21,6 +21,7 @@ dev = [
     "mypy>=1.15.0",
     "pre-commit>=4.3.0",
     "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
     "pytest-asyncio>=1.2.0",
     "ruff>=0.9.9",
     "ty>=0.0.1a21",
@@ -105,6 +106,10 @@ convention = "pep257"
 
 [tool.ty.rules]
 index-out-of-bounds = "ignore"
+
+[tool.ty.environment]
+# Multiple directories (priority order)
+root = ["."]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
