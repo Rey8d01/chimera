@@ -1,5 +1,8 @@
 # chimera
 
+[![Tests](https://github.com/Rey8d01/chimera/actions/workflows/ci.yml/badge.svg)](https://github.com/Rey8d01/chimera/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/Rey8d01/chimera/badge.svg?branch=master)](https://coveralls.io/github/Rey8d01/chimera?branch=master)
+
 ## Overview
 
 Chimera is a web application designed to provide a user-friendly interface for managing and interacting with various services. It is built using modern web technologies and aims to simplify the deployment and management of applications.
