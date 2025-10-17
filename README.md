@@ -1,6 +1,6 @@
 # chimera
 
-[![Tests](https://github.com/Rey8d01/chimera/actions/workflows/ci.yml/badge.svg)](https://github.com/Rey8d01/chimera/actions/workflows/ci.yml)
+[![Tests](https://github.com/Rey8d01/chimera/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/Rey8d01/chimera/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/github/Rey8d01/chimera/badge.svg?branch=master)](https://coveralls.io/github/Rey8d01/chimera?branch=master)
 
 ## Overview
