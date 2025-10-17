@@ -25,6 +25,7 @@ dev = [
     "pytest-asyncio>=1.2.0",
     "ruff>=0.9.9",
     "ty>=0.0.1a21",
+    "coveralls>=4.0.1",
 ]
 
 [tool.pyright]

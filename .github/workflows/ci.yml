@@ -39,4 +39,9 @@ jobs:
         run: uv run make type-check
 
       - name: Run tests
-        run: uv run make test
+        run: uv run make test COVERAGE_FLAGS='--cov=src --cov-report=xml'
+
+      - name: Upload coverage to Coveralls
+        run: coveralls
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
