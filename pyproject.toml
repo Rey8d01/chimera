@@ -71,7 +71,7 @@ select = [
     "I",    # isort.
     "ISC",  # flake8-implicit-str-concat.
     "W",    # pycodestyle.
-    "TC",   # flake8-type-checking. It's not so good with TYPE_CHECKING, so we use TC0 and TC1 in flake8.
+    "TC",   # flake8-type-checking.
     "TID",  # flake8-tidy-imports.
     # "T20",  # flake8-print.
     "PIE",  # flake8-pie.
@@ -89,9 +89,6 @@ ignore = [
     "B904",
     "D1",
     "D401",
-    "UP047",
-    "RUF012", # Sometimes it's useful and need to off.
-    # "PLR6301", # Method could be a function or a staticmethod. Too much noise.
 ]
 
 [tool.ruff.lint.flake8-type-checking]
