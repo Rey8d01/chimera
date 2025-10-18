@@ -80,17 +80,13 @@ def generate_password(
     if length < need:
         raise SecurityError("length < sum of minimum requirements")
 
-    pool = U + L + D + S
-    if not pool:
-        raise SecurityError("character pool is empty")
-
     parts = (
         [secrets.choice(U) for _ in range(min_upper)]
         + [secrets.choice(L) for _ in range(min_lower)]
         + [secrets.choice(D) for _ in range(min_digits)]
         + [secrets.choice(S) for _ in range(min_symbols)]
     )
-    parts += [secrets.choice(pool) for _ in range(length - need)]
+    parts += [secrets.choice(U + L + D + S) for _ in range(length - need)]
 
     random.SystemRandom().shuffle(parts)
     return SecretStr("".join(parts))

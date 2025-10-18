@@ -22,6 +22,7 @@ This guide keeps contributions aligned with the FastAPI codebase and tooling.
 
 ## Testing Guidelines
 - Primary stack: `pytest` with `pytest-asyncio`; prefer `httpx.ASGITransport` clients for API paths.
+- Treat every external interface (HTTP, CLI, Celery, etc.) as an integration surface: run it through the real runtime, rely on a temporary SQLite database with actual migrations, and keep our own services in play. Mock only third-party systems we do not control.
 - File naming `tests/test_<module>.py`; test functions start with `test_`. Group feature-specific cases under subpackages (e.g., `tests/auth/`).
 - Spin up the suite via `make test`; target a case with `pytest tests/auth/test_router.py::test_login_returns_token_for_valid_credentials`.
 
