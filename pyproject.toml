@@ -73,7 +73,7 @@ select = [
     "W",    # pycodestyle.
     "TC",   # flake8-type-checking.
     "TID",  # flake8-tidy-imports.
-    # "T20",  # flake8-print.
+    "T20",  # flake8-print.
     "PIE",  # flake8-pie.
     "PERF", # perflint.
     "PL",   # pylint.

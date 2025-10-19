@@ -23,10 +23,10 @@ async def test_create_user_cli_integration() -> None:
 
     assert result.exit_code == 0
     match = re.fullmatch(
-        r"User created\. User ID: (\d+) Email: user@example\.com password: (.+)\n",
+        r"User created\. User ID: (\d+) Email: user@example\.com\s*password: (.+)\n",
         result.stdout,
     )
-    assert match is not None
+    assert match is not None, result.stdout
     user_id = int(match.group(1))
     plain_password = match.group(2)
 
@@ -39,15 +39,15 @@ async def test_create_user_cli_integration() -> None:
 
 
 async def test_flush_password_cli_integration(registered_user: AuthUser) -> None:
-    flush_result = await invoke_cli(auth_cli_app, "flush-password", registered_user["email"])
+    result = await invoke_cli(auth_cli_app, "flush-password", registered_user["email"])
 
-    assert flush_result.exit_code == 0
-    flush_match = re.fullmatch(
-        rf"Password flushed\. Email: {re.escape(registered_user['email'])} password: (.+)\n",
-        flush_result.stdout,
+    assert result.exit_code == 0
+    match = re.fullmatch(
+        rf"Password flushed\. Email: {re.escape(registered_user['email'])}\s*password: (.+)\n",
+        result.stdout,
     )
-    assert flush_match is not None, flush_result.stdout
-    new_password = flush_match.group(1)
+    assert match is not None, result.stdout
+    new_password = match.group(1)
 
     auth_user_repo: AuthUserRepo = AuthUserRepo()
     updated_user = await auth_user_repo.get_by_id(registered_user["id"])

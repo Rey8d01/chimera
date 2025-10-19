@@ -7,23 +7,20 @@ import sys
 from typing import TYPE_CHECKING, Literal
 
 import aiosqlite
-from dotenv import load_dotenv
 
 if TYPE_CHECKING:
     UP_DOWN = Literal["up", "down"]
 
 logger = logging.getLogger("MigrateSQLite")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.DEBUG)
+console_handler.setLevel(logging.INFO)
 
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 console_handler.setFormatter(formatter)
 
 logger.addHandler(console_handler)
-
-load_dotenv()
 
 DB_DIR = pathlib.Path(__file__).resolve().parent
 DEFAULT_DB_PATH = pathlib.Path(DB_DIR / "data" / "app.sqlite")
@@ -84,7 +81,7 @@ async def apply_one(conn: aiosqlite.Connection, fname: str, sql_body: str, direc
         else:
             await conn.execute("DELETE FROM schema_migrations WHERE id = ?", (fname,))
         await conn.execute("COMMIT;")
-        logger.debug(f"{direction.upper()}: {fname}")
+        logger.info(f"{direction.upper()}: {fname}")
     except Exception as e:
         await conn.execute("ROLLBACK;")
         raise RuntimeError(f"Failed to apply {direction} {fname}: {e}") from e
