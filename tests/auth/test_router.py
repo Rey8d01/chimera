@@ -5,6 +5,7 @@ from http import HTTPStatus
 from typing import TYPE_CHECKING
 
 import jwt
+import pytest
 
 from src.config import settings
 from tests.auth.conftest import TEST_PASSWORD
@@ -44,7 +45,8 @@ async def test_me_returns_current_user(async_client: AsyncClient, authorized_use
     assert response.json() == {"id": authorized_user["id"], "email": authorized_user["email"], "role": "user"}
 
 
-async def test_me_rejects_broken_token(async_client: AsyncClient, registered_user: AuthUser) -> None:
+@pytest.mark.usefixtures("registered_user")
+async def test_me_rejects_broken_token(async_client: AsyncClient) -> None:
     response = await async_client.get(ME_URL, headers={"Authorization": "Bearer broken token"})
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED

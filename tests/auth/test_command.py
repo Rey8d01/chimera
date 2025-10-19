@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
+import pytest
 from pydantic import SecretStr
 
 from src import security
@@ -11,12 +12,11 @@ from src.auth.repository import AuthUserRepo
 from tests.utils import invoke_cli
 
 if TYPE_CHECKING:
-    from aiosqlite import Connection
-
     from src.auth.repository import AuthUser
 
 
-async def test_create_user_cli_integration(test_database: Connection) -> None:  # pyright: ignore[reportUnusedParameter]
+@pytest.mark.usefixtures("test_database")
+async def test_create_user_cli_integration() -> None:
     email = "user@example.com"
 
     result = await invoke_cli(auth_cli_app, "create-user", email)
@@ -46,7 +46,7 @@ async def test_flush_password_cli_integration(registered_user: AuthUser) -> None
         rf"Password flushed\. Email: {re.escape(registered_user['email'])} password: (.+)\n",
         flush_result.stdout,
     )
-    assert flush_match is not None
+    assert flush_match is not None, flush_result.stdout
     new_password = flush_match.group(1)
 
     auth_user_repo: AuthUserRepo = AuthUserRepo()
