@@ -6,10 +6,6 @@ class RegisterUserIn(BaseModel):
     password: SecretStr
 
 
-class RegisterUserOut(BaseModel):
-    id: PositiveInt
-
-
 class UserOut(BaseModel):
     id: PositiveInt
     email: EmailStr

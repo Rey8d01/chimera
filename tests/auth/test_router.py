@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import jwt
 
@@ -18,16 +18,6 @@ if TYPE_CHECKING:
 LOGIN_URL = "/auth/login"
 ME_URL = "/auth/me"
 LOG_SETTINGS_URL = "/auth/log-settings"
-
-
-async def login_user(async_client: AsyncClient, email: str, password: str) -> str:  # todo replace with fixture
-    response = await async_client.post(
-        LOGIN_URL,
-        data={"username": email, "password": password},
-    )
-    response.raise_for_status()
-    payload: dict[str, Any] = response.json()
-    return str(payload["access_token"])
 
 
 async def test_login_success_returns_token(async_client: AsyncClient, registered_user: AuthUser) -> None:
@@ -47,20 +37,15 @@ async def test_login_rejects_invalid_credentials(async_client: AsyncClient, regi
     assert response.json() == {"detail": "Invalid credentials"}
 
 
-async def test_me_returns_current_user(async_client: AsyncClient, registered_user: AuthUser) -> None:
-    token = await login_user(async_client, registered_user["email"], TEST_PASSWORD)
-
-    response = await async_client.get(ME_URL, headers={"Authorization": f"Bearer {token}"})
+async def test_me_returns_current_user(async_client: AsyncClient, authorized_user: AuthUser) -> None:
+    response = await async_client.get(ME_URL)
 
     assert response.status_code == HTTPStatus.OK
-    assert response.json() == {"id": registered_user["id"], "email": registered_user["email"], "role": "user"}
+    assert response.json() == {"id": authorized_user["id"], "email": authorized_user["email"], "role": "user"}
 
 
 async def test_me_rejects_broken_token(async_client: AsyncClient, registered_user: AuthUser) -> None:
-    token = await login_user(async_client, registered_user["email"], TEST_PASSWORD)
-    broken_token = f"{token}broken"
-
-    response = await async_client.get(ME_URL, headers={"Authorization": f"Bearer {broken_token}"})
+    response = await async_client.get(ME_URL, headers={"Authorization": "Bearer broken token"})
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
     assert response.json() == {"detail": "Could not validate credentials"}
