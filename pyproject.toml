@@ -60,6 +60,7 @@ line-length = 120
 
 [tool.ruff.lint]
 select = [
+    "FAST", # FastAPI linter.
     "B",    # flake8-bugbear.
     "C4",   # flake8-comprehensions.
     "C90",  # mccabe. Sometimes it's useful to see complexity.

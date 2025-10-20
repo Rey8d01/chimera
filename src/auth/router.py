@@ -15,13 +15,13 @@ from .schema import TokenOut, UserOut
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/login", response_model=TokenOut)
+@router.post("/login")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> TokenOut:
     token = await service.login(form_data.username, SecretStr(form_data.password))
     return TokenOut(access_token=token)
 
 
-@router.get("/me", response_model=UserOut)
+@router.get("/me")
 async def me(user: Annotated[AuthUser, Depends(get_current_user)]) -> UserOut:
     return UserOut(id=user["id"], email=user["email"], role=user["role"])
 
