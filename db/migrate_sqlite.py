@@ -81,7 +81,7 @@ async def apply_one(conn: aiosqlite.Connection, fname: str, sql_body: str, direc
         else:
             await conn.execute("DELETE FROM schema_migrations WHERE id = ?", (fname,))
         await conn.execute("COMMIT;")
-        logger.info(f"{direction.upper()}: {fname}")
+        logger.info("%s: %s", direction.upper(), fname)
     except Exception as e:
         await conn.execute("ROLLBACK;")
         raise RuntimeError(f"Failed to apply {direction} {fname}: {e}") from e
