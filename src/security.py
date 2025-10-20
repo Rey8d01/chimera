@@ -68,25 +68,22 @@ def generate_password(
     """Generate a strong random password using standard library helpers.
 
     Ensures minimum counts per class and shuffles via SystemRandom.
-    """
-    U, L, D, S = (
-        string.ascii_uppercase,
-        string.ascii_lowercase,
-        string.digits,
-        string.punctuation,
-    )
 
+    """
     need = min_upper + min_lower + min_digits + min_symbols
     if length < need:
         raise SecurityError("length < sum of minimum requirements")
 
     parts = (
-        [secrets.choice(U) for _ in range(min_upper)]
-        + [secrets.choice(L) for _ in range(min_lower)]
-        + [secrets.choice(D) for _ in range(min_digits)]
-        + [secrets.choice(S) for _ in range(min_symbols)]
+        [secrets.choice(string.ascii_uppercase) for _ in range(min_upper)]
+        + [secrets.choice(string.ascii_lowercase) for _ in range(min_lower)]
+        + [secrets.choice(string.digits) for _ in range(min_digits)]
+        + [secrets.choice(string.punctuation) for _ in range(min_symbols)]
     )
-    parts += [secrets.choice(U + L + D + S) for _ in range(length - need)]
+    parts += [
+        secrets.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits + string.punctuation)
+        for _ in range(length - need)
+    ]
 
     random.SystemRandom().shuffle(parts)
     return SecretStr("".join(parts))

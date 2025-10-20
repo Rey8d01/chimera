@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from src.security import check_password, create_access_token, hash_password
 
-from .error import AuthFailed, UserAlreadyExists
+from .error import AuthError, UserAlreadyExistsError
 from .repository import AuthUserRepo
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ async def register(email: str, password: SecretStr) -> int:
     auth_user_repo: AuthUserRepo = AuthUserRepo()
 
     if await auth_user_repo.get_by_email(email):
-        raise UserAlreadyExists
+        raise UserAlreadyExistsError
 
     return await auth_user_repo.create(email, hash_password(password))
 
@@ -27,7 +27,7 @@ async def flush_password(email: str, new_password: SecretStr) -> None:
 
     row = await auth_user_repo.get_by_email(email)
     if not row:
-        raise AuthFailed
+        raise AuthError
 
     await auth_user_repo.update_password(row["id"], hash_password(new_password))
 
@@ -37,7 +37,7 @@ async def login(email: str, password: SecretStr) -> str:
 
     row = await auth_user_repo.get_by_email(email)
     if not row or not check_password(password, row["pwd"]):
-        raise AuthFailed
+        raise AuthError
 
     return create_access_token(sub=str(row["id"]))
 
